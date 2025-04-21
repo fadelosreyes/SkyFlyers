@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Vuelo;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class VueloController extends Controller
 {
@@ -62,4 +63,27 @@ class VueloController extends Controller
     {
         //
     }
+
+    public function resultados(Request $request)
+{
+    $origen = $request->input('origen');
+    $destino = $request->input('destino');
+    $startDate = $request->input('start_date');
+    $endDate = $request->input('end_date');
+
+    $vuelos = Vuelo::with(['aeropuertoOrigen', 'aeropuertoDestino'])
+        ->where('id_aeropuerto_origen', $origen)
+        ->where('id_aeropuerto_destino', $destino)
+        ->whereBetween('fecha_salida', [$startDate, $endDate])
+        ->get();
+
+    return Inertia::render('resultados', [
+        'vuelos' => $vuelos,
+        'startDate' => $startDate,
+        'endDate' => $endDate,
+    ]);
+}
+
+
+
 }

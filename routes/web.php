@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AeropuertoController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VueloController;
 use Illuminate\Foundation\Application;
@@ -13,7 +14,7 @@ Route::get('/', function () {
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
     ]);
-});
+})->name('principal');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
@@ -25,6 +26,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::resource('vuelos', VueloController::class);
+Route::get('/vuelos/resultados', [VueloController::class, 'resultados']);
+Route::resource('aeropuertos', AeropuertoController::class);
 
 require __DIR__.'/auth.php';

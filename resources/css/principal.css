@@ -4,12 +4,18 @@
     color: white;
     padding: 1rem 2rem;
     display: flex;
-    justify-content: space-between;
     align-items: center;
 }
 
+.enlaces-navegacion {
+    flex-grow: 1; /* Esto hace que la navegación crezca para ocupar el espacio disponible entre el logo y el botón */
+    display: flex;
+    justify-content: flex-start;
+}
+
 .enlaces-navegacion a {
-    margin: 0 1rem;
+    margin-left: 6rem;
+    margin-right: 1rem;
     color: white;
     text-decoration: none;
     font-weight: bold;
@@ -83,6 +89,43 @@
     padding: 0.5rem 1.2rem;
     border-radius: 0.25rem;
     cursor: pointer;
+}
+
+/* Autocomplete */
+.autocomplete {
+    position: relative;
+    flex: 1; /* Para que el input crezca equitativamente */
+}
+
+.autocomplete input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.autocomplete .dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 20; /* Por encima del buscador */
+    list-style: none;
+    margin: 4px 0 0;
+    padding: 0;
+    border-radius: 0 0 0.25rem 0.25rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.autocomplete .dropdown li {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+}
+
+.autocomplete .dropdown li:hover {
+    background-color: #f0f0f0;
 }
 
 /* Servicios */
