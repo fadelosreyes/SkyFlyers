@@ -10,9 +10,20 @@ class AeropuertoController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $q = $request->get('q', '');
+
+        // Buscamos por nombre, ciudad o código IATA
+        $results = Aeropuerto::query()
+            ->where('nombre', 'ILIKE', "%{$q}%")
+            ->orWhere('ciudad', 'ILIKE', "%{$q}%")
+            ->orWhere('codigo_iata', 'ILIKE', "%{$q}%")
+            ->orderBy('nombre')
+            ->limit(10)
+            ->get(['id', 'nombre', 'ciudad', 'pais', 'codigo_iata']);
+
+        return response()->json($results);
     }
 
     /**
