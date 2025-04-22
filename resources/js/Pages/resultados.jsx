@@ -10,18 +10,20 @@ export default function Resultados({ vuelos, startDate, endDate }) {
     <>
       <Head title="Resultados de vuelos" />
       <header className="encabezado">
-        <div className="text-2xl font-bold">✈️</div>
-        <nav className="enlaces-navegacion">
-          <Link href="/" className="nav-link">Inicio</Link>
-          <Link href="/vuelos" className="nav-link">Viajes</Link>
-          <Link href="#" className="nav-link">Sobre nosotros</Link>
-          <Link href="#" className="nav-link">Contacto</Link>
-        </nav>
-        <div className="idioma-sesion">
-          <span className="idioma">🇪🇸</span>
-          <PrimaryButton className="btn-login">Iniciar sesión</PrimaryButton>
-        </div>
-      </header>
+                  <figure>
+                      <img src="/img/_12534FEB-C593-4152-9369-72787BB3F5C6_-removebg-preview 2.png" alt="avion" height={50} />
+                  </figure>
+                  <nav className="enlaces-navegacion">
+                    <Link href="/">Inicio</Link>
+                    <Link href="#">Mis Viajes</Link>
+                    <Link href="/sobre-nosotros">Sobre Nosotros</Link>
+                    <Link href="#">Contacto</Link>
+                  </nav>
+                  <div className="idioma-sesion">
+                    <img src="/img/image 1.png" alt="España" height={30} />
+                    <button>Iniciar sesión</button>
+                  </div>
+              </header>
 
       {vuelos.length > 0 ? (
         <table className="tabla-vuelos">

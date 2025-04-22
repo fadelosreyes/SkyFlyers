@@ -1,0 +1,26 @@
+.social-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.5em;
+    justify-content: center;
+    max-width: 40%;
+    margin: 1em auto;
+}
+
+.botones_rrss {
+    background-color: #FF7F50;
+    border: none;
+    margin: 0 auto;
+    display: inline-block;
+    padding: 2em;
+    cursor: pointer;
+}
+
+.botones_rrss img {
+    transition: transform 0.3s ease;
+    width: 90%;
+}
+
+.botones_rrss:hover img {
+    transform: scale(1.1);
+}

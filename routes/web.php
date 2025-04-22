@@ -28,5 +28,11 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/vuelos/resultados', [VueloController::class, 'resultados']);
 Route::resource('aeropuertos', AeropuertoController::class);
+Route::get('/sobre-nosotros', function () {
+    return Inertia::render('sobreNosotros');
+})->name('sobre-nosotros');
+Route::get('/contacto', function () {
+    return Inertia::render('contacto');
+})->name('contacto');
 
 require __DIR__.'/auth.php';

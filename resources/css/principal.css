@@ -1,3 +1,8 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow-y: hidden; /* evita scroll horizontal */
+}
 /* Encabezado */
 .encabezado {
     background-color: #003366;
@@ -5,6 +10,7 @@
     padding: 1rem 2rem;
     display: flex;
     align-items: center;
+    font-size: 1.2em;
 }
 
 .enlaces-navegacion {
@@ -36,7 +42,15 @@
     cursor: pointer;
 }
 
-/* Sección principal (hero) */
+.enlaces-navegacion .active {
+    text-decoration: underline;
+    text-decoration-color: #FF7F50;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 2px;
+  }
+
+
+/* Sección principal */
 .seccion-principal {
     position: relative;
     height: 400px;
@@ -167,3 +181,10 @@
     border-radius: 0.25rem;
     cursor: pointer;
 }
+
+.error-message {
+    color: #e3342f;
+    font-size: 0.875rem;
+    margin-top: 4px;
+  }
+
