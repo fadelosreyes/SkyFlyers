@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VueloController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -13,12 +14,12 @@ Route::get('/', function () {
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
         'phpVersion' => PHP_VERSION,
+        'auth' => [
+            'user' => Auth::user(),
+        ],
     ]);
 })->name('principal');
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -29,10 +30,21 @@ Route::middleware('auth')->group(function () {
 Route::get('/vuelos/resultados', [VueloController::class, 'resultados']);
 Route::resource('aeropuertos', AeropuertoController::class);
 Route::get('/sobre-nosotros', function () {
-    return Inertia::render('sobreNosotros');
+    return Inertia::render(
+        'sobreNosotros',[
+        'auth' => [
+            'user' => Auth::user(),
+        ],
+    ]);
 })->name('sobre-nosotros');
 Route::get('/contacto', function () {
-    return Inertia::render('contacto');
+    return Inertia::render(
+        'contacto',[
+        'auth' => [
+            'user' => Auth::user(),
+        ],
+    ]);
 })->name('contacto');
 
-require __DIR__.'/auth.php';
+
+require __DIR__ . '/auth.php';

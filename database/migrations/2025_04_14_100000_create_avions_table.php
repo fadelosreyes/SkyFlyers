@@ -21,7 +21,8 @@ return new class extends Migration
         $table->timestamps();
     });
 }
-
+//cambiar a numero de filas y poner la clase con su numero de asientos
+//ej... asientos y filas primera...
 
     /**
      * Reverse the migrations.
