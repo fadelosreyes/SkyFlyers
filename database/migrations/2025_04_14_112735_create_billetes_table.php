@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('id_user')->constrained('users');
             $table->string('nombre_pasajero', 255);
             $table->string('documento_identidad', 50);
-            $table->foreignId('id_asiento')->constrained('asientos');
+            $table->foreignId('id_asiento')->constrained('asientos');  // Relacionado con el asiento
             $table->foreignId('id_estado')->constrained('estados');
             $table->string('codigo_QR', 255);
             $table->string('pnr', 10);
@@ -27,7 +27,6 @@ return new class extends Migration
             $table->dateTime('fecha_emision');
             $table->timestamps();
         });
-
     }
 
     /**

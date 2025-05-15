@@ -33,21 +33,12 @@ html, body {
     gap: 0.5rem;
 }
 
-.idioma-sesion button {
-    background-color: #f36430;
-    color: white;
-    border: none;
-    padding: 0.75rem 1.2rem;
-    border-radius: 0.25rem;
-    cursor: pointer;
-}
-
 .enlaces-navegacion .active {
     text-decoration: underline;
     text-decoration-color: #FF7F50;
     text-decoration-thickness: 2px;
     text-underline-offset: 2px;
-  }
+}
 
 
 /* Sección principal */
