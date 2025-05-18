@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('asientos', function (Blueprint $table) {
             $table->id(); // PK simple
-            $table->foreignId('id_vuelo')->constrained('vuelos');
-            $table->foreignId('id_clase')->constrained('clases');
-            $table->foreignId('id_estado')->constrained('estados');
+            $table->foreignId('vuelo_id')->constrained('vuelos');
+            $table->foreignId('clase_id')->constrained('clases');
+            $table->foreignId('estado_id')->constrained('estados');
             $table->string('numero');
+            $table->decimal('precio_base', 8, 2);
             $table->timestamps();
-            $table->unique(['id_vuelo', 'numero']);
+            $table->unique(['vuelo_id', 'numero']);
         });
     }
     /**

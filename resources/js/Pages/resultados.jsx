@@ -10,7 +10,7 @@ export default function Resultados({ vuelos }) {
     return (
         <>
             <Head title="Resultados de vuelos" />
-            <Header activePage="inicio" />
+            <Header activePage="#" />
 
             <div className="flight-results">
                 {vuelos.length > 0 ? (
@@ -19,7 +19,9 @@ export default function Resultados({ vuelos }) {
                             <div className="flight-card" key={v.id}>
                                 <div className="flight-card-header">
                                     <div className="airline">{v.avion?.aerolinea?.nombre || 'Skyflyers'}</div>
-                                    <div className="price">{v.precio_final ?? '—'} €</div>
+                                    <div className="price">
+                                        {v.precio_minimo !== null ? `Desde ${v.precio_minimo} €` : 'Sin plazas disponibles'}
+                                    </div>
                                 </div>
 
                                 <div className="flight-card-body">
@@ -50,11 +52,25 @@ export default function Resultados({ vuelos }) {
 
                                 <div className="flight-card-footer">
                                     <div className="details">
-                                        Duración: {v.duracion_horas ?? '--'}h {v.duracion_minutos ?? '--'}m
+                                        Duración: {(() => {
+                                            const salida = new Date(v.fecha_salida);
+                                            const llegada = new Date(v.fecha_llegada);
+                                            const duracionMs = llegada - salida;
+
+                                            if (isNaN(duracionMs)) return '--';
+
+                                            const duracionMin = Math.floor(duracionMs / 60000);
+                                            const horas = Math.floor(duracionMin / 60);
+                                            const minutos = duracionMin % 60;
+
+                                            return `${horas}h ${minutos}m`;
+                                        })()}
                                     </div>
+
                                     <button
                                         className="btn-reserve"
                                         onClick={() => router.get(`/vuelos/reservar/${v.id}`)}
+                                        disabled={v.precio_minimo === null}
                                     >
                                         Reservar
                                     </button>

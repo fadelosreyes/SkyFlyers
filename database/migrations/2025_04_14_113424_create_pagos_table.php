@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('pagos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_billete')->constrained('billetes');
+            $table->foreignId('billete_id')->constrained('billetes');
             $table->decimal('monto', 10, 2);
-            $table->foreignId('id_metodo_pago')->constrained('metodos_pago');
-            $table->foreignId('id_estado_pago')->constrained('estados_pago');
+            $table->foreignId('metodo_pago_id')->constrained('metodos_pago');
+            $table->foreignId('estado_pago_id')->constrained('estados_pago');
             $table->timestamp('fecha_pago')->useCurrent();
             $table->timestamps();
         });

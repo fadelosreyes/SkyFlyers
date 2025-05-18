@@ -15,10 +15,18 @@ return new class extends Migration
             $table->id();
             $table->string('modelo');
             $table->char('codigo_icao', 4);
-            $table->integer('numero_filas');
-            $table->integer('asientos_por_fila');
             $table->string('matricula')->unique();
             $table->foreignId('aerolinea_id')->constrained('aerolineas');
+
+            $table->integer('filas_primera')->nullable();
+            $table->integer('asientos_por_fila_primera')->nullable();
+
+            $table->integer('filas_business')->nullable();
+            $table->integer('asientos_por_fila_business')->nullable();
+
+            $table->integer('filas_turista')->nullable();
+            $table->integer('asientos_por_fila_turista')->nullable();
+
             $table->timestamps();
         });
     }

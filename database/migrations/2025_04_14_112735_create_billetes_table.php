@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('billetes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('id_user')->constrained('users');
+            $table->foreignId('user_id')->constrained('users');
             $table->string('nombre_pasajero', 255);
             $table->string('documento_identidad', 50);
-            $table->foreignId('id_asiento')->constrained('asientos');  // Relacionado con el asiento
-            $table->foreignId('id_estado')->constrained('estados');
+            $table->foreignId('asiento_id')->constrained('asientos');  // Relacionado con el asiento
+            $table->foreignId('estado_id')->constrained('estados');
             $table->string('codigo_QR', 255);
             $table->string('pnr', 10);
             $table->decimal('recargos', 10, 2)->default(0);

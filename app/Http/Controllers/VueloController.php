@@ -65,25 +65,35 @@ class VueloController extends Controller
     }
 
     public function resultados(Request $request)
-{
-    $origen = $request->input('origen');
-    $destino = $request->input('destino');
-    $startDate = $request->input('start_date');
-    $endDate = $request->input('end_date');
+    {
+        $origen     = $request->input('origen');
+        $destino    = $request->input('destino');
+        $startDate  = $request->input('start_date');
+        $endDate    = $request->input('end_date');
 
-    $vuelos = Vuelo::with(['aeropuertoOrigen', 'aeropuertoDestino'])
-        ->where('id_aeropuerto_origen', $origen)
-        ->where('id_aeropuerto_destino', $destino)
-        ->whereBetween('fecha_salida', [$startDate, $endDate])
-        ->get();
+        $vuelos = Vuelo::with([
+            'aeropuertoOrigen',
+            'aeropuertoDestino',
+            'avion.aerolinea',
+            'asientos' => function ($query) {
+                $query->whereHas('estado', fn($q) => $q->where('nombre', 'Libre'));
+            },
+        ])
+            ->where('aeropuerto_origen_id', $origen)
+            ->where('aeropuerto_destino_id', $destino)
+            ->whereBetween('fecha_salida', [$startDate, $endDate])
+            ->get();
 
-    return Inertia::render('resultados', [
-        'vuelos' => $vuelos,
-        'startDate' => $startDate,
-        'endDate' => $endDate,
-    ]);
-}
+        // Añadir el precio mínimo disponible de los asientos libres al vuelo
+        $vuelos->transform(function ($vuelo) {
+            $vuelo->precio_minimo = $vuelo->asientos->min('precio_base');
+            return $vuelo;
+        });
 
-
-
+        return Inertia::render('resultados', [
+            'vuelos'     => $vuelos,
+            'startDate'  => $startDate,
+            'endDate'    => $endDate,
+        ]);
+    }
 }

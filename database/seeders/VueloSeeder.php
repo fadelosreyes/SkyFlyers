@@ -24,9 +24,9 @@ class VueloSeeder extends Seeder
         $fechaLlegada1 = (clone $fechaSalida1)->addHours(rand(2, 3));
 
         Vuelo::create([
-            'id_avion' => $avion1->id,
-            'id_aeropuerto_origen' => $origenMadrid->id,
-            'id_aeropuerto_destino' => $destinoLondres->id,
+            'avion_id' => $avion1->id,
+            'aeropuerto_origen_id' => $origenMadrid->id,
+            'aeropuerto_destino_id' => $destinoLondres->id,
             'fecha_salida' => $fechaSalida1,
             'fecha_llegada' => $fechaLlegada1,
         ]);
@@ -37,9 +37,9 @@ class VueloSeeder extends Seeder
         $fechaLlegada2 = (clone $fechaSalida2)->addHours(rand(2, 3));
 
         Vuelo::create([
-            'id_avion' => $avion2->id,
-            'id_aeropuerto_origen' => $origenMadrid->id,
-            'id_aeropuerto_destino' => $destinoLondres->id,
+            'avion_id' => $avion2->id,
+            'aeropuerto_origen_id' => $origenMadrid->id,
+            'aeropuerto_destino_id' => $destinoLondres->id,
             'fecha_salida' => $fechaSalida2,
             'fecha_llegada' => $fechaLlegada2,
         ]);
@@ -55,9 +55,9 @@ class VueloSeeder extends Seeder
             $fechaLlegada = (clone $fechaSalida)->addHours(rand(1, 12));
 
             Vuelo::create([
-                'id_avion' => $avion->id,
-                'id_aeropuerto_origen' => $origen->id,
-                'id_aeropuerto_destino' => $destino->id,
+                'avion_id' => $avion->id,
+                'aeropuerto_origen_id' => $origen->id,
+                'aeropuerto_destino_id' => $destino->id,
                 'fecha_salida' => $fechaSalida,
                 'fecha_llegada' => $fechaLlegada,
             ]);
