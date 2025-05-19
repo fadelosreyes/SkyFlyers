@@ -1,0 +1,46 @@
+.contenedor-principal {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+}
+
+.contenedor-avion {
+  position: relative;
+  flex: 0 0 80%;
+
+  background-image: url('/img/avion.png');
+  background-repeat: no-repeat;
+  background-position: left center; /* Cambiado de center a left center */
+  background-size: cover; /* Mejor ajuste visual para ocupar el ancho completo */
+
+  display: grid;
+  box-sizing: border-box;
+
+  justify-content:center; /* Alinear los asientos al inicio (izquierda) */
+  align-content: center;
+}
+
+.asiento {
+  width: 2.5em;
+  height: 2.5em;
+  cursor: pointer;
+  justify-self: center;
+  align-self: center;
+  border: 2px solid #007bff;
+  border-radius: 4px;
+  background-color: white;
+  font-weight: bold;
+  font-size: 0.8em;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.asiento.seleccionado {
+  background-color: #007bff;
+  color: white;
+}
+
+.asiento.ocupado {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: #999;
+}

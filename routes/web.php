@@ -9,10 +9,10 @@ use Inertia\Inertia;
 
 Route::get('/', function () {
     return Inertia::render('principal', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
+        'canLogin'       => Route::has('login'),
+        'canRegister'    => Route::has('register'),
         'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
+        'phpVersion'     => PHP_VERSION,
     ]);
 })->name('principal');
 
@@ -22,7 +22,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/vuelos/resultados', [VueloController::class, 'resultados']);
+Route::get('/vuelos/resultados', [VueloController::class, 'resultados'])->name('vuelos.resultados');
+
+Route::get('/vuelos/reservar/{id}', [VueloController::class, 'seleccionarAsientos'])->name('vuelos.seleccionarAsientos');
+
 Route::resource('aeropuertos', AeropuertoController::class);
 
 Route::get('/sobre-nosotros', function () {

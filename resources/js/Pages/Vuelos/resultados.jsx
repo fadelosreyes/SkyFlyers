@@ -1,7 +1,7 @@
 import React from 'react';
 import { Head, Link, router } from '@inertiajs/react';
-import '../../css/principal.css';
-import '../../css/resultados.css';
+import '../../../css/principal.css';
+import '../../../css/resultados.css';
 
 import Header from '../../Components/Header';
 import PrimaryButton from '../../Components/PrimaryButton';
@@ -71,6 +71,7 @@ export default function Resultados({ vuelos }) {
                                         type="button"
                                         className="btn-reserve"
                                         onClick={() => {
+                                            console.log('Click en reservar vuelo', v.id);
                                             router.get(`/vuelos/reservar/${v.id}`);
                                         }}
                                         disabled={v.precio_minimo === null}

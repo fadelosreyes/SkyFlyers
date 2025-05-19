@@ -21,11 +21,12 @@ class AsientoSeeder extends Seeder
             ['descripcion' => 'Asiento disponible']
         );
 
-        // 2) Datos base
+        // 2) Obtener datos base
         $aviones     = Avion::all();
         $aeropuertos = Aeropuerto::all();
         $clases      = Clase::all()->keyBy('nombre');
 
+        // 3) Buscar aeropuertos de origen y destino
         $origen = $aeropuertos
             ->where('ciudad', 'Madrid')
             ->where('pais', 'España')
@@ -41,8 +42,13 @@ class AsientoSeeder extends Seeder
             return;
         }
 
-        // 3) Crear vuelo de ejemplo
-        $avion        = $aviones->random();
+        // 4) Crear vuelo de ejemplo
+        if ($aviones->isEmpty()) {
+            $this->command->error("No hay aviones disponibles para asignar al vuelo.");
+            return;
+        }
+        $avion = $aviones->random();
+
         $fechaSalida  = Carbon::now()->addDay();
         $fechaLlegada = (clone $fechaSalida)->addHours(rand(2, 3));
 
@@ -56,17 +62,18 @@ class AsientoSeeder extends Seeder
 
         $this->command->info("Generando asientos para el vuelo #{$vuelo->id}...");
 
-        // 4) Limpia asientos previos de este vuelo (si los hubiera)
+        // 5) Eliminar asientos previos para este vuelo
         Asiento::where('vuelo_id', $vuelo->id)->delete();
 
-        // 5) Configuración de filas, columnas y precios por clase
+        // 6) Definir configuración de filas, columnas y precio según clase
         $mapaClases = [
-            'Primera'  => ['filas' => $avion->filas_primera,  'cols' => $avion->asientos_por_fila_primera,  'precio' => 500],
-            'Business' => ['filas' => $avion->filas_business, 'cols' => $avion->asientos_por_fila_business, 'precio' => 250],
-            'Turista'  => ['filas' => $avion->filas_turista,  'cols' => $avion->asientos_por_fila_turista,  'precio' => 100],
+            'Primera'  => ['filas' => $avion->filas_primera,  'cols' => 2, 'precio' => 500],
+            'Business' => ['filas' => $avion->filas_business, 'cols' => 4, 'precio' => 250],
+            'Turista'  => ['filas' => $avion->filas_turista,  'cols' => 6, 'precio' => 100],
         ];
 
-        // 6) Generar asientos
+        // 7) Crear asientos según configuración, con filas consecutivas
+        $filaInicio = 1;
         foreach ($mapaClases as $nombreClase => $cfg) {
             if (! isset($clases[$nombreClase])) {
                 $this->command->warn("Clase «{$nombreClase}» no existe, se omite.");
@@ -75,19 +82,12 @@ class AsientoSeeder extends Seeder
 
             $idClase = $clases[$nombreClase]->id;
             $precio  = $cfg['precio'];
+            $filas   = $cfg['filas'];
+            $columnas = $cfg['cols'];
 
-            for ($fila = 1; $fila <= $cfg['filas']; $fila++) {
-                for ($col = 0; $col < $cfg['cols']; $col++) {
+            for ($fila = $filaInicio; $fila < $filaInicio + $filas; $fila++) {
+                for ($col = 0; $col < $columnas; $col++) {
                     $numero = $fila . chr(ord('A') + $col);
-
-                    // Previene duplicados por si acaso
-                    $exists = Asiento::where('vuelo_id', $vuelo->id)
-                                     ->where('numero', $numero)
-                                     ->exists();
-
-                    if ($exists) {
-                        continue;
-                    }
 
                     Asiento::create([
                         'vuelo_id'     => $vuelo->id,
@@ -98,6 +98,8 @@ class AsientoSeeder extends Seeder
                     ]);
                 }
             }
+
+            $filaInicio += $filas; // Avanzamos la fila de inicio para la siguiente clase
         }
 
         $this->command->info("Asientos para el vuelo #{$vuelo->id} creados correctamente.");

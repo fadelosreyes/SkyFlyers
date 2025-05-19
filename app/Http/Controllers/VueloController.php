@@ -96,4 +96,14 @@ class VueloController extends Controller
             'endDate'    => $endDate,
         ]);
     }
+
+    public function seleccionarAsientos($id)
+    {
+        $vuelo = Vuelo::with(['asientos.clase', 'asientos.estado'])->findOrFail($id);
+
+        return Inertia::render('SeleccionarAsientos', [
+            'vuelo' => $vuelo,
+            'asientos' => $vuelo->asientos,
+        ]);
+    }
 }
