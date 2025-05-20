@@ -28,8 +28,8 @@ export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
 
     const columnasTotales =
         claseSeleccionada === 'turista' ? 7 :
-        claseSeleccionada === 'business' ? 5 :
-        3;
+            claseSeleccionada === 'business' ? 5 :
+                3;
 
     const getSeleccionados = () => seleccionPorClase[claseSeleccionada];
 
@@ -67,11 +67,12 @@ export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
 
     const confirmarSeleccion = () => {
         const todosSeleccionados = Object.values(seleccionPorClase).flat();
-        router.post('/vuelos/confirmar-asientos', {
+        router.post('/billetes', {
             vuelo_id: vuelo.id,
             asientos: todosSeleccionados,
         });
     };
+
 
     return (
         <>

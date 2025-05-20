@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AeropuertoController;
+use App\Http\Controllers\BilleteController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VueloController;
 use Illuminate\Foundation\Application;
@@ -37,5 +38,8 @@ Route::get('/sobre-nosotros', function () {
 Route::get('/contacto', function () {
     return Inertia::render('contacto');
 })->name('contacto');
+
+Route::resource('billetes', BilleteController::class);
+
 
 require __DIR__ . '/auth.php';

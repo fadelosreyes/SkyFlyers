@@ -73,7 +73,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                         }
                         type="password"
                         className="mt-1 block w-full"
-                        autoComplete="current-password"
+                        autocompletar="current-password"
                     />
 
                     <InputError
@@ -92,7 +92,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                         onChange={(e) => setData('password', e.target.value)}
                         type="password"
                         className="mt-1 block w-full"
-                        autoComplete="new-password"
+                        autocompletar="new-password"
                     />
 
                     <InputError message={errors.password} className="mt-2" />
@@ -112,7 +112,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                         }
                         type="password"
                         className="mt-1 block w-full"
-                        autoComplete="new-password"
+                        autocompletar="new-password"
                     />
 
                     <InputError

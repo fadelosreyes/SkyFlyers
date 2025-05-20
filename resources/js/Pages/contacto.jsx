@@ -23,7 +23,7 @@ export default function Contacto() {
         </section>
 
         <section>
-          <div className="social-buttons">
+          <div className="botones-sociales">
             <button type="button" className="botones_rrss">
               <img src="/img/instagram-new 1.png" alt="Instagram" />
             </button>

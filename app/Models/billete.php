@@ -20,7 +20,7 @@ class Billete extends Model
         'recargos',
         'tarifa_base',
         'total',
-        'fecha_reserva'
+        'fecha_reserva',
         'fecha_emision'
     ];
 

@@ -12,12 +12,12 @@ export default function Resultados({ vuelos, passengers }) {
             <Head title="Resultados de vuelos" />
             <Header activePage="#" />
 
-            <div className="flight-results">
+            <div className="resultados-vuelos">
                 {vuelos.length > 0 ? (
-                    <div className="flight-list">
+                    <div className="lista-vuelos">
                         {vuelos.map(v => (
-                            <div className="flight-card" key={v.id}>
-                                <div className="flight-card-header">
+                            <div className="billete-vuelos" key={v.id}>
+                                <div className="billete-vuelos-header">
                                     <div className="airline">
                                         {v.avion?.aerolinea?.nombre || 'Skyflyers'}
                                     </div>
@@ -28,7 +28,7 @@ export default function Resultados({ vuelos, passengers }) {
                                     </div>
                                 </div>
 
-                                <div className="flight-card-body">
+                                <div className="billete-vuelos-body">
                                     {/* Origen */}
                                     <div className="segment">
                                         <div className="city">{v.aeropuerto_origen.ciudad}</div>
@@ -74,7 +74,7 @@ export default function Resultados({ vuelos, passengers }) {
                                     </div>
                                 </div>
 
-                                <div className="flight-card-footer">
+                                <div className="billete-vuelos-footer">
                                     <div className="details">
                                         Duración: {(() => {
                                             const salida = new Date(v.fecha_salida);
@@ -88,7 +88,7 @@ export default function Resultados({ vuelos, passengers }) {
 
                                     <button
                                         type="button"
-                                        className="btn-reserve"
+                                        className="btn-reserva"
                                         onClick={() =>
                                             router.get(
                                                 route('seleccionar.asientos', { id: v.id }),
@@ -107,7 +107,7 @@ export default function Resultados({ vuelos, passengers }) {
                         ))}
                     </div>
                 ) : (
-                    <p className="no-flights">
+                    <p className="no-vuelos">
                         No se encontraron vuelos para los criterios seleccionados.
                     </p>
                 )}

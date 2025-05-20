@@ -19,27 +19,27 @@ body {
     color: var(--color-text);
 }
 
-.flight-results {
+.resultados-vuelos {
     max-width: 1200px;
     margin: 2rem auto;
     padding: 0 1rem;
 }
 
-.flight-results h1 {
+.resultados-vuelos h1 {
     font-size: 1.8rem;
     font-weight: 500;
     color: var(--color-primary);
     margin-bottom: 1.5rem;
 }
 
-.flight-list {
+.lista-vuelos {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 1.5rem;
 }
 
-.flight-card {
+.billete-vuelos {
     flex: 1 1 600px;
     max-width: 600px;
     min-width: 300px;
@@ -51,7 +51,7 @@ body {
     transition: var(--transition);
 }
 
-.flight-card-header {
+.billete-vuelos-header {
     padding: 0.75rem 1rem;
     background: var(--color-primary);
     color: #fff;
@@ -60,17 +60,17 @@ body {
     align-items: center;
 }
 
-.flight-card-header .airline {
+.billete-vuelos-header .airline {
     font-size: 1rem;
     font-weight: 600;
 }
 
-.flight-card-header .price {
+.billete-vuelos-header .price {
     font-size: 1.1rem;
     font-weight: 700;
 }
 
-.flight-card-body {
+.billete-vuelos-body {
     display: flex;
     align-items: center;
     padding: 1rem;
@@ -108,19 +108,19 @@ body {
     color: var(--color-primary);
 }
 
-.flight-card-footer {
+.billete-vuelos-footer {
     display: flex;
     align-items: center;
     padding: 0.75rem 1rem;
     background: var(--color-card-bg);
 }
 
-.flight-card-footer .details {
+.billete-vuelos-footer .details {
     font-size: 0.95rem;
     color: var(--color-text-light);
 }
 
-.btn-reserve {
+.btn-reserva {
     margin-left: auto;
     background: #ff6f00;
     /* naranja */
@@ -134,12 +134,12 @@ body {
     transition: background 0.2s ease-in-out, box-shadow 0.2s;
 }
 
-.btn-reserve:hover {
+.btn-reserva:hover {
     background: #f0a535;
 }
 
 
-.no-flights {
+.no-vuelos {
     text-align: center;
     color: var(--color-text-light);
     margin: 2rem 0;
