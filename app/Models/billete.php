@@ -14,13 +14,13 @@ class Billete extends Model
         'nombre_pasajero',
         'documento_identidad',
         'id_asiento',
-        'id_estado',
+        'estado_id',
         'codigo_QR',
         'pnr',
         'recargos',
         'tarifa_base',
         'total',
-        'fecha_reserva'
+        'fecha_reserva',
         'fecha_emision'
     ];
 

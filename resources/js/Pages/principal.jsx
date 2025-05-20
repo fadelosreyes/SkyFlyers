@@ -111,7 +111,7 @@ export default function Principal({ auth }) {
 
                 <div className="buscador">
                     {/* Origen */}
-                    <div className="autocomplete" ref={originRef}>
+                    <div className="autocompletar" ref={originRef}>
                         <input
                             placeholder="Origen"
                             value={originSelected ? `${originSelected.nombre} (${originSelected.codigo_iata})` : originQuery}
@@ -139,7 +139,7 @@ export default function Principal({ auth }) {
                     </div>
 
                     {/* Destino */}
-                    <div className="autocomplete" ref={destRef}>
+                    <div className="autocompletar" ref={destRef}>
                         <input
                             placeholder="Destino"
                             value={destSelected ? `${destSelected.nombre} (${destSelected.codigo_iata})` : destQuery}

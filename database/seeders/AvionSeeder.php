@@ -10,67 +10,67 @@ class AvionSeeder extends Seeder
 {
     public function run(): void
     {
+        // Valores por defecto para las clases Primera y Business
+        $filasPrimeraDefault            = 4;
+        $asientosPorFilaPrimeraDefault  = 4;
+        $filasBusinessDefault           = 6;
+        $asientosPorFilaBusinessDefault = 4;
+
+        // Lista de aviones: modelo, código ICAO, matrícula, aerolínea, filas_turista, asientos_por_fila_turista
         $aviones = [
-            ['modelo' => 'Boeing 737', 'codigo_icao' => 'B737', 'capacidad' => 160, 'matricula' => 'AR123AR', 'aerolinea' => 'Aerolineas Argentinas'],
-            ['modelo' => 'Airbus A380', 'codigo_icao' => 'A380', 'capacidad' => 500, 'matricula' => 'AU123AU', 'aerolinea' => 'Qantas Airways'],
-            ['modelo' => 'Boeing 777', 'codigo_icao' => 'B777', 'capacidad' => 350, 'matricula' => 'DE123DE', 'aerolinea' => 'Lufthansa'],
-            ['modelo' => 'Airbus A320', 'codigo_icao' => 'A320', 'capacidad' => 180, 'matricula' => 'BR123BR', 'aerolinea' => 'LATAM Airlines'],
-            ['modelo' => 'Boeing 787', 'codigo_icao' => 'B787', 'capacidad' => 250, 'matricula' => 'CA123CA', 'aerolinea' => 'Air Canada'],
-            ['modelo' => 'Airbus A350', 'codigo_icao' => 'A350', 'capacidad' => 300, 'matricula' => 'CL123CL', 'aerolinea' => 'LATAM Airlines'],
-            ['modelo' => 'Boeing 737', 'codigo_icao' => 'B737', 'capacidad' => 160, 'matricula' => 'CN123CN', 'aerolinea' => 'China Airlines'],
-            ['modelo' => 'Airbus A321', 'codigo_icao' => 'A321', 'capacidad' => 220, 'matricula' => 'CO123CO', 'aerolinea' => 'Avianca'],
-            ['modelo' => 'Boeing 777', 'codigo_icao' => 'B777', 'capacidad' => 350, 'matricula' => 'KR123KR', 'aerolinea' => 'Korean Air'],
-            ['modelo' => 'Boeing 787', 'codigo_icao' => 'B787', 'capacidad' => 250, 'matricula' => 'EG123EG', 'aerolinea' => 'EgyptAir'],
-            ['modelo' => 'Airbus A320', 'codigo_icao' => 'A320', 'capacidad' => 180, 'matricula' => 'ES123ES', 'aerolinea' => 'Iberia'],
-            ['modelo' => 'Boeing 737', 'codigo_icao' => 'B737', 'capacidad' => 160, 'matricula' => 'US123US', 'aerolinea' => 'American Airlines'],
-            ['modelo' => 'Airbus A330', 'codigo_icao' => 'A330', 'capacidad' => 300, 'matricula' => 'FI123FI', 'aerolinea' => 'Finnair'],
-            ['modelo' => 'Boeing 777', 'codigo_icao' => 'B777', 'capacidad' => 350, 'matricula' => 'FR123FR', 'aerolinea' => 'Air France'],
-            ['modelo' => 'Airbus A321', 'codigo_icao' => 'A321', 'capacidad' => 220, 'matricula' => 'GR123GR', 'aerolinea' => 'Aegean Airlines'],
-            ['modelo' => 'Boeing 747', 'codigo_icao' => 'B747', 'capacidad' => 400, 'matricula' => 'HU123HU', 'aerolinea' => 'Hainan Airlines'],
-            ['modelo' => 'Airbus A320', 'codigo_icao' => 'A320', 'capacidad' => 180, 'matricula' => 'IN123IN', 'aerolinea' => 'Air India'],
-            ['modelo' => 'Boeing 777', 'codigo_icao' => 'B777', 'capacidad' => 350, 'matricula' => 'ID123ID', 'aerolinea' => 'Garuda Indonesia'],
-            ['modelo' => 'Boeing 787', 'codigo_icao' => 'B787', 'capacidad' => 250, 'matricula' => 'IE123IE', 'aerolinea' => 'Aer Lingus'],
-            ['modelo' => 'Airbus A321', 'codigo_icao' => 'A321', 'capacidad' => 220, 'matricula' => 'IL123IL', 'aerolinea' => 'El Al'],
-            ['modelo' => 'Airbus A350', 'codigo_icao' => 'A350', 'capacidad' => 300, 'matricula' => 'IT123IT', 'aerolinea' => 'Alitalia'],
-            ['modelo' => 'Boeing 737', 'codigo_icao' => 'B737', 'capacidad' => 160, 'matricula' => 'JP123JP', 'aerolinea' => 'Japan Airlines'],
-            ['modelo' => 'Boeing 777', 'codigo_icao' => 'B777', 'capacidad' => 350, 'matricula' => 'MX123MX', 'aerolinea' => 'Aeroméxico'],
-            ['modelo' => 'Airbus A320', 'codigo_icao' => 'A320', 'capacidad' => 180, 'matricula' => 'MA123MA', 'aerolinea' => 'Royal Air Maroc'],
-            ['modelo' => 'Airbus A380', 'codigo_icao' => 'A380', 'capacidad' => 500, 'matricula' => 'NO123NO', 'aerolinea' => 'Norwegian Air Shuttle'],
-            ['modelo' => 'Boeing 787', 'codigo_icao' => 'B787', 'capacidad' => 250, 'matricula' => 'NZ123NZ', 'aerolinea' => 'Air New Zealand'],
-            ['modelo' => 'Boeing 777', 'codigo_icao' => 'B777', 'capacidad' => 350, 'matricula' => 'NL123NL', 'aerolinea' => 'KLM Royal Dutch Airlines'],
-            ['modelo' => 'Boeing 747', 'codigo_icao' => 'B747', 'capacidad' => 400, 'matricula' => 'PE123PE', 'aerolinea' => 'Peruvian Airlines'],
-            ['modelo' => 'Airbus A320', 'codigo_icao' => 'A320', 'capacidad' => 180, 'matricula' => 'PL123PL', 'aerolinea' => 'LOT Polish Airlines'],
-            ['modelo' => 'Boeing 787', 'codigo_icao' => 'B787', 'capacidad' => 250, 'matricula' => 'PT123PT', 'aerolinea' => 'TAP Air Portugal'],
-            ['modelo' => 'Airbus A350', 'codigo_icao' => 'A350', 'capacidad' => 300, 'matricula' => 'GB123GB', 'aerolinea' => 'British Airways'],
-            ['modelo' => 'Boeing 777', 'codigo_icao' => 'B777', 'capacidad' => 350, 'matricula' => 'CZ123CZ', 'aerolinea' => 'Czech Airlines'],
-            ['modelo' => 'Boeing 747', 'codigo_icao' => 'B747', 'capacidad' => 400, 'matricula' => 'RO123RO', 'aerolinea' => 'Tarom'],
-            ['modelo' => 'Airbus A320', 'codigo_icao' => 'A320', 'capacidad' => 180, 'matricula' => 'RU123RU', 'aerolinea' => 'Aeroflot'],
-            ['modelo' => 'Boeing 787', 'codigo_icao' => 'B787', 'capacidad' => 250, 'matricula' => 'SG123SG', 'aerolinea' => 'Singapore Airlines'],
-            ['modelo' => 'Airbus A350', 'codigo_icao' => 'A350', 'capacidad' => 300, 'matricula' => 'ZA123ZA', 'aerolinea' => 'South African Airways'],
-            ['modelo' => 'Boeing 737', 'codigo_icao' => 'B737', 'capacidad' => 160, 'matricula' => 'SE123SE', 'aerolinea' => 'SAS Scandinavian Airlines'],
-            ['modelo' => 'Airbus A380', 'codigo_icao' => 'A380', 'capacidad' => 500, 'matricula' => 'CH123CH', 'aerolinea' => 'Swiss International Air Lines'],
-            ['modelo' => 'Boeing 787', 'codigo_icao' => 'B787', 'capacidad' => 250, 'matricula' => 'TH123TH', 'aerolinea' => 'Thai Airways'],
-            ['modelo' => 'Boeing 747', 'codigo_icao' => 'B747', 'capacidad' => 400, 'matricula' => 'TR123TR', 'aerolinea' => 'Turkish Airlines'],
-            ['modelo' => 'Boeing 777', 'codigo_icao' => 'B777', 'capacidad' => 350, 'matricula' => 'UA123UA', 'aerolinea' => 'Ukraine International Airlines'],
-            ['modelo' => 'Airbus A350', 'codigo_icao' => 'A350', 'capacidad' => 300, 'matricula' => 'UY123UY', 'aerolinea' => 'AeroMéxico'],
-            ['modelo' => 'Boeing 787', 'codigo_icao' => 'B787', 'capacidad' => 250, 'matricula' => 'VE123VE', 'aerolinea' => 'Conviasa'],
-            ['modelo' => 'Boeing 737', 'codigo_icao' => 'B737', 'capacidad' => 160, 'matricula' => 'VN123VN', 'aerolinea' => 'Vietnam Airlines'],
-            ['modelo' => 'Airbus A320', 'codigo_icao' => 'A320', 'capacidad' => 180, 'matricula' => 'PK123PK', 'aerolinea' => 'Pakistan International Airlines'],
-            ['modelo' => 'Boeing 737', 'codigo_icao' => 'B737', 'capacidad' => 160, 'matricula' => 'PH123PH', 'aerolinea' => 'Philippine Airlines'],
-            ['modelo' => 'Airbus A350', 'codigo_icao' => 'A350', 'capacidad' => 300, 'matricula' => 'AE123AE', 'aerolinea' => 'Emirates'],
+            ['Boeing 737',  'B737', 'AR123AR', 'Aerolineas Argentinas',    15,  6],
+            ['Airbus A380', 'A380', 'AU123AU', 'Qantas Airways',           15,  6],
+            ['Boeing 777',  'B777', 'DE123DE', 'Lufthansa',               15,  6],
+            ['Airbus A320', 'A320', 'BR123BR', 'LATAM Airlines',          15,  6],
+            ['Boeing 787',  'B787', 'CA123CA', 'Air Canada',              15,  6],
+            ['Airbus A350', 'A350', 'CL123CL', 'LATAM Airlines',          15,  6],
+            ['Boeing 737',  'B737', 'CN123CN', 'China Airlines',          15,  6],
+            ['Airbus A321', 'A321', 'CO123CO', 'Avianca',                 15,  6],
+            ['Boeing 777',  'B777', 'KR123KR', 'Korean Air',              15,  6],
+            ['Boeing 787',  'B787', 'EG123EG', 'EgyptAir',                15,  6],
+            ['Airbus A330', 'A330', 'ES123ES', 'Iberia',                  15,  6],
+            ['Boeing 737',  'B737', 'US123US', 'American Airlines',       15,  6],
+            ['Airbus A330', 'A330', 'FI123FI', 'Finnair',                 15,  6],
+            ['Boeing 777',  'B777', 'FR123FR', 'Air France',              15,  6],
+            ['Airbus A321', 'A321', 'GR123GR', 'Aegean Airlines',         15,  6],
+            ['Boeing 747',  'B747', 'HU123HU', 'Hainan Airlines',         15,  6],
+            ['Airbus A320', 'A320', 'IN123IN', 'Air India',               15,  6],
+            ['Airbus A350', 'A350', 'IT123IT', 'ITA Airways',             15,  6],
+            ['Boeing 737',  'B737', 'JP123JP', 'Japan Airlines',          15,  6],
+            ['Airbus A320', 'A320', 'MX123MX', 'Aeromexico',              15,  6],
+            ['Boeing 777',  'B777', 'NL123NL', 'KLM Royal Dutch Airlines', 15,  6],
+            ['Airbus A330', 'A330', 'NZ123NZ', 'Air New Zealand',         15,  6],
+            ['Boeing 787',  'B787', 'PT123PT', 'TAP Air Portugal',        15,  6],
         ];
 
-        foreach ($aviones as $avion) {
-            $aerolinea = Aerolinea::where('nombre', $avion['aerolinea'])->first();
-            if ($aerolinea) {
-                Avion::create([
-                    'modelo' => $avion['modelo'],
-                    'codigo_icao' => $avion['codigo_icao'],
-                    'capacidad' => $avion['capacidad'],
-                    'matricula' => $avion['matricula'],
-                    'aerolinea_id' => $aerolinea->id
-                ]);
+
+        foreach ($aviones as $data) {
+            // Buscamos la aerolínea existente
+            $aerolinea = Aerolinea::where('nombre', $data[3])->first();
+
+            if (! $aerolinea) {
+                // Si no existe la aerolínea, saltamos este registro
+                continue;
             }
+
+            Avion::create([
+                'modelo'                       => $data[0],
+                'codigo_icao'                  => $data[1],
+                'matricula'                    => $data[2],
+                'aerolinea_id'                 => $aerolinea->id,
+
+                // Distribución Clase Primera
+                'filas_primera'                => $filasPrimeraDefault,
+                'asientos_por_fila_primera'    => $asientosPorFilaPrimeraDefault,
+
+                // Distribución Clase Business
+                'filas_business'               => $filasBusinessDefault,
+                'asientos_por_fila_business'   => $asientosPorFilaBusinessDefault,
+
+                // Distribución Clase Turista (datos originales)
+                'filas_turista'                => $data[4],
+                'asientos_por_fila_turista'    => $data[5],
+            ]);
         }
     }
 }

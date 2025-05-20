@@ -4,7 +4,7 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import UserDropdown from '@/Components/UserDropdown';
 
 export default function Header({ activePage }) {
-  const { auth } = usePage();
+  const { auth } = usePage().props;
 
   return (
     <header className="encabezado">
@@ -37,8 +37,9 @@ export default function Header({ activePage }) {
         </Link>
       </nav>
 
-      <div className="idioma-sesion">
+      <div className="idioma-sesion flex items-center gap-4">
         <img src="/img/image 1.png" alt="España" height={30} />
+
         {auth?.user ? (
           <UserDropdown user={auth.user} />
         ) : (
@@ -50,3 +51,4 @@ export default function Header({ activePage }) {
     </header>
   );
 }
+

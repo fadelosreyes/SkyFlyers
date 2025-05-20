@@ -9,7 +9,7 @@ class EstadoSeeder extends Seeder
 {
     public function run(): void
     {
-        $estados = ['libre', 'ocupado', 'reservado'];
+        $estados = ['Libre', 'Ocupado', 'Reservado'];
 
         foreach ($estados as $estado) {
             DB::table('estados')->insert([

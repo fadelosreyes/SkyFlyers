@@ -33,21 +33,12 @@ html, body {
     gap: 0.5rem;
 }
 
-.idioma-sesion button {
-    background-color: #f36430;
-    color: white;
-    border: none;
-    padding: 0.75rem 1.2rem;
-    border-radius: 0.25rem;
-    cursor: pointer;
-}
-
 .enlaces-navegacion .active {
     text-decoration: underline;
     text-decoration-color: #FF7F50;
     text-decoration-thickness: 2px;
     text-underline-offset: 2px;
-  }
+}
 
 
 /* Sección principal */
@@ -105,18 +96,18 @@ html, body {
     cursor: pointer;
 }
 
-/* Autocomplete */
-.autocomplete {
+/* autocompletar */
+.autocompletar {
     position: relative;
     flex: 1; /* Para que el input crezca equitativamente */
 }
 
-.autocomplete input {
+.autocompletar input {
     width: 100%;
     box-sizing: border-box;
 }
 
-.autocomplete .dropdown {
+.autocompletar .dropdown {
     position: absolute;
     top: 100%;
     left: 0;
@@ -133,12 +124,12 @@ html, body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.autocomplete .dropdown li {
+.autocompletar .dropdown li {
     padding: 0.5rem 1rem;
     cursor: pointer;
 }
 
-.autocomplete .dropdown li:hover {
+.autocompletar .dropdown li:hover {
     background-color: #f0f0f0;
 }
 

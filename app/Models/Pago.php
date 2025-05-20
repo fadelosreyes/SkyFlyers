@@ -13,7 +13,7 @@ class Pago extends Model
         'id_billete',
         'monto',
         'id_metodo_pago',
-        'id_estado_pago',
+        'estado_id_pago',
         'fecha_pago'
     ];
 
@@ -29,6 +29,6 @@ class Pago extends Model
 
     public function estadoPago()
     {
-        return $this->belongsTo(EstadoPago::class, 'id_estado_pago');
+        return $this->belongsTo(EstadoPago::class, 'estado_id_pago');
     }
 }

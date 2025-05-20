@@ -12,15 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('asientos', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('id_vuelo')->constrained('vuelos');
-            $table->foreignId('id_clase')->constrained('clases');
-            $table->foreignId('id_estado')->constrained('estados');
-            $table->string('numero')->unique();
+            $table->id(); // PK simple
+            $table->foreignId('vuelo_id')->constrained('vuelos');
+            $table->foreignId('clase_id')->constrained('clases');
+            $table->foreignId('estado_id')->constrained('estados');
+            $table->string('numero');
+            $table->decimal('precio_base', 8, 2);
             $table->timestamps();
+            $table->unique(['vuelo_id', 'numero']);
         });
     }
-//poner como principal vuelo y asiento
     /**
      * Reverse the migrations.
      */

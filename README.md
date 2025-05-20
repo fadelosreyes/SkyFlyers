@@ -65,3 +65,14 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 # SkyFlyers
+
+SkyFlyers es una plataforma web para la búsqueda, reserva y gestión de billetes de avión. Permite a los usuarios:
+
+- Buscar vuelos según sus necesidades.
+- Seleccionar asientos disponibles.
+- Realizar reservas de billetes para uno o varios pasajeros.
+- Generar códigos QR para los billetes, facilitando la identificación y el acceso.
+- Recibir notificaciones automáticas sobre el estado de sus vuelos.
+
+El proyecto está desarrollado con tecnologías modernas como Laravel, React e integración de APIs para ofrecer una experiencia ágil y segura en la compra de vuelos.
+

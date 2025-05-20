@@ -11,11 +11,11 @@ class Aeropuerto extends Model
 
     public function vuelosOrigen()
     {
-        return $this->hasMany(Vuelo::class, 'id_aeropuerto_origen');
+        return $this->hasMany(Vuelo::class, 'aeropuerto_origen_id');
     }
 
     public function vuelosDestino()
     {
-        return $this->hasMany(Vuelo::class, 'id_aeropuerto_destino');
+        return $this->hasMany(Vuelo::class, 'aeropuerto_destino_id');
     }
 }

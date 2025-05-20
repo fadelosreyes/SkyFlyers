@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Asiento;
 use App\Models\User;
 use Database\Factories\EstadosPagoFactory;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -30,6 +31,7 @@ class DatabaseSeeder extends Seeder
             ClaseSeeder::class,
             MetodosPagoSeeder::class,
             EstadosPagoSeeder::class,
+            AsientoSeeder::class
         ]);
     }
 }

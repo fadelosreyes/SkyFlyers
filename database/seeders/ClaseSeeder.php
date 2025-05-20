@@ -9,7 +9,7 @@ class ClaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $clases = ['económica', 'primera', 'business'];
+        $clases = ['Turista', 'Primera', 'Business'];
 
         foreach ($clases as $clase) {
             DB::table('clases')->insert([

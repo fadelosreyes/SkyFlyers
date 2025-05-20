@@ -1,59 +1,151 @@
-.tabla-vuelos {
-    width: 90%;
-    max-width: 1000px;
+:root {
+    --color-primary: #0052cc;
+    --color-accent: #ff6f00;
+    --color-card-bg: #fff;
+    --color-bg: #f4f6f8;
+    --color-text: #333;
+    --color-text-light: #666;
+    --radius: 12px;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --shadow-hover: 0 8px 20px rgba(0, 0, 0, 0.1);
+    --transition: all 0.2s ease-in-out;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+}
+
+.resultados-vuelos {
+    max-width: 1200px;
     margin: 2rem auto;
-    border-collapse: collapse;
-    background-color: #fff;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
+    padding: 0 1rem;
+}
 
-  .tabla-vuelos thead {
-    background-color: #0077cc;
-    color: white;
-  }
+.resultados-vuelos h1 {
+    font-size: 1.8rem;
+    font-weight: 500;
+    color: var(--color-primary);
+    margin-bottom: 1.5rem;
+}
 
-  .tabla-vuelos th,
-  .tabla-vuelos td {
-    padding: 1rem;
-    text-align: center;
-    border-bottom: 1px solid #ddd;
-  }
-
-  .tabla-vuelos td {
-    font-size: 0.95rem;
-  }
-
-  .tabla-vuelos th {
-    font-size: 1.05rem;
-    text-transform: uppercase;
-  }
-
-  p {
-    text-align: center;
-    margin-top: 2rem;
-    font-size: 1.2rem;
-    color: #666;
-  }
-
-  .volver-btn {
+.lista-vuelos {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-    margin: 2rem 0;
-  }
+    gap: 1.5rem;
+}
 
-  .btn-primary {
-    background-color: #ff6600; /* Naranja */
-    color: white;
+.billete-vuelos {
+    flex: 1 1 600px;
+    max-width: 600px;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+
+.billete-vuelos-header {
+    padding: 0.75rem 1rem;
+    background: var(--color-primary);
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.billete-vuelos-header .airline {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.billete-vuelos-header .price {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.billete-vuelos-body {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-top: 1px solid var(--color-bg);
+    border-bottom: 1px solid var(--color-bg);
+}
+
+.segment {
+    flex: 1;
+    text-align: center;
+}
+
+.segment .city {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.segment .code {
+    font-size: 0.9rem;
+    color: var(--color-text-light);
+    margin-bottom: 0.5rem;
+}
+
+.segment .time {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--color-primary);
+}
+
+.divider {
+    flex: 0 0 40px;
+    text-align: center;
+    font-size: 1.4rem;
+    color: var(--color-primary);
+}
+
+.billete-vuelos-footer {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: var(--color-card-bg);
+}
+
+.billete-vuelos-footer .details {
+    font-size: 0.95rem;
+    color: var(--color-text-light);
+}
+
+.btn-reserva {
+    margin-left: auto;
+    background: #ff6f00;
+    /* naranja */
+    color: var(--color-bg);
+    border: 1px solid #ccc;
     padding: 0.75rem 1.5rem;
     border-radius: 8px;
-    font-weight: bold;
-    text-decoration: none;
-    display: inline-block;
-    transition: background-color 0.3s;
-  }
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out, box-shadow 0.2s;
+}
 
-  .btn-primary:hover {
-    background-color: #cc5200; /* Naranja oscuro */
-  }
+.btn-reserva:hover {
+    background: #f0a535;
+}
+
+
+.no-vuelos {
+    text-align: center;
+    color: var(--color-text-light);
+    margin: 2rem 0;
+}
+
+.volver-btn {
+    text-align: center;
+    margin-top: 2rem;
+}
