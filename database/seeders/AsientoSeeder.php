@@ -21,6 +21,12 @@ class AsientoSeeder extends Seeder
             ['descripcion' => 'Asiento disponible']
         );
 
+        // Crear estado "Ocupado" si no existe
+        $estadoOcupado = Estado::firstOrCreate(
+            ['nombre' => 'Ocupado'],
+            ['descripcion' => 'Asiento ocupado']
+        );
+
         // 2) Obtener datos base
         $aviones     = Avion::all();
         $aeropuertos = Aeropuerto::all();
@@ -89,10 +95,13 @@ class AsientoSeeder extends Seeder
                 for ($col = 0; $col < $columnas; $col++) {
                     $numero = $fila . chr(ord('A') + $col);
 
+                    // 20% de probabilidad de estar ocupado
+                    $estadoId = (rand(1, 100) <= 80) ? $estadoOcupado->id : $estadoLibre->id;
+
                     Asiento::create([
                         'vuelo_id'     => $vuelo->id,
                         'clase_id'     => $idClase,
-                        'estado_id'    => $estadoLibre->id,
+                        'estado_id'    => $estadoId,
                         'numero'       => $numero,
                         'precio_base'  => $precio,
                     ]);
