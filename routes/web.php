@@ -22,9 +22,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/vuelos/resultados', [VueloController::class, 'resultados'])->name('vuelos.resultados');
+Route::get('/vuelos/resultados', [VueloController::class, 'resultados'])
+->name('vuelos.resultados');
 
-Route::get('/vuelos/reservar/{id}', [VueloController::class, 'seleccionarAsientos'])->name('vuelos.seleccionarAsientos');
+Route::get('/vuelos/reservar/{id}', [VueloController::class, 'seleccionarAsientos'])
+->name('seleccionar.asientos');
 
 Route::resource('aeropuertos', AeropuertoController::class);
 

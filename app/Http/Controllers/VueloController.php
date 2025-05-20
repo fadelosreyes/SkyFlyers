@@ -66,27 +66,29 @@ class VueloController extends Controller
 
     public function resultados(Request $request)
     {
-        $origen     = $request->input('origen');
-        $destino    = $request->input('destino');
-        $startDate  = $request->input('start_date');
-        $endDate    = $request->input('end_date');
+        $origen      = $request->input('origen');
+        $destino     = $request->input('destino');
+        $startDate   = $request->input('start_date');
+        $endDate     = $request->input('end_date');
+        $passengers  = (int) $request->input('passengers', 1);
 
         $vuelos = Vuelo::with([
             'aeropuertoOrigen',
             'aeropuertoDestino',
             'avion.aerolinea',
-            'asientos' => function ($query) {
-                $query->whereHas('estado', fn($q) => $q->where('nombre', 'Libre'));
+            'asientos' => function ($q) {
+                $q->whereHas('estado', fn($q2) => $q2->where('nombre', 'Libre'));
             },
         ])
-            ->where('aeropuerto_origen_id', $origen)
-            ->where('aeropuerto_destino_id', $destino)
-            ->whereBetween('fecha_salida', [$startDate, $endDate])
-            ->get();
-
-        // Añadir el precio mínimo disponible de los asientos libres al vuelo
-        $vuelos->transform(function ($vuelo) {
+        ->where('aeropuerto_origen_id', $origen)
+        ->where('aeropuerto_destino_id', $destino)
+        ->whereBetween('fecha_salida', [$startDate, $endDate])
+        ->get()
+        ->transform(function ($vuelo) {
+            // Precio mínimo de los asientos libres
             $vuelo->precio_minimo = $vuelo->asientos->min('precio_base');
+            // Número de plazas libres
+            $vuelo->plazas_libres = $vuelo->asientos->count();
             return $vuelo;
         });
 
@@ -94,16 +96,21 @@ class VueloController extends Controller
             'vuelos'     => $vuelos,
             'startDate'  => $startDate,
             'endDate'    => $endDate,
+            'passengers' => $passengers,
         ]);
     }
 
-    public function seleccionarAsientos($id)
+    public function seleccionarAsientos(Request $request, $id)
     {
-        $vuelo = Vuelo::with(['asientos.clase', 'asientos.estado'])->findOrFail($id);
+        $numPasajeros = (int) $request->input('passengers', 1);
+
+        $vuelo = Vuelo::with(['asientos.clase', 'asientos.estado'])
+                     ->findOrFail($id);
 
         return Inertia::render('SeleccionarAsientos', [
-            'vuelo' => $vuelo,
-            'asientos' => $vuelo->asientos,
+            'vuelo'        => $vuelo,
+            'asientos'     => $vuelo->asientos,
+            'numPasajeros' => $numPasajeros,
         ]);
     }
 }

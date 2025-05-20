@@ -3,10 +3,10 @@ import { Head, Link, router } from '@inertiajs/react';
 import '../../css/principal.css';
 import '../../css/resultados.css';
 
-import Header from '../../Components/Header';
-import PrimaryButton from '../../Components/PrimaryButton';
+import Header from '../Components/Header';
+import PrimaryButton from '../Components/PrimaryButton';
 
-export default function Resultados({ vuelos }) {
+export default function Resultados({ vuelos, passengers }) {
     return (
         <>
             <Head title="Resultados de vuelos" />
@@ -18,33 +18,57 @@ export default function Resultados({ vuelos }) {
                         {vuelos.map(v => (
                             <div className="flight-card" key={v.id}>
                                 <div className="flight-card-header">
-                                    <div className="airline">{v.avion?.aerolinea?.nombre || 'Skyflyers'}</div>
+                                    <div className="airline">
+                                        {v.avion?.aerolinea?.nombre || 'Skyflyers'}
+                                    </div>
                                     <div className="price">
-                                        {v.precio_minimo !== null ? `Desde ${v.precio_minimo} €` : 'Sin plazas disponibles'}
+                                        {v.precio_minimo !== null
+                                            ? `Desde ${v.precio_minimo} €`
+                                            : 'Sin plazas disponibles'}
                                     </div>
                                 </div>
 
                                 <div className="flight-card-body">
+                                    {/* Origen */}
                                     <div className="segment">
                                         <div className="city">{v.aeropuerto_origen.ciudad}</div>
-                                        <div className="code">({v.aeropuerto_origen.codigo_iata})</div>
+                                        <div className="code">
+                                            ({v.aeropuerto_origen.codigo_iata})
+                                        </div>
                                         <div className="time">
                                             {new Date(v.fecha_salida).toLocaleTimeString([], {
                                                 hour: '2-digit',
                                                 minute: '2-digit',
                                             })}
                                         </div>
+                                        <div className="date">
+                                            {new Date(v.fecha_salida).toLocaleDateString('es-ES', {
+                                                day: 'numeric',
+                                                month: 'numeric',
+                                                year: 'numeric',
+                                            })}
+                                        </div>
                                     </div>
 
                                     <div className="divider">✈︎</div>
 
+                                    {/* Destino */}
                                     <div className="segment">
                                         <div className="city">{v.aeropuerto_destino.ciudad}</div>
-                                        <div className="code">({v.aeropuerto_destino.codigo_iata})</div>
+                                        <div className="code">
+                                            ({v.aeropuerto_destino.codigo_iata})
+                                        </div>
                                         <div className="time">
                                             {new Date(v.fecha_llegada || v.fecha_salida).toLocaleTimeString([], {
                                                 hour: '2-digit',
                                                 minute: '2-digit',
+                                            })}
+                                        </div>
+                                        <div className="date">
+                                            {new Date(v.fecha_llegada || v.fecha_salida).toLocaleDateString('es-ES', {
+                                                day: 'numeric',
+                                                month: 'numeric',
+                                                year: 'numeric',
                                             })}
                                         </div>
                                     </div>
@@ -55,36 +79,37 @@ export default function Resultados({ vuelos }) {
                                         Duración: {(() => {
                                             const salida = new Date(v.fecha_salida);
                                             const llegada = new Date(v.fecha_llegada);
-                                            const duracionMs = llegada - salida;
-
-                                            if (isNaN(duracionMs)) return '--';
-
-                                            const duracionMin = Math.floor(duracionMs / 60000);
-                                            const horas = Math.floor(duracionMin / 60);
-                                            const minutos = duracionMin % 60;
-
-                                            return `${horas}h ${minutos}m`;
+                                            const durMs = llegada - salida;
+                                            if (isNaN(durMs)) return '--';
+                                            const minTotal = Math.floor(durMs / 60000);
+                                            return `${Math.floor(minTotal / 60)}h ${minTotal % 60}m`;
                                         })()}
                                     </div>
 
                                     <button
                                         type="button"
                                         className="btn-reserve"
-                                        onClick={() => {
-                                            router.get(`/vuelos/reservar/${v.id}`);
-                                        }}
-                                        disabled={v.precio_minimo === null}
+                                        onClick={() =>
+                                            router.get(
+                                                route('seleccionar.asientos', { id: v.id }),
+                                                { passengers }
+                                            )
+                                        }
+                                        disabled={
+                                            v.precio_minimo === null ||
+                                            v.plazas_libres < passengers
+                                        }
                                     >
                                         Reservar
                                     </button>
-
-
                                 </div>
                             </div>
                         ))}
                     </div>
                 ) : (
-                    <p className="no-flights">No se encontraron vuelos para los criterios seleccionados.</p>
+                    <p className="no-flights">
+                        No se encontraron vuelos para los criterios seleccionados.
+                    </p>
                 )}
 
                 <div className="volver-btn">
