@@ -7,7 +7,6 @@ import Header from '../Components/Header';
 export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
     const [claseSeleccionada, setClaseSeleccionada] = useState('turista');
 
-    // Estado por clase para asientos seleccionados
     const [seleccionPorClase, setSeleccionPorClase] = useState({
         turista: [],
         business: [],
@@ -24,71 +23,62 @@ export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
         .sort((a, b) => {
             const aParsed = parseAsiento(a.numero);
             const bParsed = parseAsiento(b.numero);
-            if (aParsed.fila === bParsed.fila) {
-                return aParsed.letra.localeCompare(bParsed.letra);
-            }
-            return aParsed.fila - bParsed.fila;
+            return aParsed.fila - bParsed.fila || aParsed.letra.localeCompare(bParsed.letra);
         });
 
-    // Número de columnas totales incluyendo pasillo
     const columnasTotales =
-        claseSeleccionada === 'turista' ? 7 : // 6 asientos + 1 pasillo
-            claseSeleccionada === 'business' ? 5 : // 4 asientos + 1 pasillo
-                3; // 2 asientos + 1 pasillo
+        claseSeleccionada === 'turista' ? 7 :
+        claseSeleccionada === 'business' ? 5 :
+        3;
 
-    // Obtener seleccionados para la clase actual
     const getSeleccionados = () => seleccionPorClase[claseSeleccionada];
 
-    // Total de asientos seleccionados en todas las clases
     const totalSeleccionados = Object.values(seleccionPorClase).reduce((acc, arr) => acc + arr.length, 0);
 
-    // Agrupar asientos por fila
     const filas = {};
     asientosFiltrados.forEach(asiento => {
         const { fila } = parseAsiento(asiento.numero);
         if (!filas[fila]) filas[fila] = [];
         filas[fila].push(asiento);
     });
-    // Ordenar letras dentro de la fila
+
     Object.values(filas).forEach(filaAsientos => {
         filaAsientos.sort((a, b) => a.numero.localeCompare(b.numero));
     });
 
-    // Función para seleccionar/deseleccionar asiento con límite global
-    function toggleSeleccion(id) {
+    const toggleSeleccion = (id) => {
         const seleccionadosActuales = seleccionPorClase[claseSeleccionada];
         const yaSeleccionado = seleccionadosActuales.includes(id);
 
         if (!yaSeleccionado && totalSeleccionados >= numPasajeros) {
             alert(`Solo puedes seleccionar hasta ${numPasajeros} asientos en total.`);
-            return; // No permitimos seleccionar más
+            return;
         }
 
         const nuevosSeleccionados = yaSeleccionado
             ? seleccionadosActuales.filter(a => a !== id)
             : [...seleccionadosActuales, id];
 
-        setSeleccionPorClase({
-            ...seleccionPorClase,
+        setSeleccionPorClase(prev => ({
+            ...prev,
             [claseSeleccionada]: nuevosSeleccionados
-        });
-    }
+        }));
+    };
 
-    // Confirmar selección y enviar al backend
-    function confirmarSeleccion() {
+    const confirmarSeleccion = () => {
         const todosSeleccionados = Object.values(seleccionPorClase).flat();
-
         router.post('/vuelos/confirmar-asientos', {
             vuelo_id: vuelo.id,
             asientos: todosSeleccionados,
         });
-    }
+    };
 
     return (
         <>
             <Head title={`Seleccionar Asientos - Vuelo ${vuelo.id}`} />
             <Header activePage="#" />
-            <div className="contenedor-principal" style={{ display: 'flex' }}>
+
+            <div className="contenedor-principal" style={{ display: 'flex', gap: '2em' }}>
                 <div
                     className="contenedor-avion"
                     style={{
@@ -99,31 +89,34 @@ export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
                         justifyContent: 'center',
                     }}
                 >
-
                     {Object.entries(filas).map(([fila, asientosFila]) => {
                         const mitad = Math.ceil(asientosFila.length / 2);
                         return (
                             <React.Fragment key={fila}>
-                                {/* Mitad izquierda */}
                                 {asientosFila.slice(0, mitad).map(asiento => {
                                     const estaSeleccionado = getSeleccionados().includes(asiento.id);
                                     const estaOcupado = asiento.estado.nombre === 'Ocupado';
 
-                                    let imgSrc = '/img/asiento_vacio.png';
-                                    if (estaOcupado) imgSrc = '/img/asiento_rojo.png';
-                                    else if (estaSeleccionado) imgSrc = '/img/asiento_verde.png';
+                                    const imgSrc = estaOcupado
+                                        ? '/img/asiento_rojo.png'
+                                        : estaSeleccionado
+                                            ? '/img/asiento_verde.png'
+                                            : '/img/asiento_vacio.png';
 
                                     return (
                                         <button
                                             key={asiento.id}
                                             disabled={estaOcupado}
                                             className="asiento"
-                                            onClick={() => {
-                                                if (!estaOcupado) toggleSeleccion(asiento.id);
-                                            }}
-                                            title={asiento.numero}
+                                            onClick={() => toggleSeleccion(asiento.id)}
+                                            title={`Asiento ${asiento.numero} - ${asiento.precio_base}€`}
                                             type="button"
-                                            style={{ padding: 0, border: 'none', background: 'transparent', cursor: estaOcupado ? 'not-allowed' : 'pointer' }}
+                                            style={{
+                                                padding: 0,
+                                                border: 'none',
+                                                background: 'transparent',
+                                                cursor: estaOcupado ? 'not-allowed' : 'pointer',
+                                            }}
                                         >
                                             <img
                                                 src={imgSrc}
@@ -133,28 +126,31 @@ export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
                                         </button>
                                     );
                                 })}
-                                {/* Pasillo vacío */}
                                 <div style={{ width: '1.5em' }} />
-                                {/* Mitad derecha */}
                                 {asientosFila.slice(mitad).map(asiento => {
                                     const estaSeleccionado = getSeleccionados().includes(asiento.id);
                                     const estaOcupado = asiento.estado.nombre === 'Ocupado';
 
-                                    let imgSrc = '/img/asiento_vacio.png';
-                                    if (estaOcupado) imgSrc = '/img/asiento_rojo.png';
-                                    else if (estaSeleccionado) imgSrc = '/img/asiento_verde.png';
+                                    const imgSrc = estaOcupado
+                                        ? '/img/asiento_rojo.png'
+                                        : estaSeleccionado
+                                            ? '/img/asiento_verde.png'
+                                            : '/img/asiento_vacio.png';
 
                                     return (
                                         <button
                                             key={asiento.id}
                                             disabled={estaOcupado}
                                             className="asiento"
-                                            onClick={() => {
-                                                if (!estaOcupado) toggleSeleccion(asiento.id);
-                                            }}
-                                            title={asiento.numero}
+                                            onClick={() => toggleSeleccion(asiento.id)}
+                                            title={`Asiento ${asiento.numero} - ${asiento.precio_base}€`}
                                             type="button"
-                                            style={{ padding: 0, border: 'none', background: 'transparent', cursor: estaOcupado ? 'not-allowed' : 'pointer' }}
+                                            style={{
+                                                padding: 0,
+                                                border: 'none',
+                                                background: 'transparent',
+                                                cursor: estaOcupado ? 'not-allowed' : 'pointer',
+                                            }}
                                         >
                                             <img
                                                 src={imgSrc}
