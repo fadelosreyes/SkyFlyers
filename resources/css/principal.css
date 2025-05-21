@@ -1,7 +1,6 @@
 html, body {
     margin: 0;
     padding: 0;
-    overflow-y: hidden; /* evita scroll horizontal */
 }
 /* Encabezado */
 .encabezado {
@@ -100,11 +99,15 @@ html, body {
 .autocompletar {
     position: relative;
     flex: 1; /* Para que el input crezca equitativamente */
+    min-width: 150px; /* Evita que se haga demasiado pequeño */
+    max-width: 100%; /* Nunca más ancho que su contenedor */
 }
 
 .autocompletar input {
     width: 100%;
     box-sizing: border-box;
+    padding: 0.5rem; /* Añade algo de padding para comodidad */
+    font-size: 1rem;
 }
 
 .autocompletar .dropdown {
@@ -112,6 +115,7 @@ html, body {
     top: 100%;
     left: 0;
     right: 0;
+    width: 100%; /* Para que el dropdown tenga el ancho del contenedor */
     background-color: white;
     border: 1px solid #ccc;
     max-height: 200px;
@@ -122,6 +126,7 @@ html, body {
     padding: 0;
     border-radius: 0 0 0.25rem 0.25rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
 }
 
 .autocompletar .dropdown li {
@@ -131,6 +136,18 @@ html, body {
 
 .autocompletar .dropdown li:hover {
     background-color: #f0f0f0;
+}
+
+/* Responsive: en pantallas pequeñas */
+@media (max-width: 480px) {
+    .autocompletar {
+        min-width: 100%; /* para que ocupe todo el ancho disponible */
+        flex: unset; /* evita conflicto con flex en contenedores pequeños */
+    }
+
+    .autocompletar input {
+        font-size: 1rem;
+    }
 }
 
 /* Servicios */
@@ -177,5 +194,24 @@ html, body {
     color: #e3342f;
     font-size: 0.875rem;
     margin-top: 4px;
-  }
+}
 
+/* NUEVO: buscador vertical en pantallas pequeñas */
+@media (max-width: 600px) {
+    .buscador {
+        flex-direction: column;  /* cambia a columna */
+        align-items: stretch;    /* que ocupen todo el ancho */
+        gap: 0.75rem;            /* un poco menos de espacio vertical */
+        width: 90vw;             /* casi todo el ancho disponible */
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: -50px;           /* ajuste para no superponerse */
+        padding: 1rem;
+    }
+
+    .buscador input,
+    .buscador button {
+        width: 100%;             /* ancho completo */
+        box-sizing: border-box;
+    }
+}

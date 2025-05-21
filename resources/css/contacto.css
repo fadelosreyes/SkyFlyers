@@ -14,13 +14,40 @@
     display: inline-block;
     padding: 2em;
     cursor: pointer;
+    max-width: 140px; /* tamaño fijo para pantallas grandes */
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
 }
 
 .botones_rrss img {
     transition: transform 0.3s ease;
     width: 90%;
+    height: auto;
+}
+
+.botones_rrss:hover {
+    background-color: #e06a3d;
 }
 
 .botones_rrss:hover img {
     transform: scale(1.1);
+}
+
+/* Para pantallas pequeñas reducimos tamaño y padding */
+@media (max-width: 600px) {
+    .botones_sociales {
+        max-width: 80%; /* para que ocupe más ancho disponible */
+        gap: 1.5em;
+    }
+    .botones_rrss {
+        padding: 1.2em; /* menos padding */
+        max-width: 100px; /* botón más pequeño */
+    }
+}
+
+@media (max-width: 400px) {
+    .botones_rrss {
+        padding: 0.8em;
+        max-width: 80px;
+    }
 }

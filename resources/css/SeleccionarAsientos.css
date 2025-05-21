@@ -10,12 +10,14 @@
   background-image: url('/img/avion.png');
   background-repeat: no-repeat;
   background-position: left center;
-  background-size: cover;
+  background-size: auto 100%; /* Ajustado para pantallas grandes */
   display: grid;
   justify-content: center;
   align-content: center;
   padding: 1em;
   overflow-y: auto;
+  gap: 0.3em;
+  transition: background-size 0.4s ease, background-position 0.4s ease; /* Transición suave */
 }
 
 .contenedor-menu {
@@ -26,46 +28,74 @@
   justify-content: center;
   background-color: #f9f9f9;
   border-left: 1px solid #ccc;
+  padding: 1em;
+  min-width: 220px;
 }
 
 .asiento {
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.asiento img {
   width: 2.5em;
   height: 2.5em;
-  cursor: pointer;
-  justify-self: center;
-  align-self: center;
-  border: 2px solid #007bff;
-  border-radius: 4px;
-  background-color: white;
-  font-weight: bold;
-  font-size: 0.8em;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  display: block;
 }
 
-.asiento.seleccionado {
+.btn-confirmar {
+  padding: 0.625em 1.25em;
+  font-size: 1em;
   background-color: #007bff;
   color: white;
+  border: none;
+  border-radius: 0.5em;
+  cursor: pointer;
+  width: 100%;
+  margin-bottom: 0.5em;
 }
 
-.asiento.ocupado {
-  opacity: 0.5;
+.btn-confirmar:disabled {
+  background-color: #999;
   cursor: not-allowed;
-  border-color: #999;
 }
 
-/* ✅ Responsivo para pantallas pequeñas */
-@media (max-width: 768px) {
+.btn-limpiar {
+  padding: 0.5em 1.25em;
+  font-size: 0.9em;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 0.5em;
+  cursor: pointer;
+  width: 100%;
+}
+
+.btn-limpiar:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+/* Media query para portátiles (769px a 1024px) */
+@media (max-width: 1024px) and (min-width: 769px) {
   .contenedor-principal {
     flex-direction: column;
-    height: auto;
+    height: auto; /* Para que crezca según contenido */
   }
 
   .contenedor-avion {
     flex: none;
-    grid-template-columns: repeat(auto-fill, minmax(2.5em, 1fr));
-    background-position: center top;
-    background-size: contain;
-    padding: 1em 0;
+    background-position: center center;
+    background-size: 150% auto; /* Zoom medio, más grande que desktop pero menos que móvil */
+    padding: 0.75em 1em;
+    gap: 0.35em;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(2em, 1fr));
+    justify-content: center;
+    justify-items: center;
+    overflow-x: hidden;
   }
 
   .contenedor-menu {
@@ -75,44 +105,43 @@
     border-top: 1px solid #ccc;
     padding: 1em;
   }
+
+  .asiento img {
+    width: 2.2em;
+    height: 2.2em;
+  }
 }
 
-.tooltip-wrapper {
-    position: relative;
-    display: inline-block;
-}
+/* Media query para móviles (max-width: 768px) */
+@media (max-width: 768px) {
+  .contenedor-principal {
+    flex-direction: column;
+    height: auto;
+  }
 
-.tooltip {
-    visibility: hidden;
-    background-color: #333;
-    color: #fff;
-    text-align: center;
-    padding: 0.5em;
-    border-radius: 6px;
-    position: absolute;
-    z-index: 1;
-    bottom: 110%; /* Justo encima del botón */
-    left: 50%;
-    transform: translateX(-50%);
-    white-space: nowrap;
-    font-size: 0.75em;
-    opacity: 0;
-    transition: opacity 0.3s;
-}
+  .contenedor-avion {
+    flex: none;
+    background-position: center center;
+    background-size: 270% auto; /* Zoom más grande para móviles */
+    padding: 0.5em 1em;
+    gap: 0.4em;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(2em, 1fr));
+    justify-content: center;
+    justify-items: center;
+    overflow-x: hidden;
+  }
 
-.tooltip::after {
-    content: "";
-    position: absolute;
-    top: 100%; /* Triángulo abajo del tooltip */
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: #333 transparent transparent transparent;
-}
+  .contenedor-menu {
+    flex: none;
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid #ccc;
+    padding: 1em;
+  }
 
-.tooltip-wrapper:hover .tooltip {
-    visibility: visible;
-    opacity: 1;
+  .asiento img {
+    width: 2em;
+    height: 2em;
+  }
 }
-
