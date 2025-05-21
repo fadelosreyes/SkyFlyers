@@ -4,7 +4,6 @@ import '../../css/principal.css';
 import PrimaryButton from '../Components/PrimaryButton';
 import Header from '../Components/Header';
 
-
 export default function Principal({ auth }) {
     const [originQuery, setOriginQuery] = useState('');
     const [destQuery, setDestQuery] = useState('');
@@ -109,9 +108,20 @@ export default function Principal({ auth }) {
             <section className="seccion-principal" style={{ backgroundImage: "url('/img/image.png')" }}>
                 <div className="texto-principal">Reserva tu viaje</div>
 
-                <div className="buscador">
+                {/* Aquí ponemos el microdato Flight para el buscador */}
+                <div
+                  className="buscador"
+                  itemScope
+                  itemType="http://schema.org/Flight"
+                >
                     {/* Origen */}
-                    <div className="autocompletar" ref={originRef}>
+                    <div
+                      className="autocompletar"
+                      ref={originRef}
+                      itemProp="departureAirport"
+                      itemScope
+                      itemType="http://schema.org/Airport"
+                    >
                         <input
                             placeholder="Origen"
                             value={originSelected ? `${originSelected.nombre} (${originSelected.codigo_iata})` : originQuery}
@@ -120,6 +130,7 @@ export default function Principal({ auth }) {
                                 setOriginSelected(null);
                                 setErrors(prev => ({ ...prev, origin: '' }));
                             }}
+                            aria-label="Aeropuerto de origen"
                         />
                         {originList.length > 0 && !originSelected && (
                             <ul className="dropdown">
@@ -136,10 +147,24 @@ export default function Principal({ auth }) {
                             </ul>
                         )}
                         {errors.origin && <div className="error-message">{errors.origin}</div>}
+
+                        {/* Nombre aeropuerto para microdatos */}
+                        {originSelected && (
+                            <meta itemProp="name" content={originSelected.nombre} />
+                        )}
+                        {originSelected && (
+                            <meta itemProp="iataCode" content={originSelected.codigo_iata} />
+                        )}
                     </div>
 
                     {/* Destino */}
-                    <div className="autocompletar" ref={destRef}>
+                    <div
+                      className="autocompletar"
+                      ref={destRef}
+                      itemProp="arrivalAirport"
+                      itemScope
+                      itemType="http://schema.org/Airport"
+                    >
                         <input
                             placeholder="Destino"
                             value={destSelected ? `${destSelected.nombre} (${destSelected.codigo_iata})` : destQuery}
@@ -148,6 +173,7 @@ export default function Principal({ auth }) {
                                 setDestSelected(null);
                                 setErrors(prev => ({ ...prev, dest: '' }));
                             }}
+                            aria-label="Aeropuerto de destino"
                         />
                         {destList.length > 0 && !destSelected && (
                             <ul className="dropdown">
@@ -164,6 +190,14 @@ export default function Principal({ auth }) {
                             </ul>
                         )}
                         {errors.dest && <div className="error-message">{errors.dest}</div>}
+
+                        {/* Nombre aeropuerto para microdatos */}
+                        {destSelected && (
+                            <meta itemProp="name" content={destSelected.nombre} />
+                        )}
+                        {destSelected && (
+                            <meta itemProp="iataCode" content={destSelected.codigo_iata} />
+                        )}
                     </div>
 
                     {/* Fechas */}
@@ -175,8 +209,13 @@ export default function Principal({ auth }) {
                                 setStartDate(e.target.value);
                                 setErrors(prev => ({ ...prev, startDate: '' }));
                             }}
+                            aria-label="Fecha de salida"
                         />
                         {errors.startDate && <div className="error-message">{errors.startDate}</div>}
+
+                        {startDate && (
+                            <meta itemProp="departureTime" content={startDate} />
+                        )}
                     </div>
                     <div>
                         <input
@@ -186,8 +225,13 @@ export default function Principal({ auth }) {
                                 setEndDate(e.target.value);
                                 setErrors(prev => ({ ...prev, endDate: '' }));
                             }}
+                            aria-label="Fecha de regreso"
                         />
                         {errors.endDate && <div className="error-message">{errors.endDate}</div>}
+
+                        {endDate && (
+                            <meta itemProp="arrivalTime" content={endDate} />
+                        )}
                     </div>
 
                     {/* Pasajeros */}
@@ -202,8 +246,13 @@ export default function Principal({ auth }) {
                                 setErrors(prev => ({ ...prev, passengers: '' }));
                             }}
                             placeholder="Pasajeros"
+                            aria-label="Número de pasajeros"
                         />
                         {errors.passengers && <div className="error-message">{errors.passengers}</div>}
+
+                        {passengers && (
+                            <meta itemProp="passengerCount" content={passengers} />
+                        )}
                     </div>
 
                     <PrimaryButton onClick={handleSearch}>Buscar</PrimaryButton>
