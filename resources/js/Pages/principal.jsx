@@ -130,7 +130,7 @@ export default function Principal({ auth }) {
                                         setOriginList([]);
                                         setErrors(prev => ({ ...prev, origin: '' }));
                                     }}>
-                                        {a.nombre} — {a.ciudad}, {a.pais} ({a.codigo_iata})
+                                        {a.ciudad}, {a.pais} ({a.codigo_iata})
                                     </li>
                                 ))}
                             </ul>
@@ -158,7 +158,7 @@ export default function Principal({ auth }) {
                                         setDestList([]);
                                         setErrors(prev => ({ ...prev, dest: '' }));
                                     }}>
-                                        {a.nombre} — {a.ciudad}, {a.pais} ({a.codigo_iata})
+                                        {a.ciudad}, {a.pais} ({a.codigo_iata})
                                     </li>
                                 ))}
                             </ul>

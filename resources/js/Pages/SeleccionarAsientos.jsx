@@ -28,8 +28,7 @@ export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
 
     const columnasTotales =
         claseSeleccionada === 'turista' ? 7 :
-            claseSeleccionada === 'business' ? 5 :
-                3;
+            claseSeleccionada === 'business' ? 5 : 3;
 
     const getSeleccionados = () => seleccionPorClase[claseSeleccionada];
 
@@ -73,21 +72,32 @@ export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
         });
     };
 
+    const limpiarSeleccionClaseActual = () => {
+        setSeleccionPorClase(prev => ({
+            ...prev,
+            [claseSeleccionada]: []
+        }));
+    };
+
+    // Nueva función para limpiar todos los asientos seleccionados
+    const limpiarTodosSeleccionados = () => {
+        setSeleccionPorClase({
+            turista: [],
+            business: [],
+            primera: []
+        });
+    };
 
     return (
         <>
             <Head title={`Seleccionar Asientos - Vuelo ${vuelo.id}`} />
             <Header activePage="#" />
 
-            <div className="contenedor-principal" style={{ display: 'flex', gap: '2em' }}>
+            <div className="contenedor-principal">
                 <div
                     className="contenedor-avion"
                     style={{
-                        display: 'grid',
-                        gridTemplateColumns: `repeat(${(columnasTotales - 1) / 2}, 2.5em) 1.5em repeat(${(columnasTotales - 1) / 2}, 2.5em)`,
-                        columnGap: '0.3em',
-                        rowGap: '0.8em',
-                        justifyContent: 'center',
+                        gridTemplateColumns: `repeat(${(columnasTotales - 1) / 2}, 2.5em) 1.5em repeat(${(columnasTotales - 1) / 2}, 2.5em)`
                     }}
                 >
                     {Object.entries(filas).map(([fila, asientosFila]) => {
@@ -112,17 +122,10 @@ export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
                                             onClick={() => toggleSeleccion(asiento.id)}
                                             title={`Asiento ${asiento.numero} - ${asiento.precio_base}€`}
                                             type="button"
-                                            style={{
-                                                padding: 0,
-                                                border: 'none',
-                                                background: 'transparent',
-                                                cursor: estaOcupado ? 'not-allowed' : 'pointer',
-                                            }}
                                         >
                                             <img
                                                 src={imgSrc}
                                                 alt={`Asiento ${asiento.numero}`}
-                                                style={{ width: '2.5em', height: '2.5em', display: 'block' }}
                                             />
                                         </button>
                                     );
@@ -146,17 +149,10 @@ export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
                                             onClick={() => toggleSeleccion(asiento.id)}
                                             title={`Asiento ${asiento.numero} - ${asiento.precio_base}€`}
                                             type="button"
-                                            style={{
-                                                padding: 0,
-                                                border: 'none',
-                                                background: 'transparent',
-                                                cursor: estaOcupado ? 'not-allowed' : 'pointer',
-                                            }}
                                         >
                                             <img
                                                 src={imgSrc}
                                                 alt={`Asiento ${asiento.numero}`}
-                                                style={{ width: '2.5em', height: '2.5em', display: 'block' }}
                                             />
                                         </button>
                                     );
@@ -166,38 +162,53 @@ export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
                     })}
                 </div>
 
-                <div className="contenedor-menu" style={{ minWidth: '200px' }}>
+                <div className="contenedor-menu">
                     <h3>Selecciona clase</h3>
                     <select
                         value={claseSeleccionada}
                         onChange={e => setClaseSeleccionada(e.target.value)}
-                        style={{ width: '100%', padding: '0.5em', marginBottom: '1em' }}
                     >
                         <option value="turista">Turista</option>
                         <option value="business">Business</option>
                         <option value="primera">Primera</option>
                     </select>
 
-                    <p>
-                        Asientos seleccionados: {totalSeleccionados} / {numPasajeros}
-                    </p>
+                    <p><strong>Asientos seleccionados:</strong> {totalSeleccionados} / {numPasajeros}</p>
+
+                    {Object.entries(seleccionPorClase).map(([clase, ids]) => (
+                        ids.length > 0 && (
+                            <div key={clase}>
+                                <p><strong>{clase.charAt(0).toUpperCase() + clase.slice(1)}:</strong> {ids.length} asientos</p>
+                            </div>
+                        )
+                    ))}
 
                     <button
                         onClick={confirmarSeleccion}
                         disabled={totalSeleccionados === 0}
-                        style={{
-                            padding: '0.625em 1.25em',
-                            fontSize: '1em',
-                            backgroundColor: totalSeleccionados === 0 ? '#999' : '#007bff',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '0.5em',
-                            cursor: totalSeleccionados === 0 ? 'not-allowed' : 'pointer',
-                            width: '100%',
-                        }}
+                        className="btn-confirmar"
                     >
                         Confirmar selección
                     </button>
+
+                    <div style={{ display: 'flex', gap: '1em', marginTop: '1em' }}>
+                        <button
+                            onClick={limpiarSeleccionClaseActual}
+                            disabled={getSeleccionados().length === 0}
+                            className="btn-limpiar"
+                        >
+                            Limpiar {claseSeleccionada}
+                        </button>
+
+                        <button
+                            onClick={limpiarTodosSeleccionados}
+                            disabled={totalSeleccionados === 0}
+                            className="btn-limpiar"
+                        >
+                            Limpiar todos
+                        </button>
+                    </div>
+
                 </div>
             </div>
         </>

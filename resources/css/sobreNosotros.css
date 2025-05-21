@@ -47,3 +47,47 @@
     width: 100%;
     height: auto;
 }
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+    .seccion-acerca-de {
+        flex-direction: column;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .contenido-acerca-de,
+    .enlaces-sociales {
+        width: 100%;
+        padding-left: 0;
+        margin-bottom: 1.5rem;
+    }
+
+    .item-social img {
+        width: 18px; /* ligeramente más pequeño */
+        margin-left: 8px;
+        padding-top: 8px;
+    }
+
+    /* Reducir la letra ligeramente en pantallas pequeñas */
+    .texto-acerca-de {
+        font-size: 1.15em;  /* de 1.3em a 1.15em */
+        line-height: 1.5;
+    }
+
+    .item-social {
+        font-size: 0.95em; /* de 1em a 0.95em */
+    }
+}
+
+/* Opcional para pantallas muy pequeñas */
+@media (max-width: 400px) {
+    .texto-acerca-de {
+        font-size: 1.1em;
+        line-height: 1.4;
+    }
+
+    .item-social {
+        font-size: 0.9em;
+    }
+}
