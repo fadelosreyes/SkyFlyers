@@ -124,28 +124,34 @@ class VueloController extends Controller
         ]);
     }
 
-public function getDestacados(): \Illuminate\Http\JsonResponse
-{
-    $vuelos = Vuelo::where('destacado', true)
-        ->inRandomOrder()
-        ->limit(5)
-        ->with(['avion', 'aeropuertoOrigen', 'aeropuertoDestino'])
-        ->get()
-        ->map(function ($vuelo) {
-            $salida  = Carbon::parse($vuelo->fecha_salida);
-            $llegada = Carbon::parse($vuelo->fecha_llegada);
+    public function getDestacados(): \Illuminate\Http\JsonResponse
+    {
+        $vuelos = Vuelo::where('destacado', true)
+            ->inRandomOrder()
+            ->limit(5)
+            ->with(['avion', 'aeropuertoOrigen', 'aeropuertoDestino', 'asientos' => function ($query) {
+                $query->where('estado_id', 1); // solo asientos libres
+            }])
+            ->get()
+            ->map(function ($vuelo) {
+                $salida  = Carbon::parse($vuelo->fecha_salida);
+                $llegada = Carbon::parse($vuelo->fecha_llegada);
 
-            return [
-                'id'            => $vuelo->id,
-                'origen'        => $vuelo->aeropuertoOrigen->ciudad,
-                'destino'       => $vuelo->aeropuertoDestino->ciudad,
-                'fecha_salida'  => $salida->toDateTimeString(),
-                'fecha_llegada' => $llegada->toDateTimeString(),
-                'imagen'        => $vuelo->imagen,
-            ];
-        });
+                $precio_minimo = $vuelo->asientos->min('precio_base');
+                $plazas_libres = $vuelo->asientos->count();
 
-    return response()->json($vuelos);
-}
+                return [
+                    'id'            => $vuelo->id,
+                    'origen'        => $vuelo->aeropuertoOrigen->ciudad,
+                    'destino'       => $vuelo->aeropuertoDestino->ciudad,
+                    'fecha_salida'  => $salida->toDateTimeString(),
+                    'fecha_llegada' => $llegada->toDateTimeString(),
+                    'imagen'        => $vuelo->imagen,
+                    'precio_minimo' => $precio_minimo,
+                    'plazas_libres' => $plazas_libres,
+                ];
+            });
 
+        return response()->json($vuelos);
+    }
 }

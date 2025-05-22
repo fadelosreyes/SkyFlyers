@@ -259,7 +259,6 @@ export default function Principal({ auth }) {
                     <PrimaryButton onClick={handleSearch}>Buscar</PrimaryButton>
                 </div>
             </section>
-
             <VuelosDestacados />
         </>
     );
