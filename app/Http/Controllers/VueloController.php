@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Vuelo;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Carbon\Carbon;
 
 class VueloController extends Controller
 {
@@ -65,10 +66,10 @@ class VueloController extends Controller
     }
     public function resultados(Request $request)
     {
-        $origen     = $request->input('origen');
-        $destino    = $request->input('destino');
-        $startDate  = $request->input('start_date');
-        $endDate    = $request->input('end_date');
+        $origen = $request->input('origen');
+        $destino = $request->input('destino');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
         $passengers = (int) $request->input('pasajeros', 1);
 
         // Convertir fechas con Carbon para cubrir todo el rango del día
@@ -86,9 +87,14 @@ class VueloController extends Controller
             ->where('aeropuerto_origen_id', $origen)
             ->where('aeropuerto_destino_id', $destino)
             ->whereBetween('fecha_salida', [$startDate, $endDate])
-            ->whereHas('asientos', function ($q) {
-                $q->where('estado_id', 1);
-            }, '>=', $passengers)
+            ->whereHas(
+                'asientos',
+                function ($q) {
+                    $q->where('estado_id', 1);
+                },
+                '>=',
+                $passengers,
+            )
             ->get()
             ->transform(function ($vuelo) {
                 $vuelo->precio_minimo = $vuelo->asientos->min('precio_base');
@@ -98,26 +104,48 @@ class VueloController extends Controller
             ->values();
 
         return Inertia::render('resultados', [
-            'vuelos'     => $vuelos,
-            'startDate'  => $startDate->toDateString(),
-            'endDate'    => $endDate->toDateString(),
+            'vuelos' => $vuelos,
+            'startDate' => $startDate->toDateString(),
+            'endDate' => $endDate->toDateString(),
             'passengers' => $passengers,
         ]);
     }
-
-
 
     public function seleccionarAsientos(Request $request, $id)
     {
         $numPasajeros = (int) $request->input('passengers', 1);
 
-        $vuelo = Vuelo::with(['asientos.clase', 'asientos.estado'])
-            ->findOrFail($id);
+        $vuelo = Vuelo::with(['asientos.clase', 'asientos.estado'])->findOrFail($id);
 
         return Inertia::render('SeleccionarAsientos', [
-            'vuelo'        => $vuelo,
-            'asientos'     => $vuelo->asientos,
-            'numPasajeros' => $numPasajeros,  // <-- Pasamos numPasajeros a la vista
+            'vuelo' => $vuelo,
+            'asientos' => $vuelo->asientos,
+            'numPasajeros' => $numPasajeros, // <-- Pasamos numPasajeros a la vista
         ]);
     }
+
+public function getDestacados(): \Illuminate\Http\JsonResponse
+{
+    $vuelos = Vuelo::where('destacado', true)
+        ->inRandomOrder()
+        ->limit(5)
+        ->with(['avion', 'aeropuertoOrigen', 'aeropuertoDestino'])
+        ->get()
+        ->map(function ($vuelo) {
+            $salida  = Carbon::parse($vuelo->fecha_salida);
+            $llegada = Carbon::parse($vuelo->fecha_llegada);
+
+            return [
+                'id'            => $vuelo->id,
+                'origen'        => $vuelo->aeropuertoOrigen->ciudad,
+                'destino'       => $vuelo->aeropuertoDestino->ciudad,
+                'fecha_salida'  => $salida->toDateTimeString(),
+                'fecha_llegada' => $llegada->toDateTimeString(),
+                'imagen'        => $vuelo->imagen,
+            ];
+        });
+
+    return response()->json($vuelos);
+}
+
 }

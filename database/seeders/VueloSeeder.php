@@ -6,61 +6,91 @@ use Illuminate\Database\Seeder;
 use App\Models\Vuelo;
 use App\Models\Avion;
 use App\Models\Aeropuerto;
+use App\Helpers\ImagenCiudadHelper;
 use Illuminate\Support\Carbon;
 
 class VueloSeeder extends Seeder
 {
-    public function run(): void
-    {
-        $aviones = Avion::all();
-        $aeropuertos = Aeropuerto::all();
+   public function run(): void
+{
+    $aviones = Avion::all();
+    $aeropuertos = Aeropuerto::all();
 
-        $origenMadrid = $aeropuertos->where('ciudad', 'Madrid')->where('pais', 'España')->first();
-        $destinoLondres = $aeropuertos->where('ciudad', 'Londres')->where('pais', 'Reino Unido')->first();
-
-        // Primer vuelo
-        $avion1 = $aviones->random();
-        $fechaSalida1 = Carbon::now()->addDay();
-        $fechaLlegada1 = (clone $fechaSalida1)->addHours(rand(2, 3));
-
-        Vuelo::create([
-            'avion_id' => $avion1->id,
-            'aeropuerto_origen_id' => $origenMadrid->id,
-            'aeropuerto_destino_id' => $destinoLondres->id,
-            'fecha_salida' => $fechaSalida1,
-            'fecha_llegada' => $fechaLlegada1,
-        ]);
-
-        // Segundo vuelo (igual pero otro avión y fecha)
-        $avion2 = $aviones->where('id', '!=', $avion1->id)->random(); // Asegura que no sea el mismo avión
-        $fechaSalida2 = Carbon::now()->addDays(2);
-        $fechaLlegada2 = (clone $fechaSalida2)->addHours(rand(2, 3));
-
-        Vuelo::create([
-            'avion_id' => $avion2->id,
-            'aeropuerto_origen_id' => $origenMadrid->id,
-            'aeropuerto_destino_id' => $destinoLondres->id,
-            'fecha_salida' => $fechaSalida2,
-            'fecha_llegada' => $fechaLlegada2,
-        ]);
-
-        foreach (range(1, 50) as $i) {
-            $avion = $aviones->random();
-            do {
-                $origen = $aeropuertos->random();
-                $destino = $aeropuertos->random();
-            } while ($origen->id === $destino->id);
-
-            $fechaSalida = Carbon::now()->addDay();
-            $fechaLlegada = (clone $fechaSalida)->addHours(rand(1, 12));
-
-            Vuelo::create([
-                'avion_id' => $avion->id,
-                'aeropuerto_origen_id' => $origen->id,
-                'aeropuerto_destino_id' => $destino->id,
-                'fecha_salida' => $fechaSalida,
-                'fecha_llegada' => $fechaLlegada,
-            ]);
+    $crearVueloDestacadoConImagen = function ($origen, $destino) use ($aviones) {
+        if (!$origen || !$destino) {
+            return;
         }
+
+        $fechaSalida = Carbon::now()->addDays(rand(1, 30));
+        $fechaLlegada = (clone $fechaSalida)->addHours(rand(2, 10));
+        $imagenUrl = ImagenCiudadHelper::obtenerImagenDeCiudad($destino->ciudad);
+
+        Vuelo::create([
+            'avion_id' => $aviones->random()->id,
+            'aeropuerto_origen_id' => $origen->id,
+            'aeropuerto_destino_id' => $destino->id,
+            'fecha_salida' => $fechaSalida,
+            'fecha_llegada' => $fechaLlegada,
+            'imagen' => $imagenUrl,
+            'destacado' => true,
+        ]);
+    };
+
+    // 1) Crear 5 vuelos destacados con imagen (los más importantes)
+    $destacadosConImagen = [
+        ['origen' => ['ciudad' => 'Madrid', 'pais' => 'España'], 'destino' => ['ciudad' => 'Nueva York', 'pais' => 'Estados Unidos']],
+        ['origen' => ['ciudad' => 'Barcelona', 'pais' => 'España'], 'destino' => ['ciudad' => 'Tokio', 'pais' => 'Japón']],
+        ['origen' => ['ciudad' => 'París', 'pais' => 'Francia'], 'destino' => ['ciudad' => 'Dubái', 'pais' => 'Emiratos Árabes Unidos']],
+        ['origen' => ['ciudad' => 'Madrid', 'pais' => 'España'], 'destino' => ['ciudad' => 'Londres', 'pais' => 'Reino Unido']],
+        ['origen' => ['ciudad' => 'Madrid', 'pais' => 'España'], 'destino' => ['ciudad' => 'Barcelona', 'pais' => 'España']],
+    ];
+
+    foreach ($destacadosConImagen as $vuelo) {
+        $origen = $aeropuertos->where('ciudad', $vuelo['origen']['ciudad'])->where('pais', $vuelo['origen']['pais'])->first();
+        $destino = $aeropuertos->where('ciudad', $vuelo['destino']['ciudad'])->where('pais', $vuelo['destino']['pais'])->first();
+        $crearVueloDestacadoConImagen($origen, $destino);
     }
+
+    // --- Añadimos aquí el vuelo Madrid - Londres para mañana, sin imagen ---
+
+    $origenMadrid = $aeropuertos->where('ciudad', 'Madrid')->where('pais', 'España')->first();
+    $destinoLondres = $aeropuertos->where('ciudad', 'Londres')->where('pais', 'Reino Unido')->first();
+
+    if ($origenMadrid && $destinoLondres && $aviones->count() > 0) {
+        $fechaSalida = Carbon::tomorrow()->setTime(9, 0, 0);
+        $fechaLlegada = (clone $fechaSalida)->addHours(2);
+
+        Vuelo::create([
+            'avion_id' => $aviones->random()->id,
+            'aeropuerto_origen_id' => $origenMadrid->id,
+            'aeropuerto_destino_id' => $destinoLondres->id,
+            'fecha_salida' => $fechaSalida,
+            'fecha_llegada' => $fechaLlegada,
+            'imagen' => null,
+            'destacado' => false,
+        ]);
+    }
+
+    // 3) 50 vuelos normales sin imagen
+    foreach (range(1, 50) as $i) {
+        do {
+            $origen = $aeropuertos->random();
+            $destino = $aeropuertos->random();
+        } while ($origen->id === $destino->id);
+
+        $fechaSalida = Carbon::now()->addDays(rand(1, 30));
+        $fechaLlegada = (clone $fechaSalida)->addHours(rand(2, 10));
+
+        Vuelo::create([
+            'avion_id' => $aviones->random()->id,
+            'aeropuerto_origen_id' => $origen->id,
+            'aeropuerto_destino_id' => $destino->id,
+            'fecha_salida' => $fechaSalida,
+            'fecha_llegada' => $fechaLlegada,
+            'imagen' => null,
+            'destacado' => false,
+        ]);
+    }
+}
+
 }

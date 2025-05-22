@@ -10,18 +10,20 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-{
-    Schema::create('vuelos', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('avion_id')->constrained('aviones');
-        $table->foreignId('aeropuerto_origen_id')->constrained('aeropuertos');
-        $table->foreignId('aeropuerto_destino_id')->constrained('aeropuertos');
-        $table->dateTime('fecha_salida');
-        $table->dateTime('fecha_llegada');
-        $table->timestamps();
-    });
-}
+    {
+        Schema::create('vuelos', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('avion_id')->constrained('aviones');
+            $table->foreignId('aeropuerto_origen_id')->constrained('aeropuertos');
+            $table->foreignId('aeropuerto_destino_id')->constrained('aeropuertos');
+            $table->dateTime('fecha_salida');
+            $table->dateTime('fecha_llegada');
+            $table->string('imagen')->nullable();
+            $table->boolean('destacado')->default(false);
 
+            $table->timestamps();
+        });
+    }
 
     /**
      * Reverse the migrations.
@@ -31,3 +33,4 @@ return new class extends Migration
         Schema::dropIfExists('vuelos');
     }
 };
+

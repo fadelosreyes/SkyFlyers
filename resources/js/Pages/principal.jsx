@@ -3,6 +3,7 @@ import { Head, Link, router } from '@inertiajs/react';
 import '../../css/principal.css';
 import PrimaryButton from '../Components/PrimaryButton';
 import Header from '../Components/Header';
+import VuelosDestacados from '../Components/VuelosDestacados';
 
 export default function Principal({ auth }) {
     const [originQuery, setOriginQuery] = useState('');
@@ -259,27 +260,7 @@ export default function Principal({ auth }) {
                 </div>
             </section>
 
-            {/* Sección de servicios */}
-            <section className="seccion-servicios">
-                <div>
-                    <figure><img src="img/reembolso 1.png" alt="Reembolsos y cancelaciones" /></figure>
-                    <h3>Reembolsos y cancelaciones</h3>
-                    <p>Consulta nuestras políticas de reembolsos y cancelaciones, y realiza los cambios que necesites de manera rápida y sencilla en cualquier momento.</p>
-                    <PrimaryButton>Más información</PrimaryButton>
-                </div>
-                <div>
-                    <figure><img src="img/pngwing.com (1) 1.png" alt="Gestión de reservas" /></figure>
-                    <h3>Gestión de reservas</h3>
-                    <p>La forma más rápida y sencilla de gestionar un vuelo o solicitar un reembolso es hacerlo a través de Gestionar mi reserva.</p>
-                    <PrimaryButton>Gestionar mi reserva</PrimaryButton>
-                </div>
-                <div>
-                    <figure><img src="img/pngegg (3) 1.png" alt="Otros servicios" /></figure>
-                    <h3>Otros servicios</h3>
-                    <p>Explora opciones de hoteles, coches, trenes y más y gestiona todos tus servicios de viaje en un solo lugar</p>
-                    <PrimaryButton disabled>Explorar</PrimaryButton>
-                </div>
-            </section>
+            <VuelosDestacados />
         </>
     );
 }
