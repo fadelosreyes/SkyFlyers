@@ -1,50 +1,111 @@
-@extends('layouts.app')
+import React, { useState } from 'react';
+import { useForm } from '@inertiajs/react';
 
-@section('content')
-<div class="container">
-    <h2>Crear Billetes para {{ $numPasajeros }} pasajero(s)</h2>
+export default function Create({ asientos, estados }) {
+  const { data, setData, post, processing, errors } = useForm({
+    nombre_pasajero: '',
+    documento_identidad: '',
+    asiento_id: '',
+    estado_id: '',
+    tarifa_base: '',
+    recargos: '',
+  });
 
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    post('/billetes'); // Ruta que apunta al método store
+  };
 
-    <form action="{{ route('billetes.store') }}" method="POST">
-        @csrf
+  return (
+    <div className="max-w-2xl mx-auto mt-10 p-4 bg-white shadow rounded">
+      <h2 className="text-xl font-semibold mb-4">Crear Billete</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block">Nombre del pasajero</label>
+          <input
+            type="text"
+            value={data.nombre_pasajero}
+            onChange={(e) => setData('nombre_pasajero', e.target.value)}
+            className="w-full border rounded p-2"
+          />
+          {errors.nombre_pasajero && <div className="text-red-500 text-sm">{errors.nombre_pasajero}</div>}
+        </div>
 
-        <input type="hidden" name="user_id" value="{{ auth()->user()->id }}">
+        <div>
+          <label className="block">Documento de identidad</label>
+          <input
+            type="text"
+            value={data.documento_identidad}
+            onChange={(e) => setData('documento_identidad', e.target.value)}
+            className="w-full border rounded p-2"
+          />
+          {errors.documento_identidad && <div className="text-red-500 text-sm">{errors.documento_identidad}</div>}
+        </div>
 
-        <!-- Datos fijos del billete -->
-        <input type="hidden" name="asiento_id" value="{{ $asientoId }}">
-        <input type="hidden" name="estado_id" value="{{ $estadoId }}">
-        <input type="hidden" name="recargos" value="{{ $recargos ?? 0 }}">
-        <input type="hidden" name="tarifa_base" value="{{ $tarifaBase }}">
-        <input type="hidden" name="total" value="{{ $total }}">
-        <input type="hidden" name="fecha_reserva" value="{{ $fechaReserva }}">
-        <input type="hidden" name="fecha_emision" value="{{ $fechaEmision }}">
+        <div>
+          <label className="block">Asiento</label>
+          <select
+            value={data.asiento_id}
+            onChange={(e) => setData('asiento_id', e.target.value)}
+            className="w-full border rounded p-2"
+          >
+            <option value="">Selecciona un asiento</option>
+            {asientos.map((asiento) => (
+              <option key={asiento.id} value={asiento.id}>
+                {asiento.numero} - {asiento.tipo}
+              </option>
+            ))}
+          </select>
+          {errors.asiento_id && <div className="text-red-500 text-sm">{errors.asiento_id}</div>}
+        </div>
 
-        @for ($i = 0; $i < $numPasajeros; $i++)
-            <fieldset style="border:1px solid #ddd; padding:1em; margin-bottom:1em;">
-                <legend>Pasajero {{ $i + 1 }}</legend>
+        <div>
+          <label className="block">Estado</label>
+          <select
+            value={data.estado_id}
+            onChange={(e) => setData('estado_id', e.target.value)}
+            className="w-full border rounded p-2"
+          >
+            <option value="">Selecciona un estado</option>
+            {estados.map((estado) => (
+              <option key={estado.id} value={estado.id}>
+                {estado.nombre}
+              </option>
+            ))}
+          </select>
+          {errors.estado_id && <div className="text-red-500 text-sm">{errors.estado_id}</div>}
+        </div>
 
-                <div class="mb-3">
-                    <label for="nombre_pasajero_{{ $i }}" class="form-label">Nombre completo</label>
-                    <input type="text" name="nombre_pasajero[]" id="nombre_pasajero_{{ $i }}" class="form-control" required>
-                    @error('nombre_pasajero.'.$i)
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
-                </div>
+        <div>
+          <label className="block">Tarifa base (€)</label>
+          <input
+            type="number"
+            value={data.tarifa_base}
+            onChange={(e) => setData('tarifa_base', e.target.value)}
+            className="w-full border rounded p-2"
+          />
+          {errors.tarifa_base && <div className="text-red-500 text-sm">{errors.tarifa_base}</div>}
+        </div>
 
-                <div class="mb-3">
-                    <label for="documento_identidad_{{ $i }}" class="form-label">Documento de identidad</label>
-                    <input type="text" name="documento_identidad[]" id="documento_identidad_{{ $i }}" class="form-control" required>
-                    @error('documento_identidad.'.$i)
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
-                </div>
-            </fieldset>
-        @endfor
+        <div>
+          <label className="block">Recargos (€)</label>
+          <input
+            type="number"
+            value={data.recargos}
+            onChange={(e) => setData('recargos', e.target.value)}
+            className="w-full border rounded p-2"
+          />
+          {errors.recargos && <div className="text-red-500 text-sm">{errors.recargos}</div>}
+        </div>
 
-        <button type="submit" class="btn btn-primary">Confirmar compra</button>
-    </form>
-</div>
-@endsection
+        <button
+          type="submit"
+          disabled={processing}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+        >
+          Confirmar billete
+        </button>
+      </form>
+    </div>
+  );
+}
