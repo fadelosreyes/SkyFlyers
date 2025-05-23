@@ -65,12 +65,18 @@ export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
     };
 
     const confirmarSeleccion = () => {
-        const todosSeleccionados = Object.values(seleccionPorClase).flat();
-        router.post('/billetes', {
-            vuelo_id: vuelo.id,
-            asientos: todosSeleccionados,
-        });
-    };
+    const todosSeleccionados = Object.values(seleccionPorClase).flat();
+     router.get('/billetes/create', {
+         vuelo_id: vuelo.id,
+         asientos: todosSeleccionados,
+         numPasajeros,
+         tarifa_base: vuelo.precio_minimo,
+         recargos: 0,
+         total: vuelo.precio_minimo * todosSeleccionados.length,
+         fecha_reserva: new Date().toISOString(),
+         fecha_emision: new Date().toISOString(),
+     });
+ };
 
     const limpiarSeleccionClaseActual = () => {
         setSeleccionPorClase(prev => ({
@@ -94,12 +100,14 @@ export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
             <Header activePage="#" />
 
             <div className="contenedor-principal">
-                <div
-                    className="contenedor-avion"
-                    style={{
-                        gridTemplateColumns: `repeat(${(columnasTotales - 1) / 2}, 2.5em) 1.5em repeat(${(columnasTotales - 1) / 2}, 2.5em)`
-                    }}
-                >
+                    <div
+                        className="contenedor-avion"
+                        style={{
+                            gridTemplateColumns: `repeat(${(columnasTotales - 1) / 2}, 2.5em) 1.5em repeat(${(columnasTotales - 1) / 2}, 2.5em)`,
+                            gap: '0.8em 1em'
+                        }}
+                    >
+
                     {Object.entries(filas).map(([fila, asientosFila]) => {
                         const mitad = Math.ceil(asientosFila.length / 2);
                         return (
@@ -208,7 +216,6 @@ export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
                             Limpiar todos
                         </button>
                     </div>
-
                 </div>
             </div>
         </>

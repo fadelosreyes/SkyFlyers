@@ -41,5 +41,7 @@ Route::get('/contacto', function () {
 
 Route::resource('billetes', BilleteController::class);
 
+Route::get('/vuelos/destacados', [VueloController::class, 'getDestacados']);
+
 
 require __DIR__ . '/auth.php';

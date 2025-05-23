@@ -54,6 +54,15 @@ class AeropuertoSeeder extends Seeder
             ['nombre' => 'Aeropuerto Internacional Jinnah', 'ciudad' => 'Karachi', 'pais' => 'Pakistán', 'codigo_iata' => 'KHI'],
             ['nombre' => 'Aeropuerto Internacional Ninoy Aquino', 'ciudad' => 'Manila', 'pais' => 'Filipinas', 'codigo_iata' => 'MNL'],
             ['nombre' => 'Aeropuerto Internacional de Dubái', 'ciudad' => 'Dubái', 'pais' => 'Emiratos Árabes Unidos', 'codigo_iata' => 'DXB'],
+            ['nombre' => 'Aeropuerto Internacional John F. Kennedy', 'ciudad' => 'Nueva York', 'pais' => 'Estados Unidos', 'codigo_iata' => 'JFK'],
+            ['nombre' => 'Aeropuerto Internacional de Miami', 'ciudad' => 'Miami', 'pais' => 'Estados Unidos', 'codigo_iata' => 'MIA'],
+            ['nombre' => 'Aeropuerto Internacional O’Hare', 'ciudad' => 'Chicago', 'pais' => 'Estados Unidos', 'codigo_iata' => 'ORD'],
+            ['nombre' => 'Aeropuerto Internacional Hartsfield-Jackson', 'ciudad' => 'Atlanta', 'pais' => 'Estados Unidos', 'codigo_iata' => 'ATL'],
+            ['nombre' => 'Aeropuerto Internacional Hamad', 'ciudad' => 'Doha', 'pais' => 'Catar', 'codigo_iata' => 'DOH'],
+            ['nombre' => 'Aeropuerto Internacional de Hong Kong', 'ciudad' => 'Hong Kong', 'pais' => 'China', 'codigo_iata' => 'HKG'],
+            ['nombre' => 'Aeropuerto Internacional de Kuala Lumpur', 'ciudad' => 'Kuala Lumpur', 'pais' => 'Malasia', 'codigo_iata' => 'KUL'],
+            ['nombre' => 'Aeropuerto Internacional de Bruselas', 'ciudad' => 'Bruselas', 'pais' => 'Bélgica', 'codigo_iata' => 'BRU'],
+            ['nombre' => 'Aeropuerto de Barcelona-El Prat', 'ciudad' => 'Barcelona', 'pais' => 'España', 'codigo_iata' => 'BCN'],
         ];
 
         foreach ($aeropuertos as $aeropuerto) {
