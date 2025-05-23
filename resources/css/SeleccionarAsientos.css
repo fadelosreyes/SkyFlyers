@@ -3,35 +3,53 @@
   flex-direction: row;
   height: 100vh;
   width: 100%;
+  background-color: #336699;
+  transition: background-color 0.3s ease;
 }
 
+/* Contenedor Avión */
 .contenedor-avion {
   flex: 0 0 80%;
-  background-image: url('/img/avion.png');
-  background-repeat: no-repeat;
-  background-position: left center;
-  background-size: auto 100%; /* Ajustado para pantallas grandes */
   display: grid;
   justify-content: center;
   align-content: center;
-  padding: 1em;
+  padding: 1em 2em;
   overflow-y: auto;
   gap: 0.3em;
-  transition: background-size 0.4s ease, background-position 0.4s ease; /* Transición suave */
+  transition: background-size 0.4s ease, background-position 0.4s ease, padding 0.3s ease;
 }
 
+/* Contenedor Menú */
 .contenedor-menu {
   flex: 0 0 20%;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: center; /* contenido centrado verticalmente */
   background-color: #f9f9f9;
   border-left: 1px solid #ccc;
-  padding: 1em;
+  padding: 1.5em 1.2em; /* menos padding arriba y abajo */
   min-width: 220px;
+  gap: 0.8em; /* menos espacio entre elementos */
+  transition: padding 0.3s ease;
 }
 
+/* Título */
+.contenedor-menu h2,
+.contenedor-menu h3,
+.contenedor-menu .titulo-menu {
+  margin: 0 0 0.8em 0; /* menos margen debajo */
+  padding: 0;
+}
+
+/* Desplegables */
+.contenedor-menu select {
+  margin-bottom: 0.8em; /* menos margen debajo */
+  padding: 0.4em 0.6em;
+  font-size: 1em;
+}
+
+/* Asientos */
 .asiento {
   padding: 0;
   border: none;
@@ -43,8 +61,10 @@
   width: 2.5em;
   height: 2.5em;
   display: block;
+  transition: width 0.3s ease, height 0.3s ease;
 }
 
+/* Botones Confirmar */
 .btn-confirmar {
   padding: 0.625em 1.25em;
   font-size: 1em;
@@ -54,7 +74,9 @@
   border-radius: 0.5em;
   cursor: pointer;
   width: 100%;
-  margin-bottom: 0.5em;
+  margin-top: 0.8em;   /* menos margen arriba */
+  margin-bottom: 0.3em; /* menos margen abajo */
+  transition: background-color 0.3s ease;
 }
 
 .btn-confirmar:disabled {
@@ -62,6 +84,7 @@
   cursor: not-allowed;
 }
 
+/* Botones Limpiar */
 .btn-limpiar {
   padding: 0.5em 1.25em;
   font-size: 0.9em;
@@ -71,6 +94,9 @@
   border-radius: 0.5em;
   cursor: pointer;
   width: 100%;
+  margin-top: 0.8em;  /* menos margen arriba */
+  margin-bottom: 0;
+  transition: background-color 0.3s ease;
 }
 
 .btn-limpiar:disabled {
@@ -78,42 +104,10 @@
   cursor: not-allowed;
 }
 
-/* Media query para portátiles (769px a 1024px) */
+/* === MEDIA QUERIES === */
+
+/* Grandes escritorios y hasta 1024px */
 @media (max-width: 1024px) and (min-width: 769px) {
-  .contenedor-principal {
-    flex-direction: column;
-    height: auto; /* Para que crezca según contenido */
-  }
-
-  .contenedor-avion {
-    flex: none;
-    background-position: center center;
-    background-size: 150% auto; /* Zoom medio, más grande que desktop pero menos que móvil */
-    padding: 0.75em 1em;
-    gap: 0.35em;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(2em, 1fr));
-    justify-content: center;
-    justify-items: center;
-    overflow-x: hidden;
-  }
-
-  .contenedor-menu {
-    flex: none;
-    width: 100%;
-    border-left: none;
-    border-top: 1px solid #ccc;
-    padding: 1em;
-  }
-
-  .asiento img {
-    width: 2.2em;
-    height: 2.2em;
-  }
-}
-
-/* Media query para móviles (max-width: 768px) */
-@media (max-width: 768px) {
   .contenedor-principal {
     flex-direction: column;
     height: auto;
@@ -121,15 +115,15 @@
 
   .contenedor-avion {
     flex: none;
-    background-position: center center;
-    background-size: 270% auto; /* Zoom más grande para móviles */
-    padding: 0.5em 1em;
-    gap: 0.4em;
+    padding: 1em 1.5em;
+    gap: 0.35em;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(2em, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(2.2em, 1fr));
     justify-content: center;
     justify-items: center;
     overflow-x: hidden;
+    background-position: center center;
+    background-size: 150% auto;
   }
 
   .contenedor-menu {
@@ -137,11 +131,138 @@
     width: 100%;
     border-left: none;
     border-top: 1px solid #ccc;
-    padding: 1em;
+    padding: 1.5em 1em; /* menos padding arriba y abajo */
+    min-width: auto;
+    gap: 0.8em;
+    justify-content: center;
+  }
+
+  .contenedor-menu h2,
+  .contenedor-menu h3,
+  .contenedor-menu .titulo-menu {
+    margin-bottom: 0.8em;
+  }
+
+  .contenedor-menu select {
+    margin-bottom: 0.8em;
+  }
+
+  .asiento img {
+    width: 2.2em;
+    height: 2.2em;
+  }
+
+  .btn-confirmar,
+  .btn-limpiar {
+    font-size: 0.95em;
+    margin-top: 0.8em;
+    margin-bottom: 0.3em;
+  }
+}
+
+/* Tablets y móviles grandes hasta 768px */
+@media (max-width: 768px) and (min-width: 481px) {
+  .contenedor-principal {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .contenedor-avion {
+    flex: none;
+    padding: 0.8em 1em;
+    gap: 0.4em;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(2em, 1fr));
+    justify-content: center;
+    justify-items: center;
+    overflow-x: hidden;
+    background-position: center center;
+    background-size: 220% auto;
+  }
+
+  .contenedor-menu {
+    flex: none;
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid #ccc;
+    padding: 1.5em 0.8em;
+    gap: 0.8em;
+    justify-content: center;
+  }
+
+  .contenedor-menu h2,
+  .contenedor-menu h3,
+  .contenedor-menu .titulo-menu {
+    margin-bottom: 0.8em;
+  }
+
+  .contenedor-menu select {
+    margin-bottom: 0.8em;
   }
 
   .asiento img {
     width: 2em;
     height: 2em;
+  }
+
+  .btn-confirmar,
+  .btn-limpiar {
+    font-size: 0.9em;
+    margin-top: 0.8em;
+    margin-bottom: 0.3em;
+  }
+}
+
+/* Móviles pequeños y muy pequeños (480px y menos) */
+@media (max-width: 480px) {
+  .contenedor-principal {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .contenedor-avion {
+    flex: none;
+    padding: 0.5em 0.8em;
+    gap: 0.35em;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(1.8em, 1fr));
+    justify-content: center;
+    justify-items: center;
+    overflow-x: auto;
+    background-position: center center;
+    background-size: 270% auto;
+  }
+
+  .contenedor-menu {
+    flex: none;
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid #ccc;
+    padding: 1.5em 0.6em;
+    gap: 0.8em;
+    justify-content: center;
+  }
+
+  .contenedor-menu h2,
+  .contenedor-menu h3,
+  .contenedor-menu .titulo-menu {
+    margin-bottom: 0.8em;
+  }
+
+  .contenedor-menu select {
+    margin-bottom: 0.8em;
+  }
+
+  .asiento img {
+    width: 1.8em;
+    height: 1.8em;
+  }
+
+  .btn-confirmar,
+  .btn-limpiar {
+    font-size: 0.85em;
+    padding: 0.5em 1em;
+    margin-top: 0.8em;
+    margin-bottom: 0.3em;
   }
 }

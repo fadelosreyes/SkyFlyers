@@ -40,7 +40,7 @@ class VueloSeeder extends Seeder
     $destacadosConImagen = [
         ['origen' => ['ciudad' => 'Madrid', 'pais' => 'España'], 'destino' => ['ciudad' => 'Nueva York', 'pais' => 'Estados Unidos']],
         ['origen' => ['ciudad' => 'Barcelona', 'pais' => 'España'], 'destino' => ['ciudad' => 'Tokio', 'pais' => 'Japón']],
-        ['origen' => ['ciudad' => 'París', 'pais' => 'Francia'], 'destino' => ['ciudad' => 'Dubái', 'pais' => 'Emiratos Árabes Unidos']],
+        ['origen' => ['ciudad' => 'Madrid', 'pais' => 'España'], 'destino' => ['ciudad' => 'Dubái', 'pais' => 'Emiratos Árabes Unidos']],
         ['origen' => ['ciudad' => 'Madrid', 'pais' => 'España'], 'destino' => ['ciudad' => 'Londres', 'pais' => 'Reino Unido']],
         ['origen' => ['ciudad' => 'Madrid', 'pais' => 'España'], 'destino' => ['ciudad' => 'Barcelona', 'pais' => 'España']],
     ];

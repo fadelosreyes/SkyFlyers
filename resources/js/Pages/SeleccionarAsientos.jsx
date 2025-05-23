@@ -94,12 +94,14 @@ export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
             <Header activePage="#" />
 
             <div className="contenedor-principal">
-                <div
-                    className="contenedor-avion"
-                    style={{
-                        gridTemplateColumns: `repeat(${(columnasTotales - 1) / 2}, 2.5em) 1.5em repeat(${(columnasTotales - 1) / 2}, 2.5em)`
-                    }}
-                >
+                    <div
+                        className="contenedor-avion"
+                        style={{
+                            gridTemplateColumns: `repeat(${(columnasTotales - 1) / 2}, 2.5em) 1.5em repeat(${(columnasTotales - 1) / 2}, 2.5em)`,
+                            gap: '0.8em 1em'
+                        }}
+                    >
+
                     {Object.entries(filas).map(([fila, asientosFila]) => {
                         const mitad = Math.ceil(asientosFila.length / 2);
                         return (
@@ -208,7 +210,6 @@ export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
                             Limpiar todos
                         </button>
                     </div>
-
                 </div>
             </div>
         </>

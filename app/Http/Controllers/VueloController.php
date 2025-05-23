@@ -111,18 +111,25 @@ class VueloController extends Controller
         ]);
     }
 
-    public function seleccionarAsientos(Request $request, $id)
-    {
-        $numPasajeros = (int) $request->input('passengers', 1);
-
-        $vuelo = Vuelo::with(['asientos.clase', 'asientos.estado'])->findOrFail($id);
-
-        return Inertia::render('SeleccionarAsientos', [
-            'vuelo' => $vuelo,
-            'asientos' => $vuelo->asientos,
-            'numPasajeros' => $numPasajeros, // <-- Pasamos numPasajeros a la vista
-        ]);
+   public function seleccionarAsientos(Request $request, $id)
+{
+    // Si no viene passengers o viene vacío, lo dejamos como null (sin límite)
+    $numPasajeros = $request->input('passengers');
+    if (empty($numPasajeros) || !is_numeric($numPasajeros) || $numPasajeros < 1) {
+        $numPasajeros = 100;
+    } else {
+        $numPasajeros = (int) $numPasajeros;
     }
+
+    $vuelo = Vuelo::with(['asientos.clase', 'asientos.estado'])->findOrFail($id);
+
+    return Inertia::render('SeleccionarAsientos', [
+        'vuelo' => $vuelo,
+        'asientos' => $vuelo->asientos,
+        'numPasajeros' => $numPasajeros,
+    ]);
+}
+
 
     public function getDestacados(): \Illuminate\Http\JsonResponse
     {

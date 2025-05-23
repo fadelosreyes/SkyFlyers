@@ -48,19 +48,42 @@
     height: auto;
 }
 
-/* --- Responsive --- */
-@media (max-width: 768px) {
+/* --- Responsive para portátiles (hasta 1024px) --- */
+@media (max-width: 1024px) {
     .seccion-acerca-de {
         flex-direction: column;
-        padding-left: 10px;
-        padding-right: 10px;
+        padding-left: 15px;
+        padding-right: 15px;
     }
 
     .contenido-acerca-de,
     .enlaces-sociales {
         width: 100%;
         padding-left: 0;
-        margin-bottom: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .item-social img {
+        width: 19px;
+        margin-left: 9px;
+        padding-top: 9px;
+    }
+
+    .texto-acerca-de {
+        font-size: 1.2em;
+        line-height: 1.55;
+    }
+
+    .item-social {
+        font-size: 0.98em;
+    }
+}
+
+/* --- Responsive para tabletas y móviles medianos (hasta 768px) --- */
+@media (max-width: 768px) {
+    .seccion-acerca-de {
+        padding-left: 10px;
+        padding-right: 10px;
     }
 
     .item-social img {
@@ -69,18 +92,17 @@
         padding-top: 8px;
     }
 
-    /* Reducir la letra ligeramente en pantallas pequeñas */
     .texto-acerca-de {
         font-size: 1.15em;  /* de 1.3em a 1.15em */
         line-height: 1.5;
     }
 
     .item-social {
-        font-size: 0.95em; /* de 1em a 0.95em */
+        font-size: 0.95em;
     }
 }
 
-/* Opcional para pantallas muy pequeñas */
+/* --- Responsive para móviles pequeños (hasta 400px) --- */
 @media (max-width: 400px) {
     .texto-acerca-de {
         font-size: 1.1em;
