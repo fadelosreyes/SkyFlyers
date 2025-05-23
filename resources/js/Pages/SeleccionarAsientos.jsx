@@ -65,12 +65,18 @@ export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
     };
 
     const confirmarSeleccion = () => {
-        const todosSeleccionados = Object.values(seleccionPorClase).flat();
-        router.post('/billetes', {
-            vuelo_id: vuelo.id,
-            asientos: todosSeleccionados,
-        });
-    };
+    const todosSeleccionados = Object.values(seleccionPorClase).flat();
+     router.get('/billetes/create', {
+         vuelo_id: vuelo.id,
+         asientos: todosSeleccionados,
+         numPasajeros,
+         tarifa_base: vuelo.precio_minimo,
+         recargos: 0,
+         total: vuelo.precio_minimo * todosSeleccionados.length,
+         fecha_reserva: new Date().toISOString(),
+         fecha_emision: new Date().toISOString(),
+     });
+ };
 
     const limpiarSeleccionClaseActual = () => {
         setSeleccionPorClase(prev => ({
