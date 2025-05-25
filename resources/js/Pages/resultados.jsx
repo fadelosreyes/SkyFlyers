@@ -30,14 +30,14 @@ export default function Resultados({ vuelos, passengers }) {
 
                             return (
                                 <div
-                                    className="billete-vuelos"
+                                    className="Billete-vuelos"
                                     key={v.id}
                                     itemScope
                                     itemType="http://schema.org/Flight"
                                 >
                                     <meta itemProp="flightNumber" content={v.numero_vuelo || ''} />
 
-                                    <div className="billete-vuelos-header">
+                                    <div className="Billete-vuelos-header">
                                         <div
                                             className="airline"
                                             itemProp="provider"
@@ -61,7 +61,7 @@ export default function Resultados({ vuelos, passengers }) {
                                         </div>
                                     </div>
 
-                                    <div className="billete-vuelos-body">
+                                    <div className="Billete-vuelos-body">
                                         {/* Origen */}
                                         <div
                                             className="segment"
@@ -129,7 +129,7 @@ export default function Resultados({ vuelos, passengers }) {
                                         </div>
                                     </div>
 
-                                    <div className="billete-vuelos-footer">
+                                    <div className="Billete-vuelos-footer">
                                         <div className="details">
                                             Duración:{' '}
                                             <time itemProp="duration" dateTime={durationISO}>

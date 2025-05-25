@@ -10,18 +10,19 @@ class Billete extends Model
     use HasFactory;
 
     protected $fillable = [
-        'id_user',
+        'user_id',
         'nombre_pasajero',
         'documento_identidad',
-        'id_asiento',
-        'estado_id',
+        'asiento_id',
         'codigo_QR',
         'pnr',
         'recargos',
         'tarifa_base',
         'total',
         'fecha_reserva',
-        'fecha_emision'
+        'fecha_emision',
+        'maleta_adicional',
+        'cancelacion_flexible'
     ];
 
     public function usuario()
