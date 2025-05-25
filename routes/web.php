@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AeropuertoController;
 use App\Http\Controllers\BilleteController;
+use App\Http\Controllers\PagoController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VueloController;
 use Illuminate\Foundation\Application;
@@ -23,11 +24,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/vuelos/resultados', [VueloController::class, 'resultados'])
-->name('vuelos.resultados');
+Route::get('/vuelos/resultados', [VueloController::class, 'resultados'])->name('vuelos.resultados');
 
 Route::get('/vuelos/reservar/{id}', [VueloController::class, 'seleccionarAsientos'])
-->name('seleccionar.asientos');
+    ->middleware('auth')
+    ->name('seleccionar.asientos');
 
 Route::resource('aeropuertos', AeropuertoController::class);
 
@@ -39,9 +40,15 @@ Route::get('/contacto', function () {
     return Inertia::render('contacto');
 })->name('contacto');
 
-Route::resource('billetes', BilleteController::class);
+// Rutas para billetes:
+Route::post('/billetes/preparar-pago', [BilleteController::class, 'prepararPago'])->name('billetes.preparar_pago');
+//Route::get('/billetes/pago', [BilleteController::class, 'mostrarPago'])->name('billetes.mostrar_pago');
+Route::resource('billetes', BilleteController::class)->where(['billete' => '[0-9]+']);
 
 Route::get('/vuelos/destacados', [VueloController::class, 'getDestacados']);
 
+// Rutas para pago Stripe:
+//Route::post('/pago/stripe', [PagoController::class, 'crearSesionStripe'])->name('pago.stripe');
+Route::get('/pago/exito', [PagoController::class, 'exito'])->name('pago.exito');
 
 require __DIR__ . '/auth.php';

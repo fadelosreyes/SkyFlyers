@@ -29,8 +29,6 @@ class DatabaseSeeder extends Seeder
             VueloSeeder::class,
             EstadoSeeder::class,
             ClaseSeeder::class,
-            MetodosPagoSeeder::class,
-            EstadosPagoSeeder::class,
             AsientoSeeder::class
         ]);
     }

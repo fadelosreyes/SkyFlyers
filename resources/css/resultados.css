@@ -39,7 +39,7 @@ body {
     gap: 1.5rem;
 }
 
-.billete-vuelos {
+.Billete-vuelos {
     flex: 1 1 600px;
     max-width: 600px;
     min-width: 300px;
@@ -51,7 +51,7 @@ body {
     transition: var(--transition);
 }
 
-.billete-vuelos-header {
+.Billete-vuelos-header {
     padding: 0.75rem 1rem;
     background: var(--color-primary);
     color: #fff;
@@ -60,17 +60,17 @@ body {
     align-items: center;
 }
 
-.billete-vuelos-header .airline {
+.Billete-vuelos-header .airline {
     font-size: 1rem;
     font-weight: 600;
 }
 
-.billete-vuelos-header .price {
+.Billete-vuelos-header .price {
     font-size: 1.1rem;
     font-weight: 700;
 }
 
-.billete-vuelos-body {
+.Billete-vuelos-body {
     display: flex;
     align-items: center;
     padding: 1rem;
@@ -108,14 +108,14 @@ body {
     color: var(--color-primary);
 }
 
-.billete-vuelos-footer {
+.Billete-vuelos-footer {
     display: flex;
     align-items: center;
     padding: 0.75rem 1rem;
     background: var(--color-card-bg);
 }
 
-.billete-vuelos-footer .details {
+.Billete-vuelos-footer .details {
     font-size: 0.95rem;
     color: var(--color-text-light);
 }
@@ -150,13 +150,13 @@ body {
 
 /* --- Responsive para portátiles (hasta 1024px) --- */
 @media (max-width: 1024px) {
-    .billete-vuelos {
+    .Billete-vuelos {
         flex: 1 1 90%;
         max-width: 90%;
         min-width: auto;
     }
 
-    .billete-vuelos-body {
+    .Billete-vuelos-body {
         flex-direction: column;
         gap: 0.5rem;
         padding: 0.75rem 1rem;
@@ -172,7 +172,7 @@ body {
         display: none;
     }
 
-    .billete-vuelos-footer {
+    .Billete-vuelos-footer {
         flex-direction: column;
         align-items: flex-start;
         gap: 0.5rem;
@@ -195,16 +195,16 @@ body {
         font-size: 1.5rem;
     }
 
-    .billete-vuelos {
+    .Billete-vuelos {
         flex: 1 1 100%;
         max-width: 100%;
     }
 
-    .billete-vuelos-header .airline {
+    .Billete-vuelos-header .airline {
         font-size: 0.95rem;
     }
 
-    .billete-vuelos-header .price {
+    .Billete-vuelos-header .price {
         font-size: 1rem;
     }
 

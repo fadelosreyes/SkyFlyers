@@ -25,8 +25,8 @@ class Asiento extends Model
         return $this->belongsTo(Estado::class);
     }
 
-    public function billete()
+    public function Billete()
     {
-        return $this->belongsTo(billete::class);
+        return $this->belongsTo(Billete::class);
     }
 }

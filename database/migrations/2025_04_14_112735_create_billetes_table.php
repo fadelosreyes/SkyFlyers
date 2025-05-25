@@ -16,8 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users');
             $table->string('nombre_pasajero', 255);
             $table->string('documento_identidad', 50);
-            $table->foreignId('asiento_id')->constrained('asientos');  // Relacionado con el asiento
-            $table->foreignId('estado_id')->constrained('estados');
+            $table->foreignId('asiento_id')->constrained('asientos');
             $table->string('codigo_QR', 255);
             $table->string('pnr', 10);
             $table->decimal('recargos', 10, 2)->default(0);
@@ -25,6 +24,8 @@ return new class extends Migration
             $table->decimal('total', 10, 2);
             $table->dateTime('fecha_reserva');
             $table->dateTime('fecha_emision');
+            $table->boolean('maleta_adicional')->default(false);
+            $table->boolean('cancelacion_flexible')->default(false);
             $table->timestamps();
         });
     }

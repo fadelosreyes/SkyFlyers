@@ -27,6 +27,9 @@ export default function Principal({ auth }) {
     const originRef = useRef();
     const destRef = useRef();
 
+    // Fecha de hoy en formato YYYY-MM-DD
+    const today = new Date().toISOString().split('T')[0];
+
     // Autocompletar Origen
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -209,7 +212,12 @@ export default function Principal({ auth }) {
                             onChange={e => {
                                 setStartDate(e.target.value);
                                 setErrors(prev => ({ ...prev, startDate: '' }));
+                                // Limpiar fecha de regreso si es menor que la nueva fecha de salida
+                                if (endDate && e.target.value > endDate) {
+                                    setEndDate('');
+                                }
                             }}
+                            min={today}
                             aria-label="Fecha de salida"
                         />
                         {errors.startDate && <div className="error-message">{errors.startDate}</div>}
@@ -226,6 +234,7 @@ export default function Principal({ auth }) {
                                 setEndDate(e.target.value);
                                 setErrors(prev => ({ ...prev, endDate: '' }));
                             }}
+                            min={startDate || today}
                             aria-label="Fecha de regreso"
                         />
                         {errors.endDate && <div className="error-message">{errors.endDate}</div>}

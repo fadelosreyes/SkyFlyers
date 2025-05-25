@@ -17,7 +17,7 @@ class Pago extends Model
         'fecha_pago'
     ];
 
-    public function billete()
+    public function Billete()
     {
         return $this->belongsTo(Billete::class, 'id_billete');
     }

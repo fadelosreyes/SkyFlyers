@@ -3,116 +3,84 @@
 namespace App\Http\Controllers;
 
 use App\Models\Asiento;
-use App\Models\billete;
-use App\Models\Estado;
+use App\Models\Vuelo;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use QRcode;
 use Inertia\Inertia;
+use Stripe\Stripe;
+use Stripe\Checkout\Session;
 
 class BilleteController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
     /**
      * Show the form for creating a new resource.
      */
     public function create(Request $request)
     {
-        $asientosSeleccionados = $request->input('asientos', []);
-        $asientos = Asiento::whereIn('id', $asientosSeleccionados)->get();
-        $estados = Estado::all();
+        $vueloId       = $request->input('vuelo_id');
+        $asientoIds    = $request->input('asientos', []);
 
-        return Inertia::render('Billetes/Create', [
-            'asientos' => $asientos,
-            'estados' => $estados,
-        ]);
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'nombre_pasajero' => 'required|string|max:255',
-            'documento_identidad' => 'required|string|max:50',
-            'asiento_id' => 'required|exists:asientos,id',
-            'estado_id' => 'required|exists:estados,id',
-            'tarifa_base' => 'required|numeric',
-            'recargos' => 'nullable|numeric',
-            'total' => 'required|numeric',
-        ]);
-
-        $usuario = Auth::user();
-
-        // 1) Creamos el billete SIN el QR
-        $billete = Billete::create([
-            'user_id' => $usuario->id,
-            'nombre_pasajero' => $request->nombre_pasajero,
-            'documento_identidad' => $request->documento_identidad,
-            'asiento_id' => $request->asiento_id,
-            'estado_id' => $request->estado_id,
-            'pnr' => strtoupper(Str::random(6)),
-            'recargos' => $request->recargos ?? 0,
-            'tarifa_base' => $request->tarifa_base,
-            'total' => $request->total,
-            'fecha_reserva' => now(),
-            'fecha_emision' => now(),
-            'codigo_QR' => '', // placeholder
-        ]);
-
-        // 2) Generamos el QR YA con el ID real del billete
-        $urlParaQR = route('billetes.show', $billete->id);
-        $nombreQR = 'qr_' . Str::random(10) . '.png';
-        $rutaQR = public_path('qr_codes/' . $nombreQR);
-
-        if (!file_exists(public_path('qr_codes'))) {
-            mkdir(public_path('qr_codes'), 0755, true);
+        if (empty($asientoIds)) {
+            return redirect()->route('seleccionar.asientos', $vueloId)
+                             ->with('error', 'Debes seleccionar al menos un asiento.');
         }
-        QRcode::png($urlParaQR, $rutaQR, QR_ECLEVEL_L, 4);
 
-        // 3) Actualizamos el billete con la ruta del QR generado
-        $billete->update([
-            'codigo_QR' => 'qr_codes/' . $nombreQR,
+        $vuelo                = Vuelo::findOrFail($vueloId);
+        $asientosSeleccionados = Asiento::whereIn('id', $asientoIds)->get();
+
+        //  ↙ Aquí calculamos el total base (solo precio_base) de todos los asientos
+        $totalBase = $asientosSeleccionados->sum(fn($a) => $a->precio_base);
+
+        return Inertia::render('Billete/DatosPasajero', [
+            'vuelo'                 => $vuelo,
+            'asientosSeleccionados' => $asientosSeleccionados,
+            'totalBase'             => $totalBase,
         ]);
-
-        return redirect()->route('billetes.show', $billete)->with('success', 'Billete creado correctamente');
     }
 
     /**
-     * Display the specified resource.
+     * Guarda los datos y crea la sesión de Stripe Checkout.
      */
-    public function show(billete $billete)
-    {
-        //
+   public function prepararPago(Request $request)
+{
+    $data = $request->validate([
+        'pasajeros.*.nombre_pasajero'      => 'required|string',
+        'pasajeros.*.documento_identidad'  => 'required|string',
+        'pasajeros.*.maleta_adicional'     => 'boolean',
+        'pasajeros.*.cancelacion_flexible' => 'boolean',
+        'pasajeros.*.asiento_id'           => 'required|exists:asientos,id',
+    ]);
+
+    session(['datos_billete' => $data['pasajeros']]);
+
+    $precioTotal = 0;
+
+    foreach ($data['pasajeros'] as $p) {
+        $asiento = Asiento::findOrFail($p['asiento_id']);
+        $sub = $asiento->precio_base;
+        $sub += !empty($p['maleta_adicional'])     ? 20 : 0;
+        $sub += !empty($p['cancelacion_flexible']) ? 15 : 0;
+        $precioTotal += $sub;
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(billete $billete)
-    {
-        //
-    }
+    Stripe::setApiKey(env('STRIPE_SECRET'));
+    $session = Session::create([
+        'payment_method_types' => ['card'],
+        'line_items' => [[
+            'price_data' => [
+                'currency'     => 'eur',
+                'product_data' => ['name' => 'Billetes de avión'],
+                'unit_amount'  => $precioTotal * 100,
+            ],
+            'quantity' => 1,
+        ]],
+        'mode'       => 'payment',
+        'success_url'=> route('pago.exito') . '?session_id={CHECKOUT_SESSION_ID}',
+        'cancel_url' => route('principal'),
+    ]);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, billete $billete)
-    {
-        //
-    }
+    session(['stripe_session_id' => $session->id]);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(billete $billete)
-    {
-        //
-    }
+    return Inertia::location($session->url);
+}
+
 }
