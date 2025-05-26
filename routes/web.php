@@ -47,8 +47,13 @@ Route::resource('billetes', BilleteController::class)->where(['billete' => '[0-9
 
 Route::get('/vuelos/destacados', [VueloController::class, 'getDestacados']);
 
+Route::get('/cancelaciones', [BilleteController::class, 'index'])->name('cancelaciones.index');
+
 // Rutas para pago Stripe:
 //Route::post('/pago/stripe', [PagoController::class, 'crearSesionStripe'])->name('pago.stripe');
 Route::get('/pago/exito', [PagoController::class, 'exito'])->name('pago.exito');
+
+Route::post('/vuelos/{vuelo}/cancelar-billetes', [PagoController::class, 'cancelarVuelo'])->name('vuelos.cancelarBilletes');
+
 
 require __DIR__ . '/auth.php';

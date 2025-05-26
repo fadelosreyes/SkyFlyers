@@ -19,15 +19,19 @@ export default function ConfirmacionMultiple({ billetes }) {
                             <p><strong>Documento:</strong> {billete.documento_identidad}</p>
                             <p><strong>PNR:</strong> {billete.pnr}</p>
                             <p><strong>Código QR:</strong> {billete.codigo_QR}</p>
-                            <p><strong>Asiento ID:</strong> {billete.asiento_id}</p>
+                            <p><strong>Asiento Numero:</strong> {billete.asiento_numero}</p>
                             <p><strong>Tarifa base:</strong> ${billete.tarifa_base ? Number(billete.tarifa_base).toFixed(2) : 'N/A'}</p>
                             <p><strong>Total:</strong> ${billete.total ? Number(billete.total).toFixed(2) : 'N/A'}</p>
                             <p><strong>Maleta adicional:</strong> {billete.maleta_adicional ? 'Sí' : 'No'}</p>
                             <p><strong>Cancelación flexible:</strong> {billete.cancelacion_flexible ? 'Sí' : 'No'}</p>
                             <p><strong>Fecha reserva:</strong> {billete.fecha_reserva ? new Date(billete.fecha_reserva).toLocaleString() : 'N/A'}</p>
+
+                            <p><strong>Fecha de vuelo:</strong> {billete.vuelo_fecha_salida ? new Date(billete.vuelo_fecha_salida).toLocaleString() : 'N/A'}</p>
+                            <p><strong>Fecha de llegada:</strong> {billete.vuelo_fecha_llegada ? new Date(billete.vuelo_fecha_llegada).toLocaleString() : 'N/A'}</p>
+                            <p><strong>Origen:</strong> {billete.aeropuerto_origen ?? 'N/A'}</p>
+                            <p><strong>Destino:</strong> {billete.aeropuerto_destino ?? 'N/A'}</p>
                         </div>
                     ))}
-
                 </div>
 
                 <div className="mt-8">

@@ -1,5 +1,6 @@
 import React from 'react';
 import Dropdown from '@/Components/Dropdown';
+import { route } from 'ziggy-js';
 
 export default function UserDropdown({ user }) {
     if (!user) return null;
@@ -23,9 +24,12 @@ export default function UserDropdown({ user }) {
                 </Dropdown.Trigger>
 
                 <Dropdown.Content>
-                {/* <Dropdown.Link href={route('profile.edit')}>
-                        Perfil
-                    </Dropdown.Link> */}
+                    {/* Opción Cancelaciones */}
+                    <Dropdown.Link href={route('cancelaciones.index')}>
+                        Reembolsos
+                    </Dropdown.Link>
+
+                    {/* Cerrar sesión */}
                     <Dropdown.Link href={route('logout')} method="post" as="button">
                         Cerrar sesión
                     </Dropdown.Link>

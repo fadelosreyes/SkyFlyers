@@ -215,3 +215,18 @@ html, body {
         box-sizing: border-box;
     }
 }
+
+/* -- Aquí añadimos estilos para vuelos recomendados -- */
+
+.vuelos-recomendados {
+    width: 90%;
+    max-width: 1200px;
+    margin: 2rem auto; /* margen superior e inferior y centrado */
+}
+
+@media (min-width: 1200px) {
+    .vuelos-recomendados {
+        width: 95%;
+        max-width: 1600px;
+    }
+}
