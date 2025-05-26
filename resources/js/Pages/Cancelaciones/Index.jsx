@@ -43,8 +43,6 @@ export default function Index({ vuelosConBilletes }) {
                                         <p><strong>PNR:</strong> {billete.pnr}</p>
                                         <p><strong>Asiento:</strong> {billete.asiento_numero}</p>
                                         <p><strong>Total:</strong> ${Number(billete.total).toFixed(2)}</p>
-                                        <p><strong>Maleta adicional:</strong> {billete.maleta_adicional ? 'Sí' : 'No'}</p>
-                                        <p><strong>Cancelación flexible:</strong> {billete.cancelacion_flexible ? 'Sí' : 'No'}</p>
                                         <p><strong>Fecha de reserva:</strong> {new Date(billete.fecha_reserva).toLocaleString()}</p>
                                     </div>
                                 ))}

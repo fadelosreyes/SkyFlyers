@@ -107,49 +107,56 @@ class PagoController extends Controller
             'billetes' => $billetesPlanos,
         ]);
     }
-    public function cancelarVuelo($vueloId)
-    {
-        // Obtener todos los billetes activos (no soft deleted) relacionados con el vuelo
-        $billetes = Billete::whereHas('asiento', function ($query) use ($vueloId) {
-            $query->where('vuelo_id', $vueloId);
-        })
-            ->whereNull('deleted_at')
-            ->get();
+public function cancelarVuelo($vueloId)
+{
+    $billetes = Billete::whereHas('asiento', fn($q) => $q->where('vuelo_id', $vueloId))
+                       ->get();
 
-        if ($billetes->isEmpty()) {
-            return redirect()->back()->with('error', 'No se encontraron billetes activos para este vuelo.');
-        }
-
-        Stripe::setApiKey(env('STRIPE_SECRET'));
-
-        foreach ($billetes as $billete) {
-            try {
-                // Recuperar la sesión de Stripe para obtener el payment_intent
-                $session = \Stripe\Checkout\Session::retrieve($billete->stripe_session_id);
-                $paymentIntent = $session->payment_intent;
-
-                // Realizar el reembolso
-                Refund::create([
-                    'payment_intent' => $paymentIntent,
-                ]);
-
-                // Marcar el billete como eliminado (soft delete)
-                $billete->delete();
-
-                // Liberar el asiento
-                if ($billete->asiento) {
-                    $asiento = $billete->asiento;
-                    $asiento->estado_id = 1; // 1 = libre
-                    $asiento->save();
-                }
-            } catch (\Exception $e) {
-                Log::error('Error al cancelar vuelo: ' . $e->getMessage());
-                return redirect()
-                    ->back()
-                    ->with('error', 'Error al cancelar y reembolsar: ' . $e->getMessage());
-            }
-        }
-
-        return redirect()->back()->with('success', 'Todos los billetes han sido cancelados, reembolsados y los asientos liberados.');
+    if ($billetes->isEmpty()) {
+        return back()->with('error', 'No hay billetes activos para este vuelo.');
     }
+
+    Stripe::setApiKey(env('STRIPE_SECRET'));
+
+    $refundedIntents = [];
+    $errores = [];
+
+    foreach ($billetes as $billete) {
+        try {
+            $intent = null;
+
+            // Solo refund si aún no se ha reembolsado este payment_intent
+            if (! in_array($billete->stripe_session_id, $refundedIntents)) {
+                $session = \Stripe\Checkout\Session::retrieve($billete->stripe_session_id);
+                $intent  = $session->payment_intent;
+
+                \Stripe\Refund::create(['payment_intent' => $intent]);
+
+                // Marcamos que ya lo reembolsamos
+                $refundedIntents[] = $billete->stripe_session_id;
+            }
+
+            // Soft delete del billete
+            $billete->delete();
+
+            // Liberar el asiento
+            if ($as = $billete->asiento) {
+                $as->estado_id = 1;
+                $as->save();
+            }
+
+        } catch (\Exception $e) {
+            Log::error("Error en billete {$billete->id}: {$e->getMessage()}");
+            $errores[] = "ID {$billete->id}";
+            // No return: seguimos con los demás
+        }
+    }
+
+    if (! empty($errores)) {
+        return back()->with('error', 'No se pudieron cancelar algunos billetes: ' . implode(', ', $errores));
+    }
+
+    return back()->with('success', 'Todos los billetes han sido cancelados, reembolsados y los asientos liberados.');
+}
+
 }

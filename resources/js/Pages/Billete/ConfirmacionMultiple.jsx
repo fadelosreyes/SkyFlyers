@@ -11,14 +11,11 @@ export default function ConfirmacionMultiple({ billetes }) {
                 <p className="mb-6">Se han generado los siguientes billetes:</p>
 
                 <div className="space-y-6">
-                    {billetes.length === 0 && <p>No se encontraron billetes.</p>}
-
                     {billetes.map((billete) => (
                         <div key={billete.id} className="border rounded p-4 shadow-sm bg-white">
                             <p><strong>Pasajero:</strong> {billete.nombre_pasajero}</p>
                             <p><strong>Documento:</strong> {billete.documento_identidad}</p>
                             <p><strong>PNR:</strong> {billete.pnr}</p>
-                            <p><strong>Código QR:</strong> {billete.codigo_QR}</p>
                             <p><strong>Asiento Numero:</strong> {billete.asiento_numero}</p>
                             <p><strong>Tarifa base:</strong> ${billete.tarifa_base ? Number(billete.tarifa_base).toFixed(2) : 'N/A'}</p>
                             <p><strong>Total:</strong> ${billete.total ? Number(billete.total).toFixed(2) : 'N/A'}</p>
