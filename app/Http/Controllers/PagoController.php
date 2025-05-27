@@ -15,7 +15,8 @@ use Stripe\Checkout\Session;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
-
+use App\Mail\BilletesEmail;
+use Illuminate\Support\Facades\Mail;
 
 class PagoController extends Controller
 {
@@ -101,12 +102,16 @@ class PagoController extends Controller
             ];
         });
 
+        // **Enviar el email con los billetes**
+        Mail::to(Auth::user()->email)->send(new BilletesEmail($billetesPlanos));
+
         session()->forget(['datos_billete', 'stripe_session_id']);
 
         return Inertia::render('Billete/ConfirmacionMultiple', [
             'billetes' => $billetesPlanos,
         ]);
     }
+
 public function cancelarVuelo($vueloId)
 {
     $billetes = Billete::whereHas('asiento', fn($q) => $q->where('vuelo_id', $vueloId))

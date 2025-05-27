@@ -29,6 +29,8 @@ return new class extends Migration
             $table->string('stripe_session_id');
             $table->softDeletes();
             $table->timestamps();
+
+            $table->unique('asiento_id');
         });
     }
 
