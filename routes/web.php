@@ -55,5 +55,7 @@ Route::get('/pago/exito', [PagoController::class, 'exito'])->name('pago.exito');
 
 Route::post('/vuelos/{vuelo}/cancelar-billetes', [PagoController::class, 'cancelarVuelo'])->name('vuelos.cancelarBilletes');
 
+Route::middleware(['auth'])->get('/mis-viajes', [VueloController::class, 'misViajes'])->name('mis.viajes');
+
 
 require __DIR__ . '/auth.php';

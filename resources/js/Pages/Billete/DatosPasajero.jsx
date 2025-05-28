@@ -1,52 +1,75 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from '@inertiajs/react';
 import Header from '../../Components/Header';
 import { route } from 'ziggy-js';
 
 export default function DatosPasajero({ vuelo, asientosSeleccionados, totalBase }) {
-  // Estado inicial: pasajeros y cancelación flexible global
-  const { data, setData, post, processing, errors } = useForm({
+  const { data, setData, post, processing, errors: serverErrors } = useForm({
     pasajeros: asientosSeleccionados.map(a => ({
       nombre_pasajero: '',
       documento_identidad: '',
       maleta_adicional: false,
       asiento_id: a.id,
     })),
-    cancelacion_flexible_global: false, // checkbox global
+    cancelacion_flexible_global: false,
+    total: totalBase,
   });
 
-  // Cambiar campos pasajeros
+  // Estado para errores cliente
+  const [clientErrors, setClientErrors] = useState({});
+
   function handleInputChange(i, field, val) {
     const arr = [...data.pasajeros];
     arr[i][field] = val;
     setData('pasajeros', arr);
   }
 
-  // Cambiar checkbox global cancelación flexible
   function handleCancelacionGlobalChange(checked) {
     setData('cancelacion_flexible_global', checked);
   }
 
-  // Calcular precio de un pasajero (maleta adicional + no incluye cancelacion flexible porque es global)
   function calcularPrecioPasajero(i) {
     let p = parseFloat(asientosSeleccionados[i].precio_base);
     if (data.pasajeros[i].maleta_adicional) p += 20;
     return p;
   }
 
-  // Calcular total sumando precio pasajeros + cancelación flexible global * número de pasajeros
   function calcularPrecioTotal() {
     const sumaPasajeros = data.pasajeros.reduce((sum, _, i) => sum + calcularPrecioPasajero(i), 0);
-    const recargoCancelacion = data.cancelacion_flexible_global ? data.pasajeros.length * 15 : 0;
+    const recargoCancelacion = data.cancelacion_flexible_global
+      ? data.pasajeros.length * 15
+      : 0;
     return sumaPasajeros + recargoCancelacion;
+  }
+
+  function validate() {
+    const errs = {};
+    data.pasajeros.forEach((pas, i) => {
+      // Nombre: mínimo 3 caracteres, solo letras y espacios
+      const nombre = pas.nombre_pasajero.trim();
+      if (!nombre || nombre.length < 3) {
+        errs[`nombre_${i}`] = 'El nombre debe tener al menos 3 caracteres.';
+      } else if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$/.test(nombre)) {
+        errs[`nombre_${i}`] = 'El nombre solo puede contener letras y espacios.';
+      }
+
+      // DNI/Pasaporte: 5–10 alfanuméricos con al menos un dígito
+      const doc = pas.documento_identidad.trim();
+      if (!doc) {
+        errs[`doc_${i}`] = 'El DNI/Pasaporte es obligatorio.';
+      } else if (!/^(?=.*\d)[A-Za-z0-9]{5,10}$/.test(doc)) {
+        errs[`doc_${i}`] = 'Formato de DNI/Pasaporte inválido.';
+      }
+    });
+    setClientErrors(errs);
+    return Object.keys(errs).length === 0;
   }
 
   function handleSubmit(e) {
     e.preventDefault();
+    if (!validate()) return;
 
     const totalConRecargos = calcularPrecioTotal();
-
-    // Enviamos pasajeros + cancelacion flexible global + total al backend
     post(route('billetes.preparar_pago'), {
       pasajeros: data.pasajeros,
       cancelacion_flexible_global: data.cancelacion_flexible_global,
@@ -72,10 +95,17 @@ export default function DatosPasajero({ vuelo, asientosSeleccionados, totalBase 
               type="text"
               value={pas.nombre_pasajero}
               onChange={e => handleInputChange(i, 'nombre_pasajero', e.target.value)}
-              className="w-full p-2 border mb-3"
+              className="w-full p-2 border mb-1"
             />
-            {errors[`pasajeros.${i}.nombre_pasajero`] && (
-              <div className="text-red-600 text-sm">{errors[`pasajeros.${i}.nombre_pasajero`]}</div>
+            {clientErrors[`nombre_${i}`] && (
+              <div className="text-red-600 text-sm mb-1">
+                {clientErrors[`nombre_${i}`]}
+              </div>
+            )}
+            {serverErrors[`pasajeros.${i}.nombre_pasajero`] && (
+              <div className="text-red-600 text-sm mb-1">
+                {serverErrors[`pasajeros.${i}.nombre_pasajero`]}
+              </div>
             )}
 
             <label className="block mb-1">DNI / Pasaporte</label>
@@ -83,13 +113,20 @@ export default function DatosPasajero({ vuelo, asientosSeleccionados, totalBase 
               type="text"
               value={pas.documento_identidad}
               onChange={e => handleInputChange(i, 'documento_identidad', e.target.value)}
-              className="w-full p-2 border mb-3"
+              className="w-full p-2 border mb-1"
             />
-            {errors[`pasajeros.${i}.documento_identidad`] && (
-              <div className="text-red-600 text-sm">{errors[`pasajeros.${i}.documento_identidad`]}</div>
+            {clientErrors[`doc_${i}`] && (
+              <div className="text-red-600 text-sm mb-1">
+                {clientErrors[`doc_${i}`]}
+              </div>
+            )}
+            {serverErrors[`pasajeros.${i}.documento_identidad`] && (
+              <div className="text-red-600 text-sm mb-1">
+                {serverErrors[`pasajeros.${i}.documento_identidad`]}
+              </div>
             )}
 
-            <label className="block mb-1">
+            <label className="block mb-3">
               <input
                 type="checkbox"
                 checked={pas.maleta_adicional}
@@ -102,8 +139,8 @@ export default function DatosPasajero({ vuelo, asientosSeleccionados, totalBase 
               Precio pasajero: {calcularPrecioPasajero(i).toFixed(2)} €
             </p>
           </div>
-
         ))}
+
         <label className="block mb-6">
           <input
             type="checkbox"
