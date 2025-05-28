@@ -6,6 +6,8 @@ use App\Models\Vuelo;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Billete;
 
 class VueloController extends Controller
 {
@@ -111,54 +113,80 @@ class VueloController extends Controller
         ]);
     }
 
-   public function seleccionarAsientos(Request $request, $id)
-{
-    // Si no viene passengers o viene vacío, lo dejamos como null (sin límite)
-    $numPasajeros = $request->input('passengers');
-    if (empty($numPasajeros) || !is_numeric($numPasajeros) || $numPasajeros < 1) {
-        $numPasajeros = 100;
-    } else {
-        $numPasajeros = (int) $numPasajeros;
+    public function seleccionarAsientos(Request $request, $id)
+    {
+        // Si no viene passengers o viene vacío, lo dejamos como null (sin límite)
+        $numPasajeros = $request->input('passengers');
+        if (empty($numPasajeros) || !is_numeric($numPasajeros) || $numPasajeros < 1) {
+            $numPasajeros = 100;
+        } else {
+            $numPasajeros = (int) $numPasajeros;
+        }
+
+        $vuelo = Vuelo::with(['asientos.clase', 'asientos.estado'])->findOrFail($id);
+
+        return Inertia::render('SeleccionarAsientos', [
+            'vuelo' => $vuelo,
+            'asientos' => $vuelo->asientos,
+            'numPasajeros' => $numPasajeros,
+        ]);
     }
-
-    $vuelo = Vuelo::with(['asientos.clase', 'asientos.estado'])->findOrFail($id);
-
-    return Inertia::render('SeleccionarAsientos', [
-        'vuelo' => $vuelo,
-        'asientos' => $vuelo->asientos,
-        'numPasajeros' => $numPasajeros,
-    ]);
-}
-
 
     public function getDestacados(): \Illuminate\Http\JsonResponse
     {
         $vuelos = Vuelo::where('destacado', true)
             ->inRandomOrder()
             ->limit(5)
-            ->with(['avion', 'aeropuertoOrigen', 'aeropuertoDestino', 'asientos' => function ($query) {
-                $query->where('estado_id', 1); // solo asientos libres
-            }])
+            ->with([
+                'avion',
+                'aeropuertoOrigen',
+                'aeropuertoDestino',
+                'asientos' => function ($query) {
+                    $query->where('estado_id', 1); // solo asientos libres
+                },
+            ])
             ->get()
             ->map(function ($vuelo) {
-                $salida  = Carbon::parse($vuelo->fecha_salida);
+                $salida = Carbon::parse($vuelo->fecha_salida);
                 $llegada = Carbon::parse($vuelo->fecha_llegada);
 
                 $precio_minimo = $vuelo->asientos->min('precio_base');
                 $plazas_libres = $vuelo->asientos->count();
 
                 return [
-                    'id'            => $vuelo->id,
-                    'origen'        => $vuelo->aeropuertoOrigen->ciudad,
-                    'destino'       => $vuelo->aeropuertoDestino->ciudad,
-                    'fecha_salida'  => $salida->toDateTimeString(),
+                    'id' => $vuelo->id,
+                    'origen' => $vuelo->aeropuertoOrigen->ciudad,
+                    'destino' => $vuelo->aeropuertoDestino->ciudad,
+                    'fecha_salida' => $salida->toDateTimeString(),
                     'fecha_llegada' => $llegada->toDateTimeString(),
-                    'imagen'        => $vuelo->imagen,
+                    'imagen' => $vuelo->imagen,
                     'precio_minimo' => $precio_minimo,
                     'plazas_libres' => $plazas_libres,
                 ];
             });
 
         return response()->json($vuelos);
+    }
+
+    public function misViajes()
+    {
+        $userId = Auth::id();
+
+        // Obtener todos los billetes del usuario con sus vuelos relacionados
+        $billetes = Billete::with(['asiento.vuelo.avion.aerolinea', 'asiento.vuelo.aeropuertoOrigen', 'asiento.vuelo.aeropuertoDestino'])
+
+            ->where('user_id', $userId)
+            ->get();
+
+        // Extraer los vuelos desde los billetes
+        $vuelos = $billetes
+            ->map(fn($billete) => $billete->asiento->vuelo ?? null)
+            ->filter() // elimina null si hay
+            ->unique('id')
+            ->values();
+
+        return Inertia::render('MisViajes', [
+            'vuelos' => $vuelos,
+        ]);
     }
 }

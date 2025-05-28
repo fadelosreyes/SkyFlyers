@@ -26,7 +26,7 @@ export default function Header({ activePage }) {
           Inicio
         </Link>
         <Link
-          href="#"
+          href="/mis-viajes"
           className={`whitespace-nowrap font-bold ${
             activePage === 'viajes' ? 'underline underline-offset-2 decoration-[#FF7F50] decoration-2' : ''
           }`}
