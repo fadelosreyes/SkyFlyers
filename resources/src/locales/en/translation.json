@@ -1,24 +1,28 @@
 {
   "home": {
-    "title": "Home",
-    "heading": "Book your trip",
+    "title": "Home - Skyflyers",
+    "heading": "Search flights easily",
     "origin": "Origin",
+    "originLabel": "Enter departure airport",
     "destination": "Destination",
-    "originLabel": "Origin airport",
-    "destinationLabel": "Destination airport",
+    "destinationLabel": "Enter destination airport",
     "departureDateLabel": "Departure date",
     "returnDateLabel": "Return date",
-    "passengers": "Passengers",
+    "passengers": "Number of passengers",
     "passengersLabel": "Number of passengers",
     "search": "Search",
-    "errors": {
-      "origin": "Select an origin airport",
-      "dest": "Select a destination airport",
-      "startDate": "Select a departure date",
-      "endDate": "Select a return date",
-      "passengers": "Enter number of passengers"
+    "flightType": {
+      "soloIda": "One way",
+      "idaVuelta": "Round trip"
+    },
+    "errors_home": {
+      "origin": "Please select a valid origin.",
+      "dest": "Please select a valid destination.",
+      "startDate": "Please select a departure date.",
+      "endDate": "Please select a return date.",
+      "passengers": "Please specify the number of passengers."
     }
-  },
+    },
   "menu": {
     "home": "Home",
     "myTrips": "My Trips",
@@ -66,7 +70,12 @@
   "duration": "Duration",
   "reserve": "Reserve",
   "noFlights": "No flights found for the selected criteria.",
-  "back": "Back"
+  "back": "Back",
+  "outbound": "Outbound flights",
+  "return": "Return flights",
+  "select": "Select",
+  "selected": "Selected"
+
 },
   "auth": {
     "register": "Register",
@@ -106,7 +115,8 @@
     "asientos_seleccionados": "Selected seats",
     "confirmar": "Confirm selection",
     "limpiar_clase": "Clear {{clase}}",
-    "limpiar_todos": "Clear all"
+    "limpiar_todos": "Clear all",
+    "confirmar_cambio": "Confirm"
   },
   "clases": {
     "turista": "Economy",
@@ -131,5 +141,45 @@
     "name_letters": "Name can only contain letters and spaces.",
     "doc_required": "ID / Passport is required.",
     "doc_format": "Invalid ID / Passport format."
+  },
+  "billetes_multiples": {
+  "compra_exitosa": "Purchase completed successfully!",
+  "billetes_generados": "The following tickets have been generated:",
+  "pasajero": "Passenger",
+  "documento": "Document",
+  "pnr": "PNR",
+  "asiento_numero": "Seat Number",
+  "tarifa_base": "Base fare",
+  "total": "Total",
+  "maleta_adicional": "Additional luggage",
+  "cancelacion_flexible": "Flexible cancellation",
+  "fecha_reserva": "Reservation date",
+  "fecha_vuelo": "Flight date",
+  "fecha_llegada": "Arrival date",
+  "origen": "Origin",
+  "destino": "Destination",
+  "si": "Yes",
+  "no": "No",
+  "volver_inicio": "Back to home"
+},
+"billetes_index": {
+    "titulo": "Active tickets",
+    "no_encontrado": "No active tickets found.",
+    "vuelo": "Flight",
+    "fecha_salida": "Departure date",
+    "fecha_llegada": "Arrival date",
+    "nombre_pasajero": "Passenger name",
+    "documento": "Identity document",
+    "pnr": "PNR",
+    "asiento": "Seat",
+    "total": "Total",
+    "fecha_reserva": "Reservation date",
+    "cancelar": "Cancel all tickets for this flight",
+    "confirmar_cancelacion": "Are you sure you want to cancel all tickets for this flight?",
+    "cancelacion_exitosa": "All tickets for the flight were successfully canceled.",
+    "cancelacion_error": "Error canceling the flight tickets.",
+    "volver_inicio": "Back to home",
+    "cambiar_asiento": "Change seat"
   }
+
 }

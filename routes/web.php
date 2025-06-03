@@ -58,4 +58,10 @@ Route::post('/vuelos/{vuelo}/cancelar-billetes', [PagoController::class, 'cancel
 Route::middleware(['auth'])->get('/mis-viajes', [VueloController::class, 'misViajes'])->name('mis.viajes');
 
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/billetes/{billete}/cambiar-asiento', [BilleteController::class, 'editarAsiento'])->name('billetes.editarAsiento');
+    Route::post('/billetes/{billete}/actualizar-asiento', [BilleteController::class, 'actualizarAsiento'])->name('billetes.actualizarAsiento');
+});
+
+
 require __DIR__ . '/auth.php';

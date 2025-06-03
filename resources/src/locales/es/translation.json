@@ -1,22 +1,26 @@
 {
-  "home": {
-    "title": "Inicio",
-    "heading": "Reserva tu viaje",
+   "home": {
+    "title": "Inicio - Skyflyers",
+    "heading": "Busca vuelos fácilmente",
     "origin": "Origen",
+    "originLabel": "Introduce el aeropuerto de origen",
     "destination": "Destino",
-    "originLabel": "Aeropuerto de origen",
-    "destinationLabel": "Aeropuerto de destino",
+    "destinationLabel": "Introduce el aeropuerto de destino",
     "departureDateLabel": "Fecha de salida",
-    "returnDateLabel": "Fecha de regreso",
-    "passengers": "Pasajeros",
+    "returnDateLabel": "Fecha de vuelta",
+    "passengers": "Número de pasajeros",
     "passengersLabel": "Número de pasajeros",
     "search": "Buscar",
+    "flightType": {
+      "soloIda": "Solo Ida",
+      "idaVuelta": "Ida y Vuelta"
+    },
     "errors": {
-      "origin": "Selecciona un aeropuerto de origen",
-      "dest": "Selecciona un aeropuerto de destino",
-      "startDate": "Selecciona la fecha de salida",
-      "endDate": "Selecciona la fecha de regreso",
-      "passengers": "Indica el número de pasajeros"
+      "origin": "Por favor, selecciona un origen válido.",
+      "dest": "Por favor, selecciona un destino válido.",
+      "startDate": "Por favor, selecciona una fecha de salida.",
+      "endDate": "Por favor, selecciona una fecha de vuelta.",
+      "passengers": "Por favor, indica el número de pasajeros."
     }
   },
   "menu": {
@@ -66,7 +70,11 @@
   "duration": "Duración",
   "reserve": "Reservar",
   "noFlights": "No se encontraron vuelos para los criterios seleccionados.",
-  "back": "Volver"
+  "back": "Volver",
+  "outbound": "Vuelos de ida",
+  "return": "Vuelos de vuelta",
+  "select": "Seleccionar",
+  "selected": "Seleccionado"
     },
 "auth": {
     "register": "Registrarse",
@@ -89,7 +97,8 @@
     "asientos_seleccionados": "Asientos seleccionados",
     "confirmar": "Confirmar selección",
     "limpiar_clase": "Limpiar {{clase}}",
-    "limpiar_todos": "Limpiar todos"
+    "limpiar_todos": "Limpiar todos",
+    "confirmar_cambio": "Confirmar"
   },
   "clases": {
     "turista": "Turista",
@@ -114,6 +123,47 @@
     "name_letters": "El nombre solo puede contener letras y espacios.",
     "doc_required": "El DNI / Pasaporte es obligatorio.",
     "doc_format": "Formato de DNI / Pasaporte inválido."
+  },
+  "billetes_multiples": {
+  "compra_exitosa": "¡Compra completada con éxito!",
+  "billetes_generados": "Se han generado los siguientes billetes:",
+  "pasajero": "Pasajero",
+  "documento": "Documento",
+  "pnr": "PNR",
+  "asiento_numero": "Asiento Número",
+  "tarifa_base": "Tarifa base",
+  "total": "Total",
+  "maleta_adicional": "Maleta adicional",
+  "cancelacion_flexible": "Cancelación flexible",
+  "fecha_reserva": "Fecha reserva",
+  "fecha_vuelo": "Fecha de vuelo",
+  "fecha_llegada": "Fecha de llegada",
+  "origen": "Origen",
+  "destino": "Destino",
+  "si": "Sí",
+  "no": "No",
+  "volver_inicio": "Volver al inicio"
+},
+
+  "billetes_index": {
+    "titulo": "Billetes activos",
+    "no_encontrado": "No se encontraron billetes activos.",
+    "vuelo": "Vuelo",
+    "fecha_salida": "Fecha de salida",
+    "fecha_llegada": "Fecha de llegada",
+    "nombre_pasajero": "Nombre del pasajero",
+    "documento": "Documento de identidad",
+    "pnr": "PNR",
+    "asiento": "Asiento",
+    "total": "Total",
+    "fecha_reserva": "Fecha de reserva",
+    "cancelar": "Cancelar los billetes de este vuelo",
+    "confirmar_cancelacion": "¿Estás seguro de que deseas cancelar todos los billetes de este vuelo?",
+    "cancelacion_exitosa": "Todos los billetes del vuelo fueron cancelados correctamente.",
+    "cancelacion_error": "Error al cancelar los billetes del vuelo.",
+    "volver_inicio": "Volver al inicio",
+    "cambiar_asiento": "Cambiar asiento"
   }
 }
+
 

@@ -6,16 +6,24 @@ import { useTranslation } from 'react-i18next';
 
 const flags = {
   es: '/img/image 1.png',       // bandera de España
-  en: '/img/uk-flag.png',       // bandera de Reino Unido
+  en: '/img/UK.png',            // bandera de Reino Unido
 };
 
 export default function Header({ activePage }) {
   const { auth } = usePage().props;
   const { t, i18n } = useTranslation();
 
-  const [language, setLanguage] = useState(i18n.language || 'es'); // idioma actual desde i18n
+  // Leer idioma guardado en localStorage o usar 'es' por defecto
+  const savedLanguage = typeof window !== 'undefined' ? localStorage.getItem('language') : null;
+  const [language, setLanguage] = useState(savedLanguage || 'es');
+
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+
+  // Al montar, cambiar idioma a la preferencia guardada o por defecto
+  useEffect(() => {
+    i18n.changeLanguage(language);
+  }, [language]);
 
   // Cerrar dropdown si haces click fuera
   useEffect(() => {
@@ -32,6 +40,7 @@ export default function Header({ activePage }) {
     setLanguage(lang);
     setDropdownOpen(false);
     i18n.changeLanguage(lang);
+    localStorage.setItem('language', lang); // Guardar preferencia
   };
 
   return (

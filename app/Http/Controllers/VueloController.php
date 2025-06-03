@@ -66,52 +66,76 @@ class VueloController extends Controller
     {
         //
     }
-    public function resultados(Request $request)
-    {
-        $origen = $request->input('origen');
-        $destino = $request->input('destino');
-        $startDate = $request->input('start_date');
-        $endDate = $request->input('end_date');
-        $passengers = (int) $request->input('pasajeros', 1);
+public function resultados(Request $request)
+{
+    $origen = $request->input('origen');
+    $destino = $request->input('destino');
+    $startDate = \Carbon\Carbon::parse($request->input('start_date'))->startOfDay();
+    $endDate = $request->input('end_date') ? \Carbon\Carbon::parse($request->input('end_date'))->startOfDay() : null;
+    $tipoVuelo = $request->input('tipo_vuelo', 'roundtrip');
+    $isRoundTrip = $tipoVuelo === 'roundtrip';
+    $passengers = (int) $request->input('pasajeros', 1);
 
-        // Convertir fechas con Carbon para cubrir todo el rango del día
-        $startDate = \Carbon\Carbon::parse($startDate)->startOfDay();
-        $endDate = \Carbon\Carbon::parse($endDate)->endOfDay();
-
-        $vuelos = Vuelo::with([
+    // Vuelos de ida: buscar entre las 00:00 y 23:59 del día de salida
+    $vuelosIda = Vuelo::with([
+        'aeropuertoOrigen',
+        'aeropuertoDestino',
+        'avion.aerolinea',
+        'asientos' => function ($query) {
+            $query->where('estado_id', 1);
+        },
+    ])
+        ->where('aeropuerto_origen_id', $origen)
+        ->where('aeropuerto_destino_id', $destino)
+        ->whereBetween('fecha_salida', [$startDate->copy(), $startDate->copy()->endOfDay()])
+        ->whereHas('asientos', function ($q) use ($passengers) {
+            $q->where('estado_id', 1);
+        }, '>=', $passengers)
+        ->paginate(3)
+        ->through(function ($vuelo) {
+            $vuelo->precio_minimo = $vuelo->asientos->min('precio_base');
+            $vuelo->plazas_libres = $vuelo->asientos->count();
+            return $vuelo;
+        });
+    //dd($vuelosIda);
+    // Vuelos de vuelta (solo si es ida y vuelta)
+    $vuelosVuelta = null;
+    if ($isRoundTrip && $endDate) {
+        $vuelosVuelta = Vuelo::with([
             'aeropuertoOrigen',
             'aeropuertoDestino',
             'avion.aerolinea',
             'asientos' => function ($query) {
-                $query->where('estado_id', 1); // Solo asientos libres
+                $query->where('estado_id', 1);
             },
         ])
-            ->where('aeropuerto_origen_id', $origen)
-            ->where('aeropuerto_destino_id', $destino)
-            ->whereBetween('fecha_salida', [$startDate, $endDate])
-            ->whereHas(
-                'asientos',
-                function ($q) {
-                    $q->where('estado_id', 1);
-                },
-                '>=',
-                $passengers,
-            )
-            ->get()
-            ->transform(function ($vuelo) {
+            ->where('aeropuerto_origen_id', $destino)
+            ->where('aeropuerto_destino_id', $origen)
+            ->whereBetween('fecha_salida', [$endDate->copy(), $endDate->copy()->endOfDay()])
+            ->whereHas('asientos', function ($q) use ($passengers) {
+                $q->where('estado_id', 1);
+            }, '>=', $passengers)
+            ->paginate(3)
+            ->through(function ($vuelo) {
                 $vuelo->precio_minimo = $vuelo->asientos->min('precio_base');
                 $vuelo->plazas_libres = $vuelo->asientos->count();
                 return $vuelo;
-            })
-            ->values();
-
-        return Inertia::render('resultados', [
-            'vuelos' => $vuelos,
-            'startDate' => $startDate->toDateString(),
-            'endDate' => $endDate->toDateString(),
-            'passengers' => $passengers,
-        ]);
+            });
     }
+
+    return Inertia::render('resultados', [
+        'vuelosIda' => $vuelosIda,
+        'vuelosVuelta' => $vuelosVuelta,
+        'startDate' => $startDate->toDateString(),
+        'endDate' => $endDate ? $endDate->toDateString() : null,
+        'passengers' => $passengers,
+        'tipo_vuelo' => $tipoVuelo,
+    ]);
+}
+
+
+
+
 
     public function seleccionarAsientos(Request $request, $id)
     {

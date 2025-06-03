@@ -52,7 +52,6 @@ class VueloSeeder extends Seeder
         }
 
         // Vuelos Madrid - Londres para mañana, sin imagen
-
         $origenMadrid = $aeropuertos->where('ciudad', 'Madrid')->where('pais', 'España')->first();
         $destinoLondres = $aeropuertos->where('ciudad', 'Londres')->where('pais', 'Reino Unido')->first();
 
@@ -100,9 +99,56 @@ class VueloSeeder extends Seeder
             ]);
         }
 
+        // Vuelos Londres - Madrid para pasado mañana, sin imagen
+        $origenLondres = $aeropuertos->where('ciudad', 'Londres')->where('pais', 'Reino Unido')->first();
+        $destinoMadrid = $aeropuertos->where('ciudad', 'Madrid')->where('pais', 'España')->first();
 
-        // 3) 50 vuelos normales sin imagen
-        foreach (range(1, 50) as $i) {
+        if ($origenLondres && $destinoMadrid && $aviones->count() > 0) {
+            // Vuelo 1 - 09:00
+            $fechaSalida1 = Carbon::tomorrow()->addDay()->setTime(9, 0, 0);
+            $fechaLlegada1 = (clone $fechaSalida1)->addHours(2);
+
+            Vuelo::create([
+                'avion_id' => $aviones->random()->id,
+                'aeropuerto_origen_id' => $origenLondres->id,
+                'aeropuerto_destino_id' => $destinoMadrid->id,
+                'fecha_salida' => $fechaSalida1,
+                'fecha_llegada' => $fechaLlegada1,
+                'imagen' => null,
+                'destacado' => false,
+            ]);
+
+            // Vuelo 2 - 12:00
+            $fechaSalida2 = Carbon::tomorrow()->addDay()->setTime(12, 0, 0);
+            $fechaLlegada2 = (clone $fechaSalida2)->addHours(2);
+
+            Vuelo::create([
+                'avion_id' => $aviones->random()->id,
+                'aeropuerto_origen_id' => $origenLondres->id,
+                'aeropuerto_destino_id' => $destinoMadrid->id,
+                'fecha_salida' => $fechaSalida2,
+                'fecha_llegada' => $fechaLlegada2,
+                'imagen' => null,
+                'destacado' => false,
+            ]);
+
+            // Vuelo 3 - 17:30
+            $fechaSalida3 = Carbon::tomorrow()->addDay()->setTime(17, 30, 0);
+            $fechaLlegada3 = (clone $fechaSalida3)->addHours(2);
+
+            Vuelo::create([
+                'avion_id' => $aviones->random()->id,
+                'aeropuerto_origen_id' => $origenLondres->id,
+                'aeropuerto_destino_id' => $destinoMadrid->id,
+                'fecha_salida' => $fechaSalida3,
+                'fecha_llegada' => $fechaLlegada3,
+                'imagen' => null,
+                'destacado' => false,
+            ]);
+        }
+
+        // 3) 20 vuelos normales sin imagen
+        foreach (range(1, 20) as $i) {
             do {
                 $origen = $aeropuertos->random();
                 $destino = $aeropuertos->random();

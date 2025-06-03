@@ -5,7 +5,7 @@ import { route } from 'ziggy-js';
 import { useTranslation } from 'react-i18next';
 
 export default function PassengerData({ vuelo, asientosSeleccionados, totalBase }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const { data, setData, post, processing, errors: serverErrors } = useForm({
     pasajeros: asientosSeleccionados.map(a => ({
@@ -16,6 +16,7 @@ export default function PassengerData({ vuelo, asientosSeleccionados, totalBase 
     })),
     cancelacion_flexible_global: false,
     total: totalBase,
+    language: '', // Añadido aquí
   });
 
   const [clientErrors, setClientErrors] = useState({});
@@ -70,11 +71,10 @@ export default function PassengerData({ vuelo, asientosSeleccionados, totalBase 
     if (!validate()) return;
 
     const totalWithFees = calculateTotalPrice();
-    post(route('billetes.preparar_pago'), {
-      pasajeros: data.pasajeros,
-      cancelacion_flexible_global: data.cancelacion_flexible_global,
-      total: totalWithFees,
-    });
+    setData('total', totalWithFees);
+    setData('language', i18n.language); // Se asegura de que se incluye
+
+    post(route('billetes.preparar_pago'));
   }
 
   return (
@@ -165,3 +165,5 @@ export default function PassengerData({ vuelo, asientosSeleccionados, totalBase 
     </>
   );
 }
+
+

@@ -25,6 +25,21 @@ body {
     padding: 0 1rem;
 }
 
+.lista-vuelos {
+  display: block;  /* Asegura que el contenedor sea bloque */
+  margin-bottom: 2rem;
+}
+
+.titulo-vuelo {
+  display: block;   /* Que ocupe toda la línea */
+  width: 100%;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  padding-bottom: 0.3rem;
+  text-align: center;
+}
+
 .resultados-vuelos h1 {
     font-size: 1.8rem;
     font-weight: 500;
@@ -148,6 +163,38 @@ body {
     margin-top: 2rem;
 }
 
+/* --- Estilos para btn-seleccionar igual que btn-reserva --- */
+.btn-seleccionar {
+    margin-left: auto;
+    background: var(--color-accent);
+    color: var(--color-bg);
+    border: 1px solid #ccc;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out, box-shadow 0.2s;
+}
+
+.btn-seleccionar:hover:not(:disabled) {
+    background: #f0a535;
+}
+
+/* Estado cuando está seleccionado */
+.btn-seleccionar.seleccionado {
+    background: var(--color-primary);
+    color: #fff;
+    border-color: var(--color-primary);
+}
+
+/* Disabled para btn-seleccionar */
+.btn-seleccionar:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    color: #666666;
+}
+
 /* --- Responsive para portátiles (hasta 1024px) --- */
 @media (max-width: 1024px) {
     .Billete-vuelos {
@@ -178,7 +225,8 @@ body {
         gap: 0.5rem;
     }
 
-    .btn-reserva {
+    .btn-reserva,
+    .btn-seleccionar {
         margin-left: 0;
         width: 100%;
         text-align: center;
@@ -220,7 +268,8 @@ body {
         font-size: 0.95rem;
     }
 
-    .btn-reserva {
+    .btn-reserva,
+    .btn-seleccionar {
         padding: 0.6rem 1rem;
         font-size: 0.9rem;
     }
@@ -232,7 +281,8 @@ body {
         font-size: 1.2rem;
     }
 
-    .btn-reserva {
+    .btn-reserva,
+    .btn-seleccionar {
         padding: 0.5rem 0.8rem;
         font-size: 0.85rem;
     }

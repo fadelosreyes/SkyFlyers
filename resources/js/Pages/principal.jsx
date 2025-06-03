@@ -19,6 +19,9 @@ export default function Principal({ auth }) {
     const [endDate, setEndDate] = useState('');
     const [passengers, setPassengers] = useState(null);
 
+    const [soloIda, setSoloIda] = useState(false);
+    const [idaVuelta, setIdaVuelta] = useState(true);
+
     const [errors, setErrors] = useState({
         origin: '',
         dest: '',
@@ -85,12 +88,19 @@ export default function Principal({ auth }) {
         return () => document.removeEventListener('click', onClickOutside);
     }, []);
 
+    // Desactivar fecha de llegada si es solo ida
+    useEffect(() => {
+        if (soloIda) {
+            setEndDate('');
+        }
+    }, [soloIda]);
+
     const handleSearch = () => {
         const newErrors = {
             origin: !originSelected ? t('home.errors.origin') : '',
             dest: !destSelected ? t('home.errors.dest') : '',
             startDate: !startDate ? t('home.errors.startDate') : '',
-            endDate: !endDate ? t('home.errors.endDate') : '',
+            endDate: !soloIda && !endDate ? t('home.errors.endDate') : '',
             passengers: !passengers ? t('home.errors.passengers') : '',
         };
         setErrors(newErrors);
@@ -101,8 +111,9 @@ export default function Principal({ auth }) {
             origen: originSelected.id,
             destino: destSelected.id,
             start_date: startDate,
-            end_date: endDate,
+            end_date: soloIda ? null : endDate,
             pasajeros: passengers,
+            tipo_vuelo: soloIda ? 'oneway' : 'roundtrip',
         });
     };
 
@@ -121,6 +132,36 @@ export default function Principal({ auth }) {
                 <div className="texto-principal">{t('home.heading')}</div>
 
                 <div className="buscador" itemScope itemType="http://schema.org/Flight">
+
+                    <div style={{ display: 'flex', flexDirection: 'column', width: '10em' }}>
+                        {/* Solo Ida */}
+                        <div style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <span>{t('home.flightType.soloIda')}</span>
+                            <input
+                                type="checkbox"
+                                checked={soloIda}
+                                onChange={e => {
+                                    const checked = e.target.checked;
+                                    setSoloIda(checked);
+                                    if (checked) setIdaVuelta(false);
+                                }}
+                            />
+                        </div>
+                        {/* Ida y vuelta */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <span>{t('home.flightType.idaVuelta')}</span>
+                            <input
+                                type="checkbox"
+                                checked={idaVuelta}
+                                onChange={e => {
+                                    const checked = e.target.checked;
+                                    setIdaVuelta(checked);
+                                    if (checked) setSoloIda(false);
+                                }}
+                            />
+                        </div>
+                    </div>
+
                     {/* Origen */}
                     <div className="autocompletar" ref={originRef} itemProp="departureAirport" itemScope itemType="http://schema.org/Airport">
                         <input
@@ -192,34 +233,37 @@ export default function Principal({ auth }) {
                     </div>
 
                     {/* Fechas */}
-                    <div>
-                        <input
-                            type="date"
-                            value={startDate}
-                            onChange={e => {
-                                setStartDate(e.target.value);
-                                setErrors(prev => ({ ...prev, startDate: '' }));
-                                if (endDate && e.target.value > endDate) setEndDate('');
-                            }}
-                            min={today}
-                            aria-label={t('home.departureDateLabel')}
-                        />
-                        {errors.startDate && <div className="error-message">{errors.startDate}</div>}
-                        {startDate && <meta itemProp="departureTime" content={startDate} />}
-                    </div>
-                    <div>
-                        <input
-                            type="date"
-                            value={endDate}
-                            onChange={e => {
-                                setEndDate(e.target.value);
-                                setErrors(prev => ({ ...prev, endDate: '' }));
-                            }}
-                            min={startDate || today}
-                            aria-label={t('home.returnDateLabel')}
-                        />
-                        {errors.endDate && <div className="error-message">{errors.endDate}</div>}
-                        {endDate && <meta itemProp="arrivalTime" content={endDate} />}
+                    <div className="dates-group" style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+                        <div>
+                            <input
+                                type="date"
+                                value={startDate}
+                                onChange={e => {
+                                    setStartDate(e.target.value);
+                                    setErrors(prev => ({ ...prev, startDate: '' }));
+                                    if (endDate && e.target.value > endDate) setEndDate('');
+                                }}
+                                min={today}
+                                aria-label={t('home.departureDateLabel')}
+                            />
+                            {errors.startDate && <div className="error-message">{errors.startDate}</div>}
+                            {startDate && <meta itemProp="departureTime" content={startDate} />}
+                        </div>
+                        <div>
+                            <input
+                                type="date"
+                                value={endDate}
+                                onChange={e => {
+                                    setEndDate(e.target.value);
+                                    setErrors(prev => ({ ...prev, endDate: '' }));
+                                }}
+                                min={startDate || today}
+                                aria-label={t('home.returnDateLabel')}
+                                disabled={soloIda}
+                            />
+                            {errors.endDate && <div className="error-message">{errors.endDate}</div>}
+                            {endDate && <meta itemProp="arrivalTime" content={endDate} />}
+                        </div>
                     </div>
 
                     {/* Pasajeros */}
