@@ -17,34 +17,16 @@ export default function MisViajes({ vuelos }) {
     return (
         <>
             <Head title="Mis viajes" />
-            <Header activePage="#" />
+            <Header activePage="viajes" />
 
             <div className="resultados-vuelos">
 
                 {vuelosFiltrados.length > 0 ? (
                     <div className="lista-vuelos">
                         {vuelosFiltrados.map(v => {
-                            if (!v.fecha_salida) {
-                                throw new Error(`El vuelo con id ${v.id} no tiene "fecha_salida" definida.`);
-                            }
-                            if (!v.fecha_llegada) {
-                                throw new Error(`El vuelo con id ${v.id} no tiene "fecha_llegada" definida.`);
-                            }
 
                             const salida = new Date(v.fecha_salida);
                             const llegada = new Date(v.fecha_llegada);
-
-                            if (isNaN(salida)) {
-                                throw new Error(`La fecha de salida del vuelo con id ${v.id} no es válida: ${v.fecha_salida}`);
-                            }
-                            if (isNaN(llegada)) {
-                                throw new Error(`La fecha de llegada del vuelo con id ${v.id} no es válida: ${v.fecha_llegada}`);
-                            }
-
-                            if (llegada < salida) {
-                                throw new Error(`La fecha de llegada es anterior a la salida en el vuelo con id ${v.id}.`);
-                            }
-
                             const durMs = llegada - salida;
                             const totalMinutes = Math.floor(durMs / 60000);
                             const hours = Math.floor(totalMinutes / 60);

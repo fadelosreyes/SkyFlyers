@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import '../../css/principal.css';
 import PrimaryButton from '../Components/PrimaryButton';
 import Header from '../Components/Header';
@@ -29,6 +29,18 @@ export default function Principal({ auth }) {
 
     // Fecha de hoy en formato YYYY-MM-DD
     const today = new Date().toISOString().split('T')[0];
+
+    // Carrusel de fondo automático
+    const imagenes = ['/img/image.png', '/img/index2.png'];
+    const [imagenActual, setImagenActual] = useState(0);
+
+    useEffect(() => {
+        const intervalo = setInterval(() => {
+            setImagenActual((prev) => (prev + 1) % imagenes.length);
+        }, 300000); // 5 minutos
+
+        return () => clearInterval(intervalo);
+    }, []);
 
     // Autocompletar Origen
     useEffect(() => {
@@ -79,7 +91,6 @@ export default function Principal({ auth }) {
     }, []);
 
     const handleSearch = () => {
-        // Validación por campos
         const newErrors = {
             origin: !originSelected ? 'Selecciona un aeropuerto de origen' : '',
             dest: !destSelected ? 'Selecciona un aeropuerto de destino' : '',
@@ -89,12 +100,8 @@ export default function Principal({ auth }) {
         };
         setErrors(newErrors);
 
-        // Si hay algún error
-        if (Object.values(newErrors).some(msg => msg)) {
-            return;
-        }
+        if (Object.values(newErrors).some(msg => msg)) return;
 
-        // Si todo OK, redirigimos
         router.get('/vuelos/resultados', {
             origen: originSelected.id,
             destino: destSelected.id,
@@ -109,22 +116,27 @@ export default function Principal({ auth }) {
             <Head title="Inicio" />
             <Header activePage="inicio" />
 
-            <section className="seccion-principal" style={{ backgroundImage: "url('/img/image.png')" }}>
+            <section
+                className="seccion-principal"
+                style={{
+                    backgroundImage: `url('${imagenes[imagenActual]}')`,
+                    transition: 'background-image 1s ease-in-out',
+                }}
+            >
                 <div className="texto-principal">Reserva tu viaje</div>
 
-                {/* Aquí ponemos el microdato Flight para el buscador */}
                 <div
-                  className="buscador"
-                  itemScope
-                  itemType="http://schema.org/Flight"
+                    className="buscador"
+                    itemScope
+                    itemType="http://schema.org/Flight"
                 >
                     {/* Origen */}
                     <div
-                      className="autocompletar"
-                      ref={originRef}
-                      itemProp="departureAirport"
-                      itemScope
-                      itemType="http://schema.org/Airport"
+                        className="autocompletar"
+                        ref={originRef}
+                        itemProp="departureAirport"
+                        itemScope
+                        itemType="http://schema.org/Airport"
                     >
                         <input
                             placeholder="Origen"
@@ -151,23 +163,21 @@ export default function Principal({ auth }) {
                             </ul>
                         )}
                         {errors.origin && <div className="error-message">{errors.origin}</div>}
-
-                        {/* Nombre aeropuerto para microdatos */}
                         {originSelected && (
-                            <meta itemProp="name" content={originSelected.nombre} />
-                        )}
-                        {originSelected && (
-                            <meta itemProp="iataCode" content={originSelected.codigo_iata} />
+                            <>
+                                <meta itemProp="name" content={originSelected.nombre} />
+                                <meta itemProp="iataCode" content={originSelected.codigo_iata} />
+                            </>
                         )}
                     </div>
 
                     {/* Destino */}
                     <div
-                      className="autocompletar"
-                      ref={destRef}
-                      itemProp="arrivalAirport"
-                      itemScope
-                      itemType="http://schema.org/Airport"
+                        className="autocompletar"
+                        ref={destRef}
+                        itemProp="arrivalAirport"
+                        itemScope
+                        itemType="http://schema.org/Airport"
                     >
                         <input
                             placeholder="Destino"
@@ -194,13 +204,11 @@ export default function Principal({ auth }) {
                             </ul>
                         )}
                         {errors.dest && <div className="error-message">{errors.dest}</div>}
-
-                        {/* Nombre aeropuerto para microdatos */}
                         {destSelected && (
-                            <meta itemProp="name" content={destSelected.nombre} />
-                        )}
-                        {destSelected && (
-                            <meta itemProp="iataCode" content={destSelected.codigo_iata} />
+                            <>
+                                <meta itemProp="name" content={destSelected.nombre} />
+                                <meta itemProp="iataCode" content={destSelected.codigo_iata} />
+                            </>
                         )}
                     </div>
 
@@ -212,19 +220,13 @@ export default function Principal({ auth }) {
                             onChange={e => {
                                 setStartDate(e.target.value);
                                 setErrors(prev => ({ ...prev, startDate: '' }));
-                                // Limpiar fecha de regreso si es menor que la nueva fecha de salida
-                                if (endDate && e.target.value > endDate) {
-                                    setEndDate('');
-                                }
+                                if (endDate && e.target.value > endDate) setEndDate('');
                             }}
                             min={today}
                             aria-label="Fecha de salida"
                         />
                         {errors.startDate && <div className="error-message">{errors.startDate}</div>}
-
-                        {startDate && (
-                            <meta itemProp="departureTime" content={startDate} />
-                        )}
+                        {startDate && <meta itemProp="departureTime" content={startDate} />}
                     </div>
                     <div>
                         <input
@@ -238,10 +240,7 @@ export default function Principal({ auth }) {
                             aria-label="Fecha de regreso"
                         />
                         {errors.endDate && <div className="error-message">{errors.endDate}</div>}
-
-                        {endDate && (
-                            <meta itemProp="arrivalTime" content={endDate} />
-                        )}
+                        {endDate && <meta itemProp="arrivalTime" content={endDate} />}
                     </div>
 
                     {/* Pasajeros */}
@@ -259,15 +258,13 @@ export default function Principal({ auth }) {
                             aria-label="Número de pasajeros"
                         />
                         {errors.passengers && <div className="error-message">{errors.passengers}</div>}
-
-                        {passengers && (
-                            <meta itemProp="passengerCount" content={passengers} />
-                        )}
+                        {passengers && <meta itemProp="passengerCount" content={passengers} />}
                     </div>
 
                     <PrimaryButton onClick={handleSearch}>Buscar</PrimaryButton>
                 </div>
             </section>
+
             <VuelosDestacados />
         </>
     );
