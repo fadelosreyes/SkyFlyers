@@ -5,8 +5,11 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
 
 export default function Login({ status, canResetPassword }) {
+    const { t } = useTranslation();
+
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
         password: '',
@@ -23,7 +26,7 @@ export default function Login({ status, canResetPassword }) {
 
     return (
         <GuestLayout>
-            <Head title="Log in" />
+            <Head title={t('auth.login')} />
 
             {status && (
                 <div className="mb-4 text-sm font-medium text-green-600">
@@ -33,7 +36,7 @@ export default function Login({ status, canResetPassword }) {
 
             <form onSubmit={submit}>
                 <div>
-                    <InputLabel htmlFor="email" value="Email" />
+                    <InputLabel htmlFor="email" value={t('auth.email')} />
 
                     <TextInput
                         id="email"
@@ -41,7 +44,7 @@ export default function Login({ status, canResetPassword }) {
                         name="email"
                         value={data.email}
                         className="mt-1 block w-full"
-                        autocompletar="username"
+                        autoComplete="username"
                         isFocused={true}
                         onChange={(e) => setData('email', e.target.value)}
                     />
@@ -50,7 +53,7 @@ export default function Login({ status, canResetPassword }) {
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Contraseña" />
+                    <InputLabel htmlFor="password" value={t('auth.password')} />
 
                     <TextInput
                         id="password"
@@ -58,7 +61,7 @@ export default function Login({ status, canResetPassword }) {
                         name="password"
                         value={data.password}
                         className="mt-1 block w-full"
-                        autocompletar="current-password"
+                        autoComplete="current-password"
                         onChange={(e) => setData('password', e.target.value)}
                     />
 
@@ -75,15 +78,18 @@ export default function Login({ status, canResetPassword }) {
                             }
                         />
                         <span className="ms-2 text-sm text-gray-600">
-                            Recuerdame
+                            {t('auth.remember_me')}
                         </span>
                     </label>
                 </div>
 
                 <div className="mt-4 flex items-center justify-between">
                     <div>
-                        <Link href={route('register')} className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                            Nuevo? Registrate
+                        <Link
+                            href={route('register')}
+                            className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        >
+                            {t('auth.new_register')}
                         </Link>
                     </div>
 
@@ -93,12 +99,12 @@ export default function Login({ status, canResetPassword }) {
                                 href={route('password.request')}
                                 className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ms-4"
                             >
-                                Contrasena olvidada?
+                                {t('auth.forgot_password')}
                             </Link>
                         )}
 
                         <PrimaryButton className="ms-4" disabled={processing}>
-                            Iniciar
+                            {t('auth.login')}
                         </PrimaryButton>
                     </div>
                 </div>

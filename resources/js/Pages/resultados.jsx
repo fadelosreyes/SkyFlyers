@@ -1,5 +1,6 @@
 import React from 'react';
 import { Head, Link, router } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
 import '../../css/principal.css';
 import '../../css/resultados.css';
 
@@ -7,16 +8,17 @@ import Header from '../Components/Header';
 import PrimaryButton from '../Components/PrimaryButton';
 
 export default function Resultados({ vuelos, passengers }) {
+    const { t } = useTranslation();
+
     return (
         <>
-            <Head title="Resultados de vuelos" />
+            <Head title={t('results.title')} />
             <Header activePage="#" />
 
             <div className="resultados-vuelos">
                 {vuelos.length > 0 ? (
                     <div className="lista-vuelos">
                         {vuelos.map(v => {
-                            // Cálculo duración en formato ISO 8601 PT#H#M
                             const salida = new Date(v.fecha_salida);
                             const llegada = new Date(v.fecha_llegada);
                             const durMs = llegada - salida;
@@ -48,15 +50,20 @@ export default function Resultados({ vuelos, passengers }) {
                                                 {v.avion?.aerolinea?.nombre || 'Skyflyers'}
                                             </span>
                                         </div>
-                                        <div className="price" itemProp="offers" itemScope itemType="http://schema.org/Offer">
+                                        <div
+                                            className="price"
+                                            itemProp="offers"
+                                            itemScope
+                                            itemType="http://schema.org/Offer"
+                                        >
                                             {v.precio_minimo !== null ? (
                                                 <>
                                                     <meta itemProp="price" content={v.precio_minimo} />
                                                     <meta itemProp="priceCurrency" content="EUR" />
-                                                    Desde {v.precio_minimo} €
+                                                    {t('results.from')} {v.precio_minimo} €
                                                 </>
                                             ) : (
-                                                'Sin plazas disponibles'
+                                                t('results.noSeats')
                                             )}
                                         </div>
                                     </div>
@@ -86,11 +93,7 @@ export default function Resultados({ vuelos, passengers }) {
                                                 })}
                                             </time>
                                             <div className="date">
-                                                {salida.toLocaleDateString('es-ES', {
-                                                    day: 'numeric',
-                                                    month: 'numeric',
-                                                    year: 'numeric',
-                                                })}
+                                                {salida.toLocaleDateString()}
                                             </div>
                                         </div>
 
@@ -120,20 +123,18 @@ export default function Resultados({ vuelos, passengers }) {
                                                 })}
                                             </time>
                                             <div className="date">
-                                                {(llegada || salida).toLocaleDateString('es-ES', {
-                                                    day: 'numeric',
-                                                    month: 'numeric',
-                                                    year: 'numeric',
-                                                })}
+                                                {(llegada || salida).toLocaleDateString()}
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="Billete-vuelos-footer">
                                         <div className="details">
-                                            Duración:{' '}
+                                            {t('results.duration')}:{' '}
                                             <time itemProp="duration" dateTime={durationISO}>
-                                                {!durationISO ? '--' : `${Math.floor(durMs / 3600000)}h ${Math.floor((durMs % 3600000) / 60000)}m`}
+                                                {!durationISO
+                                                    ? '--'
+                                                    : `${Math.floor(durMs / 3600000)}h ${Math.floor((durMs % 3600000) / 60000)}m`}
                                             </time>
                                         </div>
 
@@ -151,7 +152,7 @@ export default function Resultados({ vuelos, passengers }) {
                                                 v.plazas_libres < passengers
                                             }
                                         >
-                                            Reservar
+                                            {t('results.reserve')}
                                         </button>
                                     </div>
                                 </div>
@@ -159,14 +160,12 @@ export default function Resultados({ vuelos, passengers }) {
                         })}
                     </div>
                 ) : (
-                    <p className="no-vuelos">
-                        No se encontraron vuelos para los criterios seleccionados.
-                    </p>
+                    <p className="no-vuelos">{t('results.noFlights')}</p>
                 )}
 
                 <div className="volver-btn">
                     <Link href="/" className="volver-link">
-                        <PrimaryButton>Volver</PrimaryButton>
+                        <PrimaryButton>{t('results.back')}</PrimaryButton>
                     </Link>
                 </div>
             </div>

@@ -4,8 +4,11 @@ import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
 
 export default function Register() {
+    const { t } = useTranslation();
+
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         email: '',
@@ -23,18 +26,18 @@ export default function Register() {
 
     return (
         <GuestLayout>
-            <Head title="Register" />
+            <Head title={t('auth.register')} />
 
             <form onSubmit={submit}>
                 <div>
-                    <InputLabel htmlFor="name" value="Nombre" />
+                    <InputLabel htmlFor="name" value={t('auth.name')} />
 
                     <TextInput
                         id="name"
                         name="name"
                         value={data.name}
                         className="mt-1 block w-full"
-                        autocompletar="name"
+                        autoComplete="name"
                         isFocused={true}
                         onChange={(e) => setData('name', e.target.value)}
                         required
@@ -44,7 +47,7 @@ export default function Register() {
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="email" value="Email" />
+                    <InputLabel htmlFor="email" value={t('auth.email')} />
 
                     <TextInput
                         id="email"
@@ -52,7 +55,7 @@ export default function Register() {
                         name="email"
                         value={data.email}
                         className="mt-1 block w-full"
-                        autocompletar="username"
+                        autoComplete="username"
                         onChange={(e) => setData('email', e.target.value)}
                         required
                     />
@@ -61,7 +64,7 @@ export default function Register() {
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Contraseña" />
+                    <InputLabel htmlFor="password" value={t('auth.password')} />
 
                     <TextInput
                         id="password"
@@ -69,7 +72,7 @@ export default function Register() {
                         name="password"
                         value={data.password}
                         className="mt-1 block w-full"
-                        autocompletar="new-password"
+                        autoComplete="new-password"
                         onChange={(e) => setData('password', e.target.value)}
                         required
                     />
@@ -80,7 +83,7 @@ export default function Register() {
                 <div className="mt-4">
                     <InputLabel
                         htmlFor="password_confirmation"
-                        value="Confirmar contraseña"
+                        value={t('auth.password_confirmation')}
                     />
 
                     <TextInput
@@ -89,7 +92,7 @@ export default function Register() {
                         name="password_confirmation"
                         value={data.password_confirmation}
                         className="mt-1 block w-full"
-                        autocompletar="new-password"
+                        autoComplete="new-password"
                         onChange={(e) =>
                             setData('password_confirmation', e.target.value)
                         }
@@ -107,11 +110,11 @@ export default function Register() {
                         href={route('login')}
                         className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                     >
-                        Ya Registrado?
+                        {t('auth.already_registered')}
                     </Link>
 
                     <PrimaryButton className="ms-4" disabled={processing}>
-                        Registrarse
+                        {t('auth.register')}
                     </PrimaryButton>
                 </div>
             </form>

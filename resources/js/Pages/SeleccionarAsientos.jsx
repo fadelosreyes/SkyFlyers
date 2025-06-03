@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Head, router } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
 import '../../css/SeleccionarAsientos.css';
 import '../../css/principal.css';
 import Header from '../Components/Header';
 
 export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
+    const { t } = useTranslation();
     const [claseSeleccionada, setClaseSeleccionada] = useState('turista');
 
     const [seleccionPorClase, setSeleccionPorClase] = useState({
@@ -50,7 +52,7 @@ export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
         const yaSeleccionado = seleccionadosActuales.includes(id);
 
         if (!yaSeleccionado && totalSeleccionados >= numPasajeros) {
-            alert(`Solo puedes seleccionar hasta ${numPasajeros} asientos en total.`);
+            alert(t('seleccionar_asientos.alerta_limite', { numPasajeros }));
             return;
         }
 
@@ -79,7 +81,6 @@ export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
         }));
     };
 
-    // Nueva función para limpiar todos los asientos seleccionados
     const limpiarTodosSeleccionados = () => {
         setSeleccionPorClase({
             turista: [],
@@ -90,7 +91,7 @@ export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
 
     return (
         <>
-            <Head title={`Seleccionar Asientos - Vuelo ${vuelo.id}`} />
+            <Head title={`${t('seleccionar_asientos.titulo')} - Vuelo ${vuelo.id}`} />
             <Header activePage="#" />
 
             <div className="contenedor-principal">
@@ -122,12 +123,12 @@ export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
                                             disabled={estaOcupado}
                                             className="asiento"
                                             onClick={() => toggleSeleccion(asiento.id)}
-                                            title={`Asiento ${asiento.numero} - ${asiento.precio_base}€`}
+                                            title={`${t('seleccionar_asientos.asiento')} ${asiento.numero} - ${asiento.precio_base}€`}
                                             type="button"
                                         >
                                             <img
                                                 src={imgSrc}
-                                                alt={`Asiento ${asiento.numero}`}
+                                                alt={`${t('seleccionar_asientos.asiento')} ${asiento.numero}`}
                                             />
                                         </button>
                                     );
@@ -149,12 +150,12 @@ export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
                                             disabled={estaOcupado}
                                             className="asiento"
                                             onClick={() => toggleSeleccion(asiento.id)}
-                                            title={`Asiento ${asiento.numero} - ${asiento.precio_base}€`}
+                                            title={`${t('seleccionar_asientos.asiento')} ${asiento.numero} - ${asiento.precio_base}€`}
                                             type="button"
                                         >
                                             <img
                                                 src={imgSrc}
-                                                alt={`Asiento ${asiento.numero}`}
+                                                alt={`${t('seleccionar_asientos.asiento')} ${asiento.numero}`}
                                             />
                                         </button>
                                     );
@@ -165,22 +166,22 @@ export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
                 </div>
 
                 <div className="contenedor-menu">
-                    <h3>Selecciona clase</h3>
+                    <h3>{t('seleccionar_asientos.selecciona_clase')}</h3>
                     <select
                         value={claseSeleccionada}
                         onChange={e => setClaseSeleccionada(e.target.value)}
                     >
-                        <option value="turista">Turista</option>
-                        <option value="business">Business</option>
-                        <option value="primera">Primera</option>
+                        <option value="turista">{t('clases.turista')}</option>
+                        <option value="business">{t('clases.business')}</option>
+                        <option value="primera">{t('clases.primera')}</option>
                     </select>
 
-                    <p><strong>Asientos seleccionados:</strong> {totalSeleccionados} / {numPasajeros}</p>
+                    <p><strong>{t('seleccionar_asientos.asientos_seleccionados')}:</strong> {totalSeleccionados} / {numPasajeros}</p>
 
                     {Object.entries(seleccionPorClase).map(([clase, ids]) => (
                         ids.length > 0 && (
                             <div key={clase}>
-                                <p><strong>{clase.charAt(0).toUpperCase() + clase.slice(1)}:</strong> {ids.length} asientos</p>
+                                <p><strong>{t(`clases.${clase}`)}:</strong> {ids.length} {t('seleccionar_asientos.asientos')}</p>
                             </div>
                         )
                     ))}
@@ -190,7 +191,7 @@ export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
                         disabled={totalSeleccionados === 0}
                         className="btn-confirmar"
                     >
-                        Confirmar selección
+                        {t('seleccionar_asientos.confirmar')}
                     </button>
 
                     <div style={{ display: 'flex', gap: '1em', marginTop: '1em' }}>
@@ -199,7 +200,7 @@ export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
                             disabled={getSeleccionados().length === 0}
                             className="btn-limpiar"
                         >
-                            Limpiar {claseSeleccionada}
+                            {t('seleccionar_asientos.limpiar_clase', { clase: t(`clases.${claseSeleccionada}`) })}
                         </button>
 
                         <button
@@ -207,7 +208,7 @@ export default function SeleccionarAsientos({ vuelo, asientos, numPasajeros }) {
                             disabled={totalSeleccionados === 0}
                             className="btn-limpiar"
                         >
-                            Limpiar todos
+                            {t('seleccionar_asientos.limpiar_todos')}
                         </button>
                     </div>
                 </div>

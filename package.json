@@ -22,6 +22,9 @@
   },
   "dependencies": {
     "@inertiajs/inertia": "^0.11.1",
+    "i18next": "^25.2.1",
+    "i18next-browser-languagedetector": "^8.1.0",
+    "react-i18next": "^15.5.2",
     "react-tooltip": "^5.28.1",
     "ziggy-js": "^2.5.3"
   }

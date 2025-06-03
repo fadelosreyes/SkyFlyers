@@ -4,8 +4,11 @@ import '../../css/principal.css';
 import PrimaryButton from '../Components/PrimaryButton';
 import Header from '../Components/Header';
 import VuelosDestacados from '../Components/VuelosDestacados';
+import { useTranslation } from 'react-i18next';
 
 export default function Principal({ auth }) {
+    const { t } = useTranslation();
+
     const [originQuery, setOriginQuery] = useState('');
     const [destQuery, setDestQuery] = useState('');
     const [originList, setOriginList] = useState([]);
@@ -26,23 +29,17 @@ export default function Principal({ auth }) {
 
     const originRef = useRef();
     const destRef = useRef();
-
-    // Fecha de hoy en formato YYYY-MM-DD
     const today = new Date().toISOString().split('T')[0];
-
-    // Carrusel de fondo automático
     const imagenes = ['/img/image.png', '/img/index2.png'];
     const [imagenActual, setImagenActual] = useState(0);
 
     useEffect(() => {
         const intervalo = setInterval(() => {
             setImagenActual((prev) => (prev + 1) % imagenes.length);
-        }, 300000); // 5 minutos
-
+        }, 300000);
         return () => clearInterval(intervalo);
     }, []);
 
-    // Autocompletar Origen
     useEffect(() => {
         const handler = setTimeout(() => {
             if (originQuery.length < 2) {
@@ -59,7 +56,6 @@ export default function Principal({ auth }) {
         return () => clearTimeout(handler);
     }, [originQuery]);
 
-    // Autocompletar Destino
     useEffect(() => {
         const handler = setTimeout(() => {
             if (destQuery.length < 2) {
@@ -76,7 +72,6 @@ export default function Principal({ auth }) {
         return () => clearTimeout(handler);
     }, [destQuery]);
 
-    // Cerrar dropdown al clicar fuera
     useEffect(() => {
         const onClickOutside = e => {
             if (originRef.current && !originRef.current.contains(e.target)) {
@@ -92,11 +87,11 @@ export default function Principal({ auth }) {
 
     const handleSearch = () => {
         const newErrors = {
-            origin: !originSelected ? 'Selecciona un aeropuerto de origen' : '',
-            dest: !destSelected ? 'Selecciona un aeropuerto de destino' : '',
-            startDate: !startDate ? 'Selecciona la fecha de salida' : '',
-            endDate: !endDate ? 'Selecciona la fecha de regreso' : '',
-            passengers: !passengers ? 'Indica el número de pasajeros' : '',
+            origin: !originSelected ? t('home.errors.origin') : '',
+            dest: !destSelected ? t('home.errors.dest') : '',
+            startDate: !startDate ? t('home.errors.startDate') : '',
+            endDate: !endDate ? t('home.errors.endDate') : '',
+            passengers: !passengers ? t('home.errors.passengers') : '',
         };
         setErrors(newErrors);
 
@@ -113,7 +108,7 @@ export default function Principal({ auth }) {
 
     return (
         <>
-            <Head title="Inicio" />
+            <Head title={t('home.title')} />
             <Header activePage="inicio" />
 
             <section
@@ -123,30 +118,20 @@ export default function Principal({ auth }) {
                     transition: 'background-image 1s ease-in-out',
                 }}
             >
-                <div className="texto-principal">Reserva tu viaje</div>
+                <div className="texto-principal">{t('home.heading')}</div>
 
-                <div
-                    className="buscador"
-                    itemScope
-                    itemType="http://schema.org/Flight"
-                >
+                <div className="buscador" itemScope itemType="http://schema.org/Flight">
                     {/* Origen */}
-                    <div
-                        className="autocompletar"
-                        ref={originRef}
-                        itemProp="departureAirport"
-                        itemScope
-                        itemType="http://schema.org/Airport"
-                    >
+                    <div className="autocompletar" ref={originRef} itemProp="departureAirport" itemScope itemType="http://schema.org/Airport">
                         <input
-                            placeholder="Origen"
+                            placeholder={t('home.origin')}
                             value={originSelected ? `${originSelected.nombre} (${originSelected.codigo_iata})` : originQuery}
                             onChange={e => {
                                 setOriginQuery(e.target.value);
                                 setOriginSelected(null);
                                 setErrors(prev => ({ ...prev, origin: '' }));
                             }}
-                            aria-label="Aeropuerto de origen"
+                            aria-label={t('home.originLabel')}
                         />
                         {originList.length > 0 && !originSelected && (
                             <ul className="dropdown">
@@ -172,22 +157,16 @@ export default function Principal({ auth }) {
                     </div>
 
                     {/* Destino */}
-                    <div
-                        className="autocompletar"
-                        ref={destRef}
-                        itemProp="arrivalAirport"
-                        itemScope
-                        itemType="http://schema.org/Airport"
-                    >
+                    <div className="autocompletar" ref={destRef} itemProp="arrivalAirport" itemScope itemType="http://schema.org/Airport">
                         <input
-                            placeholder="Destino"
+                            placeholder={t('home.destination')}
                             value={destSelected ? `${destSelected.nombre} (${destSelected.codigo_iata})` : destQuery}
                             onChange={e => {
                                 setDestQuery(e.target.value);
                                 setDestSelected(null);
                                 setErrors(prev => ({ ...prev, dest: '' }));
                             }}
-                            aria-label="Aeropuerto de destino"
+                            aria-label={t('home.destinationLabel')}
                         />
                         {destList.length > 0 && !destSelected && (
                             <ul className="dropdown">
@@ -223,7 +202,7 @@ export default function Principal({ auth }) {
                                 if (endDate && e.target.value > endDate) setEndDate('');
                             }}
                             min={today}
-                            aria-label="Fecha de salida"
+                            aria-label={t('home.departureDateLabel')}
                         />
                         {errors.startDate && <div className="error-message">{errors.startDate}</div>}
                         {startDate && <meta itemProp="departureTime" content={startDate} />}
@@ -237,7 +216,7 @@ export default function Principal({ auth }) {
                                 setErrors(prev => ({ ...prev, endDate: '' }));
                             }}
                             min={startDate || today}
-                            aria-label="Fecha de regreso"
+                            aria-label={t('home.returnDateLabel')}
                         />
                         {errors.endDate && <div className="error-message">{errors.endDate}</div>}
                         {endDate && <meta itemProp="arrivalTime" content={endDate} />}
@@ -254,14 +233,14 @@ export default function Principal({ auth }) {
                                 setPassengers(v === '' ? null : parseInt(v));
                                 setErrors(prev => ({ ...prev, passengers: '' }));
                             }}
-                            placeholder="Pasajeros"
-                            aria-label="Número de pasajeros"
+                            placeholder={t('home.passengers')}
+                            aria-label={t('home.passengersLabel')}
                         />
                         {errors.passengers && <div className="error-message">{errors.passengers}</div>}
                         {passengers && <meta itemProp="passengerCount" content={passengers} />}
                     </div>
 
-                    <PrimaryButton onClick={handleSearch}>Buscar</PrimaryButton>
+                    <PrimaryButton onClick={handleSearch}>{t('home.search')}</PrimaryButton>
                 </div>
             </section>
 

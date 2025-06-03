@@ -1,10 +1,38 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import PrimaryButton from '@/Components/PrimaryButton';
 import UserDropdown from '@/Components/UserDropdown';
+import { useTranslation } from 'react-i18next';
+
+const flags = {
+  es: '/img/image 1.png',       // bandera de España
+  en: '/img/uk-flag.png',       // bandera de Reino Unido
+};
 
 export default function Header({ activePage }) {
   const { auth } = usePage().props;
+  const { t, i18n } = useTranslation();
+
+  const [language, setLanguage] = useState(i18n.language || 'es'); // idioma actual desde i18n
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Cerrar dropdown si haces click fuera
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const changeLanguage = (lang) => {
+    setLanguage(lang);
+    setDropdownOpen(false);
+    i18n.changeLanguage(lang);
+  };
 
   return (
     <header className="bg-[#003366] text-white px-6 py-4 flex items-center gap-4 md:gap-8">
@@ -23,7 +51,7 @@ export default function Header({ activePage }) {
             activePage === 'inicio' ? 'underline underline-offset-2 decoration-[#FF7F50] decoration-2' : ''
           }`}
         >
-          Inicio
+          {t('menu.home')}
         </Link>
         <Link
           href="/mis-viajes"
@@ -31,7 +59,7 @@ export default function Header({ activePage }) {
             activePage === 'viajes' ? 'underline underline-offset-2 decoration-[#FF7F50] decoration-2' : ''
           }`}
         >
-          Mis Viajes
+          {t('menu.myTrips')}
         </Link>
         <Link
           href="/sobre-nosotros"
@@ -39,7 +67,7 @@ export default function Header({ activePage }) {
             activePage === 'sobre-nosotros' ? 'underline underline-offset-2 decoration-[#FF7F50] decoration-2' : ''
           }`}
         >
-          Sobre Nosotros
+          {t('menu.aboutUs')}
         </Link>
         <Link
           href="/contacto"
@@ -47,22 +75,43 @@ export default function Header({ activePage }) {
             activePage === 'contacto' ? 'underline underline-offset-2 decoration-[#FF7F50] decoration-2' : ''
           }`}
         >
-          Contacto
+          {t('menu.contact')}
         </Link>
       </nav>
 
-      <div className="flex items-center gap-3 flex-shrink-0">
-        <img
-          src="/img/image 1.png"
-          alt="España"
-          className="h-8 w-auto"
-        />
+      <div className="flex items-center gap-3 flex-shrink-0 relative" ref={dropdownRef}>
+        <button onClick={() => setDropdownOpen(!dropdownOpen)} className="focus:outline-none">
+          <img
+            src={flags[language]}
+            alt={language === 'es' ? 'España' : 'Reino Unido'}
+            className="h-8 w-auto cursor-pointer"
+          />
+        </button>
+
+        {dropdownOpen && (
+          <div className="absolute right-0 mt-2 w-32 bg-white text-black rounded shadow-lg z-50">
+            <button
+              onClick={() => changeLanguage('es')}
+              className="flex items-center gap-2 px-4 py-2 hover:bg-gray-200 w-full text-left"
+            >
+              <img src={flags['es']} alt="España" className="h-5 w-auto" />
+              Español
+            </button>
+            <button
+              onClick={() => changeLanguage('en')}
+              className="flex items-center gap-2 px-4 py-2 hover:bg-gray-200 w-full text-left"
+            >
+              <img src={flags['en']} alt="Reino Unido" className="h-5 w-auto" />
+              English
+            </button>
+          </div>
+        )}
 
         {auth?.user ? (
           <UserDropdown user={auth.user} />
         ) : (
           <Link href="/login">
-            <PrimaryButton>Iniciar sesión</PrimaryButton>
+            <PrimaryButton>{t('menu.login')}</PrimaryButton>
           </Link>
         )}
       </div>

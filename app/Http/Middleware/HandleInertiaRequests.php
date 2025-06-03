@@ -34,6 +34,8 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            // Añadimos el idioma actual a las props compartidas
+            'locale' => app()->getLocale(),
         ];
     }
 }

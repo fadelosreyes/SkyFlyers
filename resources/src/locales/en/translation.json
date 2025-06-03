@@ -1,0 +1,135 @@
+{
+  "home": {
+    "title": "Home",
+    "heading": "Book your trip",
+    "origin": "Origin",
+    "destination": "Destination",
+    "originLabel": "Origin airport",
+    "destinationLabel": "Destination airport",
+    "departureDateLabel": "Departure date",
+    "returnDateLabel": "Return date",
+    "passengers": "Passengers",
+    "passengersLabel": "Number of passengers",
+    "search": "Search",
+    "errors": {
+      "origin": "Select an origin airport",
+      "dest": "Select a destination airport",
+      "startDate": "Select a departure date",
+      "endDate": "Select a return date",
+      "passengers": "Enter number of passengers"
+    }
+  },
+  "menu": {
+    "home": "Home",
+    "myTrips": "My Trips",
+    "aboutUs": "About Us",
+    "contact": "Contact",
+    "login": "Log in"
+  },
+  "userDropdown": {
+    "refunds": "Refunds",
+    "logout": "Log out"
+  },
+  "flight": {
+    "from": "Vuelo de",
+    "to": "a",
+    "date": "Fecha",
+    "duration": "Duración",
+    "view": "Ver vuelo"
+  },
+  "flights": {
+    "loadingRecommended": "Loading recommended flights…",
+    "recommended": "Recommended Flights",
+    "flightFrom": "Flight from",
+    "to": "to",
+    "departure": "Departure",
+    "arrival": "Arrival",
+    "from": "From",
+    "noSeats": "No seats available",
+    "viewMore": "View more"
+  },
+  "myTrips": {
+    "title": "My Trips",
+    "duration": "Duration",
+    "noTripsYet": "You have no trips booked yet.",
+    "back": "Back"
+  },
+  "aboutUs": {
+    "title": "About Us",
+    "description": "At SkyFlyer, we are your expert ally in managing flight tickets. Since 2005, we have simplified your flight purchase by comparing prices from dozens of airlines and offering the best rates available in real time. Our commitment is to save you time and money, so you can just focus on enjoying your trip.\n\nThanks to our intuitive platform and a dedicated customer service team, you can book, modify, or cancel your flight quickly and safely. At SkyFlyer, your comfort and satisfaction are always at the heart of our service, with personalized attention and 24/7 support to solve any issue.",
+    "socials": ["Instagram", "Facebook", "Twitter", "YouTube", "LinkedIn", "Contact Us"]
+  },
+  "results": {
+  "title": "Flight Results",
+  "from": "From",
+  "noSeats": "No seats available",
+  "duration": "Duration",
+  "reserve": "Reserve",
+  "noFlights": "No flights found for the selected criteria.",
+  "back": "Back"
+},
+  "auth": {
+    "register": "Register",
+    "name": "Name",
+    "password_confirmation": "Confirm Password",
+    "already_registered": "Already registered?",
+    "login": "Log in",
+    "email": "Email",
+    "password": "Password",
+    "remember_me": "Remember me",
+    "new_register": "New? Register",
+    "forgot_password": "Forgot password?"
+  },
+  "seats": {
+  "title": "Seat Selection",
+  "selectYourSeats": "Select your seats",
+  "selected": "Selected seat",
+  "available": "Available",
+  "unavailable": "Unavailable",
+  "confirm": "Confirm selection",
+  "back": "Back",
+  "passenger": "Passenger",
+  "seat": "Seat",
+  "selectFor": "Select seat for",
+  "next": "Next",
+  "error": {
+    "noSeatSelected": "You must select at least one seat.",
+    "seatUnavailable": "The selected seat is no longer available. Please choose another one."
+  }
+},
+"seleccionar_asientos": {
+    "titulo": "Seat Selection",
+    "alerta_limite": "You can only select up to {{numPasajeros}} seats in total.",
+    "selecciona_clase": "Select class",
+    "asiento": "Seat",
+    "asientos": "seats",
+    "asientos_seleccionados": "Selected seats",
+    "confirmar": "Confirm selection",
+    "limpiar_clase": "Clear {{clase}}",
+    "limpiar_todos": "Clear all"
+  },
+  "clases": {
+    "turista": "Economy",
+    "business": "Business",
+    "primera": "First"
+  },
+  "passenger_data": {
+    "title": "Passenger Data",
+    "passenger": "Passenger",
+    "seat": "Seat",
+    "full_name": "Full name",
+    "id_document": "ID / Passport",
+    "extra_baggage": "Extra baggage",
+    "passenger_price": "Passenger price",
+    "flexible_cancellation": "Flexible cancellation",
+    "per_passenger": "per passenger",
+    "total_price_with_fees": "Total price with fees",
+    "continue_to_payment": "Continue to payment"
+  },
+  "errors": {
+    "name_min": "Name must be at least 3 characters long.",
+    "name_letters": "Name can only contain letters and spaces.",
+    "doc_required": "ID / Passport is required.",
+    "doc_format": "Invalid ID / Passport format."
+  }
+}

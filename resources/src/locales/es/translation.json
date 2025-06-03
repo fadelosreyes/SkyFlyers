@@ -1,0 +1,119 @@
+{
+  "home": {
+    "title": "Inicio",
+    "heading": "Reserva tu viaje",
+    "origin": "Origen",
+    "destination": "Destino",
+    "originLabel": "Aeropuerto de origen",
+    "destinationLabel": "Aeropuerto de destino",
+    "departureDateLabel": "Fecha de salida",
+    "returnDateLabel": "Fecha de regreso",
+    "passengers": "Pasajeros",
+    "passengersLabel": "Número de pasajeros",
+    "search": "Buscar",
+    "errors": {
+      "origin": "Selecciona un aeropuerto de origen",
+      "dest": "Selecciona un aeropuerto de destino",
+      "startDate": "Selecciona la fecha de salida",
+      "endDate": "Selecciona la fecha de regreso",
+      "passengers": "Indica el número de pasajeros"
+    }
+  },
+  "menu": {
+    "home": "Inicio",
+    "myTrips": "Mis Viajes",
+    "aboutUs": "Sobre Nosotros",
+    "contact": "Contacto",
+    "login": "Iniciar sesión"
+  },
+  "userDropdown": {
+    "refunds": "Reembolsos",
+    "logout": "Cerrar sesión"
+  },
+  "flight": {
+    "from": "Flight from",
+    "to": "to",
+    "date": "Date",
+    "duration": "Duration",
+    "view": "View flight"
+  },
+  "flights": {
+    "loadingRecommended": "Cargando vuelos recomendados…",
+    "recommended": "Vuelos Recomendados",
+    "flightFrom": "Vuelo de",
+    "to": "a",
+    "departure": "Salida",
+    "arrival": "Llegada",
+    "from": "Desde",
+    "noSeats": "Sin plazas disponibles",
+    "viewMore": "Ver más"
+  },
+  "myTrips": {
+    "title": "Mis viajes",
+    "duration": "Duración",
+    "noTripsYet": "No tienes viajes realizados todavía.",
+    "back": "Volver"
+  },
+  "aboutUs": {
+  "title": "Sobre Nosotros",
+  "description": "En SkyFlyer, somos tu aliado experto en la gestión de billetes de avión. Desde 2005 hemos simplificado la compra de tu vuelo, comparando precios de decenas de aerolíneas y ofreciendo las mejores tarifas disponibles en tiempo real. Nuestro compromiso es ahorrarte tiempo y dinero, para que solo te preocupes por disfrutar tu viaje.\n\nGracias a nuestra plataforma intuitiva y a un equipo dedicado de atención al cliente, podrás reservar, modificar o cancelar tu vuelo de manera rápida y segura. En SkyFlyer, tu comodidad y satisfacción están siempre en el centro de nuestro servicio, con atención personalizada y soporte 24/7 para resolver cualquier incidencia.",
+  "socials": ["Instagram", "Facebook", "Twitter", "YouTube", "LinkedIn", "Contáctanos"]
+  },
+  "results": {
+  "title": "Resultados de vuelos",
+  "from": "Desde",
+  "noSeats": "Sin plazas disponibles",
+  "duration": "Duración",
+  "reserve": "Reservar",
+  "noFlights": "No se encontraron vuelos para los criterios seleccionados.",
+  "back": "Volver"
+    },
+"auth": {
+    "register": "Registrarse",
+    "name": "Nombre",
+    "password_confirmation": "Confirmar contraseña",
+    "already_registered": "¿Ya tienes una cuenta?",
+    "login": "Iniciar sesión",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "remember_me": "Recuérdame",
+    "new_register": "Regístrate",
+    "forgot_password": "¿Contraseña olvidada?"
+  },
+  "seleccionar_asientos": {
+    "titulo": "Seleccionar Asientos",
+    "alerta_limite": "Solo puedes seleccionar hasta {{numPasajeros}} asientos en total.",
+    "selecciona_clase": "Selecciona clase",
+    "asiento": "Asiento",
+    "asientos": "asientos",
+    "asientos_seleccionados": "Asientos seleccionados",
+    "confirmar": "Confirmar selección",
+    "limpiar_clase": "Limpiar {{clase}}",
+    "limpiar_todos": "Limpiar todos"
+  },
+  "clases": {
+    "turista": "Turista",
+    "business": "Business",
+    "primera": "Primera"
+  },
+  "passenger_data": {
+    "title": "Datos de los pasajeros",
+    "passenger": "Pasajero",
+    "seat": "Asiento",
+    "full_name": "Nombre completo",
+    "id_document": "DNI / Pasaporte",
+    "extra_baggage": "Maleta adicional",
+    "passenger_price": "Precio pasajero",
+    "flexible_cancellation": "Cancelación flexible",
+    "per_passenger": "por pasajero",
+    "total_price_with_fees": "Precio total con recargos",
+    "continue_to_payment": "Continuar al pago"
+  },
+  "errors": {
+    "name_min": "El nombre debe tener al menos 3 caracteres.",
+    "name_letters": "El nombre solo puede contener letras y espacios.",
+    "doc_required": "El DNI / Pasaporte es obligatorio.",
+    "doc_format": "Formato de DNI / Pasaporte inválido."
+  }
+}
+

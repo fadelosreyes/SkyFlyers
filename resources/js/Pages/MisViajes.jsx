@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Head, Link } from '@inertiajs/react';
+import { useTranslation } from 'react-i18next';
 import '../../css/principal.css';
 import '../../css/resultados.css';
 
@@ -7,16 +8,17 @@ import Header from '../Components/Header';
 import PrimaryButton from '../Components/PrimaryButton';
 
 export default function MisViajes({ vuelos }) {
+    const { t } = useTranslation();
+
     if (!Array.isArray(vuelos)) {
-        throw new Error('El prop "vuelos" debe ser un array.');
+        throw new Error(t('errors.invalidFlightsProp'));
     }
 
-    const vuelosInvalidosCount = vuelos.filter(v => v == null).length;
     const vuelosFiltrados = vuelos.filter(v => v != null);
 
     return (
         <>
-            <Head title="Mis viajes" />
+            <Head title={t('myTrips.title')} />
             <Header activePage="viajes" />
 
             <div className="resultados-vuelos">
@@ -24,7 +26,6 @@ export default function MisViajes({ vuelos }) {
                 {vuelosFiltrados.length > 0 ? (
                     <div className="lista-vuelos">
                         {vuelosFiltrados.map(v => {
-
                             const salida = new Date(v.fecha_salida);
                             const llegada = new Date(v.fecha_llegada);
                             const durMs = llegada - salida;
@@ -63,7 +64,7 @@ export default function MisViajes({ vuelos }) {
                                             itemType="http://schema.org/Airport"
                                         >
                                             <div className="city" itemProp="name">
-                                                {v.aeropuerto_origen?.ciudad || 'Desconocido'}
+                                                {v.aeropuerto_origen?.ciudad || t('unknown')}
                                             </div>
                                             <div className="code">
                                                 (<span itemProp="iataCode">{v.aeropuerto_origen?.codigo_iata || '---'}</span>)
@@ -76,7 +77,7 @@ export default function MisViajes({ vuelos }) {
                                                 {salida.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             </time>
                                             <div className="date">
-                                                {salida.toLocaleDateString('es-ES', { day: 'numeric', month: 'numeric', year: 'numeric' })}
+                                                {salida.toLocaleDateString(undefined, { day: 'numeric', month: 'numeric', year: 'numeric' })}
                                             </div>
                                         </div>
 
@@ -89,7 +90,7 @@ export default function MisViajes({ vuelos }) {
                                             itemType="http://schema.org/Airport"
                                         >
                                             <div className="city" itemProp="name">
-                                                {v.aeropuerto_destino?.ciudad || 'Desconocido'}
+                                                {v.aeropuerto_destino?.ciudad || t('unknown')}
                                             </div>
                                             <div className="code">
                                                 (<span itemProp="iataCode">{v.aeropuerto_destino?.codigo_iata || '---'}</span>)
@@ -102,14 +103,14 @@ export default function MisViajes({ vuelos }) {
                                                 {llegada.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             </time>
                                             <div className="date">
-                                                {llegada.toLocaleDateString('es-ES', { day: 'numeric', month: 'numeric', year: 'numeric' })}
+                                                {llegada.toLocaleDateString(undefined, { day: 'numeric', month: 'numeric', year: 'numeric' })}
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="Billete-vuelos-footer">
                                         <div className="details">
-                                            Duración:{' '}
+                                            {t('myTrips.duration')}: {' '}
                                             <time itemProp="duration" dateTime={durationISO}>
                                                 {hours}h {minutes}m
                                             </time>
@@ -121,13 +122,13 @@ export default function MisViajes({ vuelos }) {
                     </div>
                 ) : (
                     <p className="no-vuelos">
-                        No tienes viajes realizados todavía.
+                        {t('myTrips.noTripsYet')}
                     </p>
                 )}
 
                 <div className="volver-btn">
                     <Link href="/" className="volver-link">
-                        <PrimaryButton>Volver</PrimaryButton>
+                        <PrimaryButton>{t('myTrips.back')}</PrimaryButton>
                     </Link>
                 </div>
             </div>
