@@ -4,27 +4,52 @@ import Header from '../../Components/Header';
 import { route } from 'ziggy-js';
 import { useTranslation } from 'react-i18next';
 
-export default function PassengerData({ vuelo, asientosSeleccionados, totalBase }) {
+export default function PassengerData({
+  vueloIda = null,
+  asientosSeleccionadosIda = [],
+  vueloVuelta = null,
+  asientosSeleccionadosVuelta = [],
+  totalBaseIda = 0,
+  totalBaseVuelta = 0,
+}) {
   const { t, i18n } = useTranslation();
 
+  const asientosIda = Array.isArray(asientosSeleccionadosIda) ? asientosSeleccionadosIda : [];
+  const asientosVuelta = Array.isArray(asientosSeleccionadosVuelta) ? asientosSeleccionadosVuelta : [];
+
+  const numPasajeros = Math.max(asientosIda.length, asientosVuelta.length);
+
   const { data, setData, post, processing, errors: serverErrors } = useForm({
-    pasajeros: asientosSeleccionados.map(a => ({
-      nombre_pasajero: '',
-      documento_identidad: '',
-      maleta_adicional: false,
-      asiento_id: a.id,
-    })),
+    pasajeros: numPasajeros > 0
+      ? [...Array(numPasajeros)].map((_, i) => ({
+          nombre_pasajero: '',
+          tipo_documento: 'dni',
+          documento_identidad: '',
+          maleta_adicional_ida: false,
+          maleta_adicional_vuelta: false,
+          asiento_ida: asientosIda[i]?.id || null,
+          asiento_vuelta: asientosVuelta[i]?.id || null,
+        }))
+      : [],
     cancelacion_flexible_global: false,
-    total: totalBase,
-    language: '', // Añadido aquí
+    total: totalBaseIda + totalBaseVuelta,
+    language: '',
   });
 
   const [clientErrors, setClientErrors] = useState({});
 
+  // Al cambiar datos de pasajero, sincronizamos para ambos vuelos (es la misma persona)
   function handleInputChange(i, field, val) {
-    const arr = [...data.pasajeros];
-    arr[i][field] = val;
-    setData('pasajeros', arr);
+    const pasajerosCopy = [...data.pasajeros];
+    pasajerosCopy[i][field] = val;
+    setData('pasajeros', pasajerosCopy);
+  }
+
+  function handleCheckboxChange(i, field, checked) {
+    // maletas ida y vuelta son independientes, no se sincronizan
+    const pasajerosCopy = [...data.pasajeros];
+    pasajerosCopy[i][field] = checked;
+    setData('pasajeros', pasajerosCopy);
   }
 
   function handleCancelacionGlobalChange(checked) {
@@ -32,138 +57,198 @@ export default function PassengerData({ vuelo, asientosSeleccionados, totalBase 
   }
 
   function calculatePassengerPrice(i) {
-    let p = parseFloat(asientosSeleccionados[i].precio_base);
-    if (data.pasajeros[i].maleta_adicional) p += 20;
-    return p;
+    let precio = 0;
+    if (data.pasajeros[i]?.maleta_adicional_ida) precio += 20;
+    if (data.pasajeros[i]?.maleta_adicional_vuelta) precio += 20;
+
+    const precioIda = asientosIda[i]?.precio_base || 0;
+    const precioVuelta = asientosVuelta[i]?.precio_base || 0;
+
+    precio += parseFloat(precioIda) + parseFloat(precioVuelta);
+
+    return precio;
   }
 
   function calculateTotalPrice() {
-    const sumPassengers = data.pasajeros.reduce((sum, _, i) => sum + calculatePassengerPrice(i), 0);
-    const cancellationFee = data.cancelacion_flexible_global
-      ? data.pasajeros.length * 15
-      : 0;
-    return sumPassengers + cancellationFee;
+    const suma = data.pasajeros.reduce((acc, _, i) => acc + calculatePassengerPrice(i), 0);
+    const cancellation = data.cancelacion_flexible_global ? (numPasajeros * 15) : 0;
+    return suma + cancellation;
   }
 
   function validate() {
     const errs = {};
     data.pasajeros.forEach((pas, i) => {
       const name = pas.nombre_pasajero.trim();
+      const doc = pas.documento_identidad.trim();
+      const tipoDoc = pas.tipo_documento;
+
       if (!name || name.length < 3) {
         errs[`nombre_${i}`] = t('errors.name_min');
       } else if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$/.test(name)) {
         errs[`nombre_${i}`] = t('errors.name_letters');
       }
 
-      const doc = pas.documento_identidad.trim();
       if (!doc) {
         errs[`doc_${i}`] = t('errors.doc_required');
-      } else if (!/^(?=.*\d)[A-Za-z0-9]{5,10}$/.test(doc)) {
-        errs[`doc_${i}`] = t('errors.doc_format');
+      } else {
+        if (tipoDoc === 'dni') {
+          if (!/^\d{8}[A-Za-z]$/.test(doc)) {
+            errs[`doc_${i}`] = t('errors.doc_dni_format');
+          }
+        } else if (tipoDoc === 'pasaporte') {
+          if (!/^[A-Za-z]{3}\d{6}\d$/.test(doc)) {
+            errs[`doc_${i}`] = t('errors.doc_pasaporte_format');
+          }
+        }
       }
     });
+
     setClientErrors(errs);
     return Object.keys(errs).length === 0;
   }
 
   function handleSubmit(e) {
     e.preventDefault();
-    if (!validate()) return;
 
-    const totalWithFees = calculateTotalPrice();
-    setData('total', totalWithFees);
-    setData('language', i18n.language); // Se asegura de que se incluye
+    // Si quieres activar validación:
+    // if (!validate()) return;
 
-    post(route('billetes.preparar_pago'));
+    const totalWithExtras = calculateTotalPrice();
+    setData('language', i18n.language);
+
+    const pasajerosEnviados = data.pasajeros.map(p => ({
+      nombre_pasajero: p.nombre_pasajero,
+      tipo_documento: p.tipo_documento,
+      documento_identidad: p.documento_identidad,
+      maleta_adicional_ida: p.maleta_adicional_ida,
+      maleta_adicional_vuelta: p.maleta_adicional_vuelta,
+      asiento_ida: p.asiento_ida,
+      asiento_vuelta: p.asiento_vuelta,
+    }));
+
+    post(route('billetes.preparar_pago'), {
+      pasajeros: pasajerosEnviados,
+      cancelacion_flexible_global: data.cancelacion_flexible_global,
+      total: totalWithExtras,
+      language: i18n.language,
+    }, {
+      onSuccess: () => {
+        console.log('¡Petición enviada con éxito!');
+      },
+      onError: (errors) => {
+        console.error('Errores del servidor:', errors);
+      },
+      onFinish: () => {
+        console.log('Petición finalizada');
+      }
+    });
   }
 
   return (
     <>
       <Header activePage="#" />
-
       <form onSubmit={handleSubmit} className="p-6 max-w-3xl mx-auto">
         <h2 className="text-2xl font-bold mb-6">{t('passenger_data.title')}</h2>
 
-        {data.pasajeros.map((pas, i) => (
-          <div key={pas.asiento_id} className="border p-4 mb-6 rounded shadow-sm">
-            <h3 className="text-lg font-semibold mb-2">
-              {t('passenger_data.passenger')} {i + 1} – {t('passenger_data.seat')} {asientosSeleccionados[i].numero}
-            </h3>
+        {[...Array(numPasajeros)].map((_, idx) => (
+          <div key={idx} className="border p-4 mb-6 rounded shadow">
+            <h3 className="text-lg font-semibold mb-2">{t('passenger_data.passenger')} {idx + 1}</h3>
 
+            <p className="mb-1 font-medium">
+              {t('passenger_data.seat')} (Ida): {asientosIda[idx]?.numero || '-'}
+            </p>
+
+            {asientosVuelta.length > 0 && (
+              <p className="mb-3 font-medium">
+                {t('passenger_data.seat')} (Vuelta): {asientosVuelta[idx]?.numero || '-'}
+              </p>
+            )}
+
+            {/* Datos del pasajero (compartidos para ida y vuelta) */}
             <label className="block mb-1">{t('passenger_data.full_name')}</label>
             <input
               type="text"
-              value={pas.nombre_pasajero}
-              onChange={e => handleInputChange(i, 'nombre_pasajero', e.target.value)}
+              value={data.pasajeros[idx]?.nombre_pasajero || ''}
+              onChange={e => handleInputChange(idx, 'nombre_pasajero', e.target.value)}
               className="w-full p-2 border mb-1"
             />
-            {clientErrors[`nombre_${i}`] && (
-              <div className="text-red-600 text-sm mb-1">
-                {clientErrors[`nombre_${i}`]}
-              </div>
-            )}
-            {serverErrors[`pasajeros.${i}.nombre_pasajero`] && (
-              <div className="text-red-600 text-sm mb-1">
-                {serverErrors[`pasajeros.${i}.nombre_pasajero`]}
-              </div>
-            )}
+            {clientErrors[`nombre_${idx}`] && <div className="text-red-600 text-sm">{clientErrors[`nombre_${idx}`]}</div>}
+            {serverErrors[`pasajeros.${idx}.nombre_pasajero`] && <div className="text-red-600 text-sm">{serverErrors[`pasajeros.${idx}.nombre_pasajero`]}</div>}
+
+            <label className="block mb-1">{t('passenger_data.document_type')}</label>
+            <select
+              value={data.pasajeros[idx]?.tipo_documento || 'dni'}
+              onChange={e => handleInputChange(idx, 'tipo_documento', e.target.value)}
+              className="w-full p-2 border mb-1"
+            >
+              <option value="dni">{t('passenger_data.dni')}</option>
+              <option value="pasaporte">{t('passenger_data.passport')}</option>
+            </select>
 
             <label className="block mb-1">{t('passenger_data.id_document')}</label>
             <input
               type="text"
-              value={pas.documento_identidad}
-              onChange={e => handleInputChange(i, 'documento_identidad', e.target.value)}
+              value={data.pasajeros[idx]?.documento_identidad || ''}
+              onChange={e => handleInputChange(idx, 'documento_identidad', e.target.value)}
+              placeholder={
+                data.pasajeros[idx]?.tipo_documento === 'dni'
+                  ? '12345678A'
+                  : 'ABC1234567'
+              }
               className="w-full p-2 border mb-1"
             />
-            {clientErrors[`doc_${i}`] && (
-              <div className="text-red-600 text-sm mb-1">
-                {clientErrors[`doc_${i}`]}
-              </div>
-            )}
-            {serverErrors[`pasajeros.${i}.documento_identidad`] && (
-              <div className="text-red-600 text-sm mb-1">
-                {serverErrors[`pasajeros.${i}.documento_identidad`]}
-              </div>
-            )}
+            {clientErrors[`doc_${idx}`] && <div className="text-red-600 text-sm">{clientErrors[`doc_${idx}`]}</div>}
+            {serverErrors[`pasajeros.${idx}.documento_identidad`] && <div className="text-red-600 text-sm">{serverErrors[`pasajeros.${idx}.documento_identidad`]}</div>}
 
-            <label className="block mb-3">
-              <input
-                type="checkbox"
-                checked={pas.maleta_adicional}
-                onChange={e => handleInputChange(i, 'maleta_adicional', e.target.checked)}
-              />{' '}
-              {t('passenger_data.extra_baggage')} (+20 €)
-            </label>
+            <div className="flex items-center mt-3 space-x-4">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={data.pasajeros[idx]?.maleta_adicional_ida || false}
+                  onChange={e => handleCheckboxChange(idx, 'maleta_adicional_ida', e.target.checked)}
+                />{' '}
+                {t('passenger_data.extra_baggage_ida')}
+              </label>
 
-            <p className="mt-3 font-semibold">
-              {t('passenger_data.passenger_price')}: {calculatePassengerPrice(i).toFixed(2)} €
+              {asientosVuelta.length > 0 && (
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={data.pasajeros[idx]?.maleta_adicional_vuelta || false}
+                    onChange={e => handleCheckboxChange(idx, 'maleta_adicional_vuelta', e.target.checked)}
+                  />{' '}
+                  {t('passenger_data.extra_baggage_vuelta')}
+                </label>
+              )}
+            </div>
+
+            <p className="mt-2 font-semibold">
+              {t('passenger_data.price')}: {calculatePassengerPrice(idx).toFixed(2)} €
             </p>
           </div>
         ))}
 
-        <label className="block mb-6">
+        <label className="flex items-center mb-4">
           <input
             type="checkbox"
             checked={data.cancelacion_flexible_global}
             onChange={e => handleCancelacionGlobalChange(e.target.checked)}
-          />{' '}
-          {t('passenger_data.flexible_cancellation')} (+15 € {t('passenger_data.per_passenger')})
+          />
+          <span className="ml-2">{t('passenger_data.flexible_cancellation')}</span>
         </label>
 
-        <p className="text-xl font-bold mb-4">
-          <strong>{t('passenger_data.total_price_with_fees')}:</strong> {calculateTotalPrice().toFixed(2)} €
+        <p className="text-xl font-bold mb-6">
+          {t('passenger_data.total_price')}: {calculateTotalPrice().toFixed(2)} €
         </p>
 
         <button
           type="submit"
           disabled={processing}
-          className="bg-blue-600 text-white py-2 px-4 rounded"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
-          {t('passenger_data.continue_to_payment')}
+          {processing ? t('passenger_data.sending') : t('passenger_data.submit')}
         </button>
       </form>
     </>
   );
 }
-
-

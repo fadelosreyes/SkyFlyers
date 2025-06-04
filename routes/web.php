@@ -56,12 +56,22 @@ Route::get('/pago/exito', [PagoController::class, 'exito'])->name('pago.exito');
 Route::post('/vuelos/{vuelo}/cancelar-billetes', [PagoController::class, 'cancelarVuelo'])->name('vuelos.cancelarBilletes');
 
 Route::middleware(['auth'])->get('/mis-viajes', [VueloController::class, 'misViajes'])->name('mis.viajes');
-
+Route::get('/billetes/create', [BilleteController::class, 'create'])->name('billetes.create');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/billetes/{billete}/cambiar-asiento', [BilleteController::class, 'editarAsiento'])->name('billetes.editarAsiento');
     Route::post('/billetes/{billete}/actualizar-asiento', [BilleteController::class, 'actualizarAsiento'])->name('billetes.actualizarAsiento');
 });
+
+Route::post(
+    '/vuelos/guardar-seleccion-ida',
+    [VueloController::class, 'guardarSeleccionIda']
+)->name('vuelos.guardarSeleccionIda');
+
+Route::get(
+    '/vuelos/obtener-seleccion-ida',
+    [VueloController::class, 'obtenerSeleccionIda']
+)->name('vuelos.obtenerSeleccionIda');
 
 
 require __DIR__ . '/auth.php';

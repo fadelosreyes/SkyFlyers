@@ -8,6 +8,8 @@ use Inertia\Inertia;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Billete;
+use Illuminate\Support\Facades\Log;
+
 
 class VueloController extends Controller
 {
@@ -66,42 +68,18 @@ class VueloController extends Controller
     {
         //
     }
-public function resultados(Request $request)
-{
-    $origen = $request->input('origen');
-    $destino = $request->input('destino');
-    $startDate = \Carbon\Carbon::parse($request->input('start_date'))->startOfDay();
-    $endDate = $request->input('end_date') ? \Carbon\Carbon::parse($request->input('end_date'))->startOfDay() : null;
-    $tipoVuelo = $request->input('tipo_vuelo', 'roundtrip');
-    $isRoundTrip = $tipoVuelo === 'roundtrip';
-    $passengers = (int) $request->input('pasajeros', 1);
+    public function resultados(Request $request)
+    {
+        $origen = $request->input('origen');
+        $destino = $request->input('destino');
+        $startDate = \Carbon\Carbon::parse($request->input('start_date'))->startOfDay();
+        $endDate = $request->input('end_date') ? \Carbon\Carbon::parse($request->input('end_date'))->startOfDay() : null;
+        $tipoVuelo = $request->input('tipo_vuelo', 'roundtrip');
+        $isRoundTrip = $tipoVuelo === 'roundtrip';
+        $passengers = (int) $request->input('pasajeros', 1);
 
-    // Vuelos de ida: buscar entre las 00:00 y 23:59 del día de salida
-    $vuelosIda = Vuelo::with([
-        'aeropuertoOrigen',
-        'aeropuertoDestino',
-        'avion.aerolinea',
-        'asientos' => function ($query) {
-            $query->where('estado_id', 1);
-        },
-    ])
-        ->where('aeropuerto_origen_id', $origen)
-        ->where('aeropuerto_destino_id', $destino)
-        ->whereBetween('fecha_salida', [$startDate->copy(), $startDate->copy()->endOfDay()])
-        ->whereHas('asientos', function ($q) use ($passengers) {
-            $q->where('estado_id', 1);
-        }, '>=', $passengers)
-        ->paginate(3)
-        ->through(function ($vuelo) {
-            $vuelo->precio_minimo = $vuelo->asientos->min('precio_base');
-            $vuelo->plazas_libres = $vuelo->asientos->count();
-            return $vuelo;
-        });
-    //dd($vuelosIda);
-    // Vuelos de vuelta (solo si es ida y vuelta)
-    $vuelosVuelta = null;
-    if ($isRoundTrip && $endDate) {
-        $vuelosVuelta = Vuelo::with([
+        // Vuelos de ida: buscar entre las 00:00 y 23:59 del día de salida
+        $vuelosIda = Vuelo::with([
             'aeropuertoOrigen',
             'aeropuertoDestino',
             'avion.aerolinea',
@@ -109,50 +87,126 @@ public function resultados(Request $request)
                 $query->where('estado_id', 1);
             },
         ])
-            ->where('aeropuerto_origen_id', $destino)
-            ->where('aeropuerto_destino_id', $origen)
-            ->whereBetween('fecha_salida', [$endDate->copy(), $endDate->copy()->endOfDay()])
-            ->whereHas('asientos', function ($q) use ($passengers) {
-                $q->where('estado_id', 1);
-            }, '>=', $passengers)
+            ->where('aeropuerto_origen_id', $origen)
+            ->where('aeropuerto_destino_id', $destino)
+            ->whereBetween('fecha_salida', [$startDate->copy(), $startDate->copy()->endOfDay()])
+            ->whereHas(
+                'asientos',
+                function ($q) use ($passengers) {
+                    $q->where('estado_id', 1);
+                },
+                '>=',
+                $passengers,
+            )
             ->paginate(3)
             ->through(function ($vuelo) {
                 $vuelo->precio_minimo = $vuelo->asientos->min('precio_base');
                 $vuelo->plazas_libres = $vuelo->asientos->count();
                 return $vuelo;
             });
+        //dd($vuelosIda);
+        // Vuelos de vuelta (solo si es ida y vuelta)
+        $vuelosVuelta = null;
+        if ($isRoundTrip && $endDate) {
+            $vuelosVuelta = Vuelo::with([
+                'aeropuertoOrigen',
+                'aeropuertoDestino',
+                'avion.aerolinea',
+                'asientos' => function ($query) {
+                    $query->where('estado_id', 1);
+                },
+            ])
+                ->where('aeropuerto_origen_id', $destino)
+                ->where('aeropuerto_destino_id', $origen)
+                ->whereBetween('fecha_salida', [$endDate->copy(), $endDate->copy()->endOfDay()])
+                ->whereHas(
+                    'asientos',
+                    function ($q) use ($passengers) {
+                        $q->where('estado_id', 1);
+                    },
+                    '>=',
+                    $passengers,
+                )
+                ->paginate(3)
+                ->through(function ($vuelo) {
+                    $vuelo->precio_minimo = $vuelo->asientos->min('precio_base');
+                    $vuelo->plazas_libres = $vuelo->asientos->count();
+                    return $vuelo;
+                });
+        }
+
+        return Inertia::render('resultados', [
+            'vuelosIda' => $vuelosIda,
+            'vuelosVuelta' => $vuelosVuelta,
+            'startDate' => $startDate->toDateString(),
+            'endDate' => $endDate ? $endDate->toDateString() : null,
+            'passengers' => $passengers,
+            'tipo_vuelo' => $tipoVuelo,
+        ]);
     }
-
-    return Inertia::render('resultados', [
-        'vuelosIda' => $vuelosIda,
-        'vuelosVuelta' => $vuelosVuelta,
-        'startDate' => $startDate->toDateString(),
-        'endDate' => $endDate ? $endDate->toDateString() : null,
-        'passengers' => $passengers,
-        'tipo_vuelo' => $tipoVuelo,
-    ]);
-}
-
-
-
-
 
     public function seleccionarAsientos(Request $request, $id)
     {
-        // Si no viene passengers o viene vacío, lo dejamos como null (sin límite)
-        $numPasajeros = $request->input('passengers');
+        // 1) Número de pasajeros (viene en query string ?passengers=...)
+        $numPasajeros = $request->query('passengers');
         if (empty($numPasajeros) || !is_numeric($numPasajeros) || $numPasajeros < 1) {
             $numPasajeros = 100;
         } else {
             $numPasajeros = (int) $numPasajeros;
         }
 
+        // 2) ID del vuelo de vuelta (si existe, viene en ?idVuelta=...)
+        $idVuelta = $request->query('idVuelta'); // null si no se pasó
+
+        // 3) Cargo el modelo del vuelo “actual” (puede ser ida, vuelta o single‐flight)
         $vuelo = Vuelo::with(['asientos.clase', 'asientos.estado'])->findOrFail($id);
 
+        // 4) Renderizo la página Inertia pasándole:
+        //    - el modelo de vuelo y sus asientos,
+        //    - el número de pasajeros,
+        //    - y el posible idVuelta
         return Inertia::render('SeleccionarAsientos', [
             'vuelo' => $vuelo,
             'asientos' => $vuelo->asientos,
             'numPasajeros' => $numPasajeros,
+            'idVuelta' => $idVuelta, // null o el ID del vuelo de vuelta
+        ]);
+    }
+
+    // --- Nuevo: guarda en sesión la selección de asientos de "ida" ---
+    public function guardarSeleccionIda(Request $request)
+    {
+        // Validamos mínimamente que venga algo
+        $request->validate([
+            'vueloIda' => 'required|integer',
+            'seats' => 'required|array',
+            'passengers' => 'required|integer|min:1',
+        ]);
+
+        // Guardamos en sesión
+        session([
+            'vuelo_ida' => (int) $request->input('vueloIda'),
+            'asientos_ida' => $request->input('seats'),
+            'numPasajeros' => (int) $request->input('passengers'),
+        ]);
+        //dd($request->all());
+
+        // Devolvemos JSON para que axios en el frontend sepa que todo fue OK
+        return response()->json(['ok' => true]);
+    }
+
+    // --- Nuevo: recupera de sesión los datos de la selección de "ida" ---
+    public function obtenerSeleccionIda(Request $request)
+    {
+        //  Log::info('Sesión de ida recuperada:', [
+        // 'vuelo_ida' => session('vuelo_ida'),
+        // 'asientos_ida' => session('asientos_ida'),
+    // ]);
+
+        // Devolvemos, incluso si es null, para que el frontend distinga single‐flight
+        return response()->json([
+            'vuelo_ida' => session('vuelo_ida'),
+            'asientos_ida' => session('asientos_ida'),
         ]);
     }
 

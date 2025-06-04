@@ -35,57 +35,97 @@ class PagoController extends Controller
             return redirect()->route('principal')->with('error', 'El pago no se completó correctamente.');
         }
 
-        $datosPasajeros = session('datos_billete', []);
+        $pasajerosDatos = session('pasajerosDatos', []);
+        $cancelacionFlexibleGlobal = session('cancelacion_flexible_global', false);
+
         $billetesCreados = [];
 
-        foreach ($datosPasajeros as $p) {
-            $asiento = Asiento::findOrFail($p['asiento_id']);
+        foreach ($pasajerosDatos as $p) {
+            // Crear billete para tramo ida si existe asiento_ida
+            if (!empty($p['asiento_ida'])) {
+                $asientoIda = Asiento::findOrFail($p['asiento_ida']);
+                $subtotalIda = $asientoIda->precio_base;
+                $subtotalIda += !empty($p['maleta_adicional_ida']) ? 20 : 0;
+                $subtotalIda += $cancelacionFlexibleGlobal ? 15 : 0;
 
-            $subtotal = $asiento->precio_base;
-            $subtotal += !empty($p['maleta_adicional']) ? 20 : 0;
-            $subtotal += !empty($p['cancelacion_flexible']) ? 15 : 0;
+                $pnrIda = strtoupper(Str::random(10));
+                $contenidoQRIda = 'PNR: ' . $pnrIda;
+                $nombreArchivoQRIda = 'qrcodes/' . $pnrIda . '.svg';
+                $rutaCompletaQRIda = storage_path('app/public/' . $nombreArchivoQRIda);
+                File::put($rutaCompletaQRIda, QrCode::format('svg')->size(300)->generate($contenidoQRIda));
 
-            $pnr = strtoupper(Str::random(10));
-            $contenidoQR = 'PNR: ' . $pnr;
+                $billeteIda = Billete::create([
+                    'user_id' => Auth::id(),
+                    'nombre_pasajero' => $p['nombre_pasajero'],
+                    'tipo_documento' => $p['tipo_documento'],
+                    'documento_identidad' => $p['documento_identidad'],
+                    'asiento_id' => $asientoIda->id,
+                    'codigo_QR' => $nombreArchivoQRIda,
+                    'pnr' => $pnrIda,
+                    'recargos' => 0,
+                    'tarifa_base' => (float) $asientoIda->precio_base,
+                    'total' => (float) $subtotalIda,
+                    'fecha_reserva' => now(),
+                    'fecha_emision' => now(),
+                    'maleta_adicional' => !empty($p['maleta_adicional_ida']),
+                    'cancelacion_flexible' => $cancelacionFlexibleGlobal,
+                    'stripe_session_id' => $sessionId,
+                ]);
 
-            $nombreArchivoQR = 'qrcodes/' . $pnr . '.svg';
-            $rutaCompletaQR = storage_path('app/public/' . $nombreArchivoQR);
+                $asientoIda->estado_id = 2; // Reservado
+                $asientoIda->save();
 
-            File::put($rutaCompletaQR, QrCode::format('svg')->size(300)->generate($contenidoQR));
+                $billetesCreados[] = $billeteIda;
+            }
 
-            $billete = Billete::create([
-                'user_id' => Auth::id(),
-                'nombre_pasajero' => $p['nombre_pasajero'],
-                'documento_identidad' => $p['documento_identidad'],
-                'asiento_id' => $p['asiento_id'],
-                'codigo_QR' => $nombreArchivoQR,
-                'pnr' => $pnr,
-                'recargos' => 0,
-                'tarifa_base' => (float) $asiento->precio_base,
-                'total' => (float) $subtotal,
-                'fecha_reserva' => now(),
-                'fecha_emision' => now(),
-                'maleta_adicional' => $p['maleta_adicional'] ?? false,
-                'cancelacion_flexible' => $p['cancelacion_flexible'] ?? false,
-                'stripe_session_id' => $sessionId,
-            ]);
+            // Crear billete para tramo vuelta si existe asiento_vuelta
+            if (!empty($p['asiento_vuelta'])) {
+                $asientoVuelta = Asiento::findOrFail($p['asiento_vuelta']);
+                $subtotalVuelta = $asientoVuelta->precio_base;
+                $subtotalVuelta += !empty($p['maleta_adicional_vuelta']) ? 20 : 0;
+                $subtotalVuelta += $cancelacionFlexibleGlobal ? 15 : 0;
 
-            $asiento->estado_id = 2; // Reservar asiento
-            $asiento->save();
+                $pnrVuelta = strtoupper(Str::random(10));
+                $contenidoQRVuelta = 'PNR: ' . $pnrVuelta;
+                $nombreArchivoQRVuelta = 'qrcodes/' . $pnrVuelta . '.svg';
+                $rutaCompletaQRVuelta = storage_path('app/public/' . $nombreArchivoQRVuelta);
+                File::put($rutaCompletaQRVuelta, QrCode::format('svg')->size(300)->generate($contenidoQRVuelta));
 
-            $billetesCreados[] = $billete;
+                $billeteVuelta = Billete::create([
+                    'user_id' => Auth::id(),
+                    'nombre_pasajero' => $p['nombre_pasajero'],
+                    'tipo_documento' => $p['tipo_documento'],
+                    'documento_identidad' => $p['documento_identidad'],
+                    'asiento_id' => $asientoVuelta->id,
+                    'codigo_QR' => $nombreArchivoQRVuelta,
+                    'pnr' => $pnrVuelta,
+                    'recargos' => 0,
+                    'tarifa_base' => (float) $asientoVuelta->precio_base,
+                    'total' => (float) $subtotalVuelta,
+                    'fecha_reserva' => now(),
+                    'fecha_emision' => now(),
+                    'maleta_adicional' => !empty($p['maleta_adicional_vuelta']),
+                    'cancelacion_flexible' => $cancelacionFlexibleGlobal,
+                    'stripe_session_id' => $sessionId,
+                ]);
+
+                $asientoVuelta->estado_id = 2; // Reservado
+                $asientoVuelta->save();
+
+                $billetesCreados[] = $billeteVuelta;
+            }
         }
 
-        // Recargar con relaciones necesarias
+        // Recargar billetes con relaciones para el frontend
         $billetes = Billete::whereIn('id', collect($billetesCreados)->pluck('id'))
             ->with('asiento.vuelo.aeropuertoOrigen', 'asiento.vuelo.aeropuertoDestino')
             ->get();
 
-        // Mapear para frontend: crear array plano con datos de vuelo y aeropuertos
         $billetesPlanos = $billetes->map(function ($billete) {
             return [
                 'id' => $billete->id,
                 'nombre_pasajero' => $billete->nombre_pasajero,
+                'tipo_documento' => $billete->tipo_documento,
                 'documento_identidad' => $billete->documento_identidad,
                 'asiento_numero' => $billete->asiento->numero,
                 'codigo_QR' => $billete->codigo_QR,
@@ -102,66 +142,64 @@ class PagoController extends Controller
             ];
         });
 
-        // **Enviar el email con los billetes**
+        // Enviar email
         Mail::to(Auth::user()->email)->send(new BilletesEmail($billetesPlanos));
 
-        session()->forget(['datos_billete', 'stripe_session_id']);
+        // Limpiar sesión
+        session()->forget(['pasajerosDatos', 'stripe_session_id', 'cancelacion_flexible_global']);
 
         return Inertia::render('Billete/ConfirmacionMultiple', [
             'billetes' => $billetesPlanos,
         ]);
     }
 
-public function cancelarVuelo($vueloId)
-{
-    $billetes = Billete::whereHas('asiento', fn($q) => $q->where('vuelo_id', $vueloId))
-                       ->get();
+    public function cancelarVuelo($vueloId)
+    {
+        $billetes = Billete::whereHas('asiento', fn($q) => $q->where('vuelo_id', $vueloId))->get();
 
-    if ($billetes->isEmpty()) {
-        return back()->with('error', 'No hay billetes activos para este vuelo.');
-    }
-
-    Stripe::setApiKey(env('STRIPE_SECRET'));
-
-    $refundedIntents = [];
-    $errores = [];
-
-    foreach ($billetes as $billete) {
-        try {
-            $intent = null;
-
-            // Solo refund si aún no se ha reembolsado este payment_intent
-            if (! in_array($billete->stripe_session_id, $refundedIntents)) {
-                $session = \Stripe\Checkout\Session::retrieve($billete->stripe_session_id);
-                $intent  = $session->payment_intent;
-
-                \Stripe\Refund::create(['payment_intent' => $intent]);
-
-                // Marcamos que ya lo reembolsamos
-                $refundedIntents[] = $billete->stripe_session_id;
-            }
-
-            // Soft delete del billete
-            $billete->delete();
-
-            // Liberar el asiento
-            if ($as = $billete->asiento) {
-                $as->estado_id = 1;
-                $as->save();
-            }
-
-        } catch (\Exception $e) {
-            Log::error("Error en billete {$billete->id}: {$e->getMessage()}");
-            $errores[] = "ID {$billete->id}";
-            // No return: seguimos con los demás
+        if ($billetes->isEmpty()) {
+            return back()->with('error', 'No hay billetes activos para este vuelo.');
         }
+
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+
+        $refundedIntents = [];
+        $errores = [];
+
+        foreach ($billetes as $billete) {
+            try {
+                $intent = null;
+
+                // Solo refund si aún no se ha reembolsado este payment_intent
+                if (!in_array($billete->stripe_session_id, $refundedIntents)) {
+                    $session = \Stripe\Checkout\Session::retrieve($billete->stripe_session_id);
+                    $intent = $session->payment_intent;
+
+                    \Stripe\Refund::create(['payment_intent' => $intent]);
+
+                    // Marcamos que ya lo reembolsamos
+                    $refundedIntents[] = $billete->stripe_session_id;
+                }
+
+                // Soft delete del billete
+                $billete->delete();
+
+                // Liberar el asiento
+                if ($as = $billete->asiento) {
+                    $as->estado_id = 1;
+                    $as->save();
+                }
+            } catch (\Exception $e) {
+                Log::error("Error en billete {$billete->id}: {$e->getMessage()}");
+                $errores[] = "ID {$billete->id}";
+                // No return: seguimos con los demás
+            }
+        }
+
+        if (!empty($errores)) {
+            return back()->with('error', 'No se pudieron cancelar algunos billetes: ' . implode(', ', $errores));
+        }
+
+        return back()->with('success', 'Todos los billetes han sido cancelados, reembolsados y los asientos liberados.');
     }
-
-    if (! empty($errores)) {
-        return back()->with('error', 'No se pudieron cancelar algunos billetes: ' . implode(', ', $errores));
-    }
-
-    return back()->with('success', 'Todos los billetes han sido cancelados, reembolsados y los asientos liberados.');
-}
-
 }

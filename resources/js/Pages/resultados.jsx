@@ -7,13 +7,18 @@ import '../../css/resultados.css';
 import Header from '../Components/Header';
 import PrimaryButton from '../Components/PrimaryButton';
 
-export default function Resultados({ vuelosIda = {}, vuelosVuelta = {}, passengers, tipo_vuelo }) {
+export default function Resultados({
+    vuelosIda = {},
+    vuelosVuelta = {},
+    passengers,
+    tipo_vuelo,
+}) {
     const { t } = useTranslation();
 
     const vuelosIdaArray = vuelosIda.data || [];
     const vuelosVueltaArray = vuelosVuelta?.data || [];
 
-    // Estado para guardar vuelos seleccionados
+    // Estado para guardar IDs seleccionados (ida / vuelta)
     const [vueloSeleccionadoIda, setVueloSeleccionadoIda] = useState(null);
     const [vueloSeleccionadoVuelta, setVueloSeleccionadoVuelta] = useState(null);
 
@@ -23,7 +28,7 @@ export default function Resultados({ vuelosIda = {}, vuelosVuelta = {}, passenge
             {lista.length === 0 ? (
                 <p>{t('results.noFlights')}</p>
             ) : (
-                lista.map(v => {
+                lista.map((v) => {
                     const salida = new Date(v.fecha_salida);
                     const llegada = new Date(v.fecha_llegada);
                     const durMs = llegada - salida;
@@ -35,10 +40,10 @@ export default function Resultados({ vuelosIda = {}, vuelosVuelta = {}, passenge
                         durationISO = `PT${hours}H${minutes}M`;
                     }
 
-                    // Estado del botón: para ida y vuelta el botón es "Seleccionar", para solo ida es "Reservar"
+                    // ¿Es vuelo ida+vuelta?
                     const esRoundtrip = tipo_vuelo === 'roundtrip';
 
-                    // Selección actual para cada tipo de vuelo
+                    // ¿Está seleccionado este vuelo?
                     const seleccionado = esIda
                         ? vueloSeleccionadoIda === v.id
                         : vueloSeleccionadoVuelta === v.id;
@@ -160,7 +165,9 @@ export default function Resultados({ vuelosIda = {}, vuelosVuelta = {}, passenge
                                 {esRoundtrip ? (
                                     <button
                                         type="button"
-                                        className={`btn-seleccionar ${seleccionado ? 'seleccionado' : ''}`}
+                                        className={`btn-seleccionar ${
+                                            seleccionado ? 'seleccionado' : ''
+                                        }`}
                                         onClick={() => {
                                             if (esIda) {
                                                 setVueloSeleccionadoIda(v.id);
@@ -174,17 +181,19 @@ export default function Resultados({ vuelosIda = {}, vuelosVuelta = {}, passenge
                                             passengers <= 0
                                         }
                                     >
-                                        {seleccionado ? t('results.selected') : t('results.select')}
+                                        {seleccionado
+                                            ? t('results.selected')
+                                            : t('results.select')}
                                     </button>
-                                    
                                 ) : (
                                     <button
                                         type="button"
                                         className="btn-reserva"
                                         onClick={() =>
-                                            router.get(route('seleccionar.asientos', { id: v.id }), {
-                                                data: { passengers },
-                                            })
+                                            router.get(
+                                                route('seleccionar.asientos', { id: v.id }),
+                                                { data: { passengers } }
+                                            )
                                         }
                                         disabled={
                                             v.precio_minimo === null ||
@@ -203,14 +212,16 @@ export default function Resultados({ vuelosIda = {}, vuelosVuelta = {}, passenge
         </div>
     );
 
-    // Función para confirmar selección y redirigir a la selección de asientos para vuelos ida y vuelta
+    // Botón “Confirmar” para redirigir al selector de asientos
     const confirmarSeleccion = () => {
         if (vueloSeleccionadoIda && vueloSeleccionadoVuelta) {
-            router.get(route('seleccionar.asientos'), {
-                idIda: vueloSeleccionadoIda,
-                idVuelta: vueloSeleccionadoVuelta,
-                passengers,
-            });
+            router.get(
+                route('seleccionar.asientos', {
+                    id: vueloSeleccionadoIda, // segmento {id} = vuelo de ida
+                    idVuelta: vueloSeleccionadoVuelta, // query string
+                    passengers, // query string
+                })
+            );
         }
     };
 
@@ -222,19 +233,29 @@ export default function Resultados({ vuelosIda = {}, vuelosVuelta = {}, passenge
             <div className="resultados-vuelos">
                 {(vuelosIdaArray.length > 0 || vuelosVueltaArray.length > 0) ? (
                     <>
-                        {renderVuelos(vuelosIdaArray, t('results.outbound') || 'Vuelos de ida', true)}
+                        {renderVuelos(
+                            vuelosIdaArray,
+                            t('results.outbound') || 'Vuelos de ida',
+                            true
+                        )}
 
                         {tipo_vuelo === 'roundtrip' &&
                             vuelosVueltaArray.length > 0 &&
-                            renderVuelos(vuelosVueltaArray, t('results.return') || 'Vuelos de vuelta', false)}
+                            renderVuelos(
+                                vuelosVueltaArray,
+                                t('results.return') || 'Vuelos de vuelta',
+                                false
+                            )}
 
-                        {tipo_vuelo === 'roundtrip' && vueloSeleccionadoIda && vueloSeleccionadoVuelta && (
-                            <div className="volver-btn">
-                                <PrimaryButton onClick={confirmarSeleccion}>
-                                    {t('results.confirm')}
-                                </PrimaryButton>
-                            </div>
-                        )}
+                        {tipo_vuelo === 'roundtrip' &&
+                            vueloSeleccionadoIda &&
+                            vueloSeleccionadoVuelta && (
+                                <div className="volver-btn">
+                                    <PrimaryButton onClick={confirmarSeleccion}>
+                                        {t('results.confirm')}
+                                    </PrimaryButton>
+                                </div>
+                            )}
                     </>
                 ) : (
                     <p className="no-vuelos">{t('results.noFlights')}</p>
