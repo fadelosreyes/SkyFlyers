@@ -121,8 +121,8 @@ class BilleteController extends Controller
         $pasajerosDatos = $data['pasajeros']; // array de X pasajeros
 
         // 2) Verificar si hay datos “ida” en sesión (para roundtrip)
-        $vueloIdaSesion = session('vuelo_ida'); // int|null
-        $asientosIdaSesion = session('asientos_ida'); // array|null
+        //$vueloIdaSesion = session('vuelo_ida'); // int|null
+        //$asientosIdaSesion = session('asientos_ida'); // array|null
 
         // 3) Calcular el precio total sumando precio_base + suplementos
         $precioTotal = $data['total'];
@@ -290,9 +290,11 @@ class BilleteController extends Controller
     public function index()
     {
         $user = auth()->user();
-        // Obtenemos todos los billetes del usuario sin filtro por fecha
+
+        // Obtenemos todos los billetes del usuario, ordenados por fecha de reserva
         $billetes = Billete::with(['asiento.vuelo.aeropuertoOrigen', 'asiento.vuelo.aeropuertoDestino'])
             ->where('user_id', $user->id)
+            ->orderBy('fecha_reserva') // <-- Ordenar por fecha de reserva
             ->get()
             ->groupBy(fn($billete) => $billete->asiento->vuelo->id)
             ->map(function ($grupoBilletes) {
@@ -357,45 +359,45 @@ class BilleteController extends Controller
     /**
      * Método privado para evitar duplicación en consultas de billetes.
      */
-    private function obtenerBilletesUsuarioConFiltro($userId, $fechaLimite)
-    {
-        return Billete::with(['asiento.vuelo.aeropuertoOrigen', 'asiento.vuelo.aeropuertoDestino'])
-            ->where('user_id', $userId)
-            ->whereHas('asiento.vuelo', function ($query) use ($fechaLimite) {
-                $query->where('fecha_salida', '>', $fechaLimite);
-            })
-            ->get()
-            ->groupBy(fn($billete) => $billete->asiento->vuelo->id)
-            ->map(function ($grupoBilletes) {
-                $vuelo = $grupoBilletes->first()->asiento->vuelo;
+    // private function obtenerBilletesUsuarioConFiltro($userId, $fechaLimite)
+    // {
+    //     return Billete::with(['asiento.vuelo.aeropuertoOrigen', 'asiento.vuelo.aeropuertoDestino'])
+    //         ->where('user_id', $userId)
+    //         ->whereHas('asiento.vuelo', function ($query) use ($fechaLimite) {
+    //             $query->where('fecha_salida', '>', $fechaLimite);
+    //         })
+    //         ->get()
+    //         ->groupBy(fn($billete) => $billete->asiento->vuelo->id)
+    //         ->map(function ($grupoBilletes) {
+    //             $vuelo = $grupoBilletes->first()->asiento->vuelo;
 
-                return [
-                    'vuelo' => [
-                        'id' => $vuelo->id,
-                        'fecha_salida' => $vuelo->fecha_salida,
-                        'fecha_llegada' => $vuelo->fecha_llegada,
-                        'origen' => $vuelo->aeropuertoOrigen->nombre,
-                        'destino' => $vuelo->aeropuertoDestino->nombre,
-                    ],
-                    'billetes' => $grupoBilletes
-                        ->map(function ($billete) {
-                            return [
-                                'id' => $billete->id,
-                                'nombre_pasajero' => $billete->nombre_pasajero,
-                                'documento_identidad' => $billete->documento_identidad,
-                                'pnr' => $billete->pnr,
-                                'codigo_QR' => $billete->codigo_QR,
-                                'asiento_numero' => $billete->asiento->numero ?? 'N/A',
-                                'tarifa_base' => $billete->tarifa_base,
-                                'total' => $billete->total,
-                                'maleta_adicional' => $billete->maleta_adicional,
-                                'cancelacion_flexible' => $billete->cancelacion_flexible,
-                                'fecha_reserva' => $billete->fecha_reserva,
-                            ];
-                        })
-                        ->values(),
-                ];
-            })
-            ->values();
-    }
+    //             return [
+    //                 'vuelo' => [
+    //                     'id' => $vuelo->id,
+    //                     'fecha_salida' => $vuelo->fecha_salida,
+    //                     'fecha_llegada' => $vuelo->fecha_llegada,
+    //                     'origen' => $vuelo->aeropuertoOrigen->nombre,
+    //                     'destino' => $vuelo->aeropuertoDestino->nombre,
+    //                 ],
+    //                 'billetes' => $grupoBilletes
+    //                     ->map(function ($billete) {
+    //                         return [
+    //                             'id' => $billete->id,
+    //                             'nombre_pasajero' => $billete->nombre_pasajero,
+    //                             'documento_identidad' => $billete->documento_identidad,
+    //                             'pnr' => $billete->pnr,
+    //                             'codigo_QR' => $billete->codigo_QR,
+    //                             'asiento_numero' => $billete->asiento->numero ?? 'N/A',
+    //                             'tarifa_base' => $billete->tarifa_base,
+    //                             'total' => $billete->total,
+    //                             'maleta_adicional' => $billete->maleta_adicional,
+    //                             'cancelacion_flexible' => $billete->cancelacion_flexible,
+    //                             'fecha_reserva' => $billete->fecha_reserva,
+    //                         ];
+    //                     })
+    //                     ->values(),
+    //             ];
+    //         })
+    //         ->values();
+    // }
 }

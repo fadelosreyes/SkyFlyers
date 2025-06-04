@@ -74,7 +74,8 @@
   "outbound": "Outbound flights",
   "return": "Return flights",
   "select": "Select",
-  "selected": "Selected"
+  "selected": "Selected",
+  "confirm": "Confirm"
 
 },
   "auth": {
@@ -116,7 +117,8 @@
     "confirmar": "Confirm selection",
     "limpiar_clase": "Clear {{clase}}",
     "limpiar_todos": "Clear all",
-    "confirmar_cambio": "Confirm"
+    "confirmar_cambio": "Confirm",
+    "confirmar_ida": "Confirm selection"
   },
   "clases": {
     "turista": "Economy",
@@ -126,21 +128,28 @@
   "passenger_data": {
     "title": "Passenger Data",
     "passenger": "Passenger",
-    "seat": "Seat",
-    "full_name": "Full name",
+    "seat_vuelta": "Seat return",
+    "seat_ida": "Seat outbound",
+    "full_name": "Full Name",
     "id_document": "ID / Passport",
-    "extra_baggage": "Extra baggage",
-    "passenger_price": "Passenger price",
-    "flexible_cancellation": "Flexible cancellation",
+    "extra_baggage": "Extra Baggage",
+    "passenger_price": "Passenger Price",
+    "flexible_cancellation": "Flexible Cancellation",
     "per_passenger": "per passenger",
-    "total_price_with_fees": "Total price with fees",
-    "continue_to_payment": "Continue to payment"
+    "total_price": "Total Price with Surcharges",
+    "submit": "Proceed to Payment",
+    "document_type": "Document Type",
+    "extra_baggage_ida": "Extra Baggage (Outbound)",
+    "extra_baggage_vuelta": "Extra Baggage (Return)",
+    "dni": "ID",
+    "passport": "Passport"
   },
   "errors": {
     "name_min": "Name must be at least 3 characters long.",
-    "name_letters": "Name can only contain letters and spaces.",
-    "doc_required": "ID / Passport is required.",
-    "doc_format": "Invalid ID / Passport format."
+      "name_letters": "Name can only contain letters and spaces.",
+      "doc_required": "Identification document is required.",
+      "doc_dni_format": "DNI must have 8 digits followed by an uppercase letter.",
+      "doc_pasaporte_format": "Passport must have 3 letters followed by 6 digits."
   },
   "billetes_multiples": {
   "compra_exitosa": "Purchase completed successfully!",
@@ -160,7 +169,9 @@
   "destino": "Destination",
   "si": "Yes",
   "no": "No",
-  "volver_inicio": "Back to home"
+  "volver_inicio": "Back to home",
+  "buscar_hoteles": "Search hotel",
+  "sending": "Sending"
 },
 "billetes_index": {
     "titulo": "Active tickets",
@@ -179,7 +190,11 @@
     "cancelacion_exitosa": "All tickets for the flight were successfully canceled.",
     "cancelacion_error": "Error canceling the flight tickets.",
     "volver_inicio": "Back to home",
-    "cambiar_asiento": "Change seat"
+    "cambiar_asiento": "Change seat",
+    "ida": "Outbound Trip",
+    "cancelar_viaje": "Cancel Trip",
+    "viaje": "Trip",
+    "vuelta": "Return Trip"
   }
 
 }

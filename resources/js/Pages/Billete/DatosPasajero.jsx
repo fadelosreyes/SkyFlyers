@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from '@inertiajs/react';
 import Header from '../../Components/Header';
 import { route } from 'ziggy-js';
@@ -19,6 +19,7 @@ export default function PassengerData({
 
   const numPasajeros = Math.max(asientosIda.length, asientosVuelta.length);
 
+  // 1) Inicializamos `total` a 0
   const { data, setData, post, processing, errors: serverErrors } = useForm({
     pasajeros: numPasajeros > 0
       ? [...Array(numPasajeros)].map((_, i) => ({
@@ -32,13 +33,12 @@ export default function PassengerData({
         }))
       : [],
     cancelacion_flexible_global: false,
-    total: totalBaseIda + totalBaseVuelta,
+    total: 0,            // arranca en 0, se actualizará con useEffect
     language: '',
   });
 
   const [clientErrors, setClientErrors] = useState({});
 
-  // Al cambiar datos de pasajero, sincronizamos para ambos vuelos (es la misma persona)
   function handleInputChange(i, field, val) {
     const pasajerosCopy = [...data.pasajeros];
     pasajerosCopy[i][field] = val;
@@ -46,7 +46,6 @@ export default function PassengerData({
   }
 
   function handleCheckboxChange(i, field, checked) {
-    // maletas ida y vuelta son independientes, no se sincronizan
     const pasajerosCopy = [...data.pasajeros];
     pasajerosCopy[i][field] = checked;
     setData('pasajeros', pasajerosCopy);
@@ -58,29 +57,37 @@ export default function PassengerData({
 
   function calculatePassengerPrice(i) {
     let precio = 0;
-    if (data.pasajeros[i]?.maleta_adicional_ida) precio += 20;
+    if (data.pasajeros[i]?.maleta_adicional_ida)   precio += 20;
     if (data.pasajeros[i]?.maleta_adicional_vuelta) precio += 20;
 
-    const precioIda = asientosIda[i]?.precio_base || 0;
-    const precioVuelta = asientosVuelta[i]?.precio_base || 0;
+    const precioIda   = asientosIda[i]?.precio_base || 0;
+    const precioVuelta= asientosVuelta[i]?.precio_base || 0;
 
     precio += parseFloat(precioIda) + parseFloat(precioVuelta);
-
     return precio;
   }
 
   function calculateTotalPrice() {
-    const suma = data.pasajeros.reduce((acc, _, i) => acc + calculatePassengerPrice(i), 0);
+    const sumaPasajeros = data.pasajeros.reduce(
+      (acc, _, i) => acc + calculatePassengerPrice(i),
+      0
+    );
     const cancellation = data.cancelacion_flexible_global ? (numPasajeros * 15) : 0;
-    return suma + cancellation;
+    return sumaPasajeros + cancellation;
   }
+
+  // 2) Cada vez que cambie `data.pasajeros` o `data.cancelacion_flexible_global`, volvemos a calcular `total`
+  useEffect(() => {
+    const nuevoTotal = calculateTotalPrice();
+    setData('total', nuevoTotal);
+  }, [data.pasajeros, data.cancelacion_flexible_global]);
 
   function validate() {
     const errs = {};
     data.pasajeros.forEach((pas, i) => {
-      const name = pas.nombre_pasajero.trim();
-      const doc = pas.documento_identidad.trim();
-      const tipoDoc = pas.tipo_documento;
+      const name   = pas.nombre_pasajero.trim();
+      const doc    = pas.documento_identidad.trim();
+      const tipoDoc= pas.tipo_documento;
 
       if (!name || name.length < 3) {
         errs[`nombre_${i}`] = t('errors.name_min');
@@ -92,11 +99,13 @@ export default function PassengerData({
         errs[`doc_${i}`] = t('errors.doc_required');
       } else {
         if (tipoDoc === 'dni') {
-          if (!/^\d{8}[A-Za-z]$/.test(doc)) {
+          // 8 dígitos seguidos de 1 sola letra
+          if (!/^[0-9]{8}[A-Z]$/.test(doc)) {
             errs[`doc_${i}`] = t('errors.doc_dni_format');
           }
         } else if (tipoDoc === 'pasaporte') {
-          if (!/^[A-Za-z]{3}\d{6}\d$/.test(doc)) {
+          // 3 letras seguidas de 6 dígitos (exacto)
+          if (!/^[A-Za-z]{3}[0-9]{6}$/.test(doc)) {
             errs[`doc_${i}`] = t('errors.doc_pasaporte_format');
           }
         }
@@ -110,37 +119,16 @@ export default function PassengerData({
   function handleSubmit(e) {
     e.preventDefault();
 
-    // Si quieres activar validación:
-    // if (!validate()) return;
+    // Validamos en cliente antes de enviar
+    if (!validate()) return;
 
-    const totalWithExtras = calculateTotalPrice();
+    // 3) Fijamos el idioma (opcional, para que Laravel lo reciba)
     setData('language', i18n.language);
 
-    const pasajerosEnviados = data.pasajeros.map(p => ({
-      nombre_pasajero: p.nombre_pasajero,
-      tipo_documento: p.tipo_documento,
-      documento_identidad: p.documento_identidad,
-      maleta_adicional_ida: p.maleta_adicional_ida,
-      maleta_adicional_vuelta: p.maleta_adicional_vuelta,
-      asiento_ida: p.asiento_ida,
-      asiento_vuelta: p.asiento_vuelta,
-    }));
-
+    // 4) Enviamos sin sobreescribir payload: { pasajeros, cancelacion_flexible_global, total, language }
     post(route('billetes.preparar_pago'), {
-      pasajeros: pasajerosEnviados,
-      cancelacion_flexible_global: data.cancelacion_flexible_global,
-      total: totalWithExtras,
-      language: i18n.language,
-    }, {
-      onSuccess: () => {
-        console.log('¡Petición enviada con éxito!');
-      },
-      onError: (errors) => {
-        console.error('Errores del servidor:', errors);
-      },
-      onFinish: () => {
-        console.log('Petición finalizada');
-      }
+      onSuccess: () => console.log('¡Petición enviada con éxito!'),
+      onError:   (errs) => console.error('Errores del servidor:', errs),
     });
   }
 
@@ -152,19 +140,19 @@ export default function PassengerData({
 
         {[...Array(numPasajeros)].map((_, idx) => (
           <div key={idx} className="border p-4 mb-6 rounded shadow">
-            <h3 className="text-lg font-semibold mb-2">{t('passenger_data.passenger')} {idx + 1}</h3>
+            <h3 className="text-lg font-semibold mb-2">
+              {t('passenger_data.passenger')} {idx + 1}
+            </h3>
 
             <p className="mb-1 font-medium">
-              {t('passenger_data.seat')} (Ida): {asientosIda[idx]?.numero || '-'}
+              {t('passenger_data.seat_ida')}: {asientosIda[idx]?.numero || '-'}
             </p>
-
             {asientosVuelta.length > 0 && (
               <p className="mb-3 font-medium">
-                {t('passenger_data.seat')} (Vuelta): {asientosVuelta[idx]?.numero || '-'}
+                {t('passenger_data.seat_vuelta')}: {asientosVuelta[idx]?.numero || '-'}
               </p>
             )}
 
-            {/* Datos del pasajero (compartidos para ida y vuelta) */}
             <label className="block mb-1">{t('passenger_data.full_name')}</label>
             <input
               type="text"
@@ -172,8 +160,14 @@ export default function PassengerData({
               onChange={e => handleInputChange(idx, 'nombre_pasajero', e.target.value)}
               className="w-full p-2 border mb-1"
             />
-            {clientErrors[`nombre_${idx}`] && <div className="text-red-600 text-sm">{clientErrors[`nombre_${idx}`]}</div>}
-            {serverErrors[`pasajeros.${idx}.nombre_pasajero`] && <div className="text-red-600 text-sm">{serverErrors[`pasajeros.${idx}.nombre_pasajero`]}</div>}
+            {clientErrors[`nombre_${idx}`] && (
+              <div className="text-red-600 text-sm">{clientErrors[`nombre_${idx}`]}</div>
+            )}
+            {serverErrors[`pasajeros.${idx}.nombre_pasajero`] && (
+              <div className="text-red-600 text-sm">
+                {serverErrors[`pasajeros.${idx}.nombre_pasajero`]}
+              </div>
+            )}
 
             <label className="block mb-1">{t('passenger_data.document_type')}</label>
             <select
@@ -193,12 +187,18 @@ export default function PassengerData({
               placeholder={
                 data.pasajeros[idx]?.tipo_documento === 'dni'
                   ? '12345678A'
-                  : 'ABC1234567'
+                  : 'ABC123456'
               }
               className="w-full p-2 border mb-1"
             />
-            {clientErrors[`doc_${idx}`] && <div className="text-red-600 text-sm">{clientErrors[`doc_${idx}`]}</div>}
-            {serverErrors[`pasajeros.${idx}.documento_identidad`] && <div className="text-red-600 text-sm">{serverErrors[`pasajeros.${idx}.documento_identidad`]}</div>}
+            {clientErrors[`doc_${idx}`] && (
+              <div className="text-red-600 text-sm">{clientErrors[`doc_${idx}`]}</div>
+            )}
+            {serverErrors[`pasajeros.${idx}.documento_identidad`] && (
+              <div className="text-red-600 text-sm">
+                {serverErrors[`pasajeros.${idx}.documento_identidad`]}
+              </div>
+            )}
 
             <div className="flex items-center mt-3 space-x-4">
               <label>
@@ -215,7 +215,9 @@ export default function PassengerData({
                   <input
                     type="checkbox"
                     checked={data.pasajeros[idx]?.maleta_adicional_vuelta || false}
-                    onChange={e => handleCheckboxChange(idx, 'maleta_adicional_vuelta', e.target.checked)}
+                    onChange={e =>
+                      handleCheckboxChange(idx, 'maleta_adicional_vuelta', e.target.checked)
+                    }
                   />{' '}
                   {t('passenger_data.extra_baggage_vuelta')}
                 </label>

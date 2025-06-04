@@ -17,25 +17,55 @@ export default function ConfirmacionMultiple({ billetes }) {
         };
     }
 
-    // Construir URL de búsqueda en Booking para búsqueda general (primer billete)
+    // Construir URL de busqueda en Booking para búsqueda general (primer billete)
     function bookingGeneralUrl() {
-    if (!billetes || billetes.length === 0) return 'https://www.booking.com/';
+        if (!billetes || billetes.length === 0) {
+            return 'https://www.booking.com/';
+        }
 
-    const primerBillete = billetes[0];
-    const destino = primerBillete.aeropuerto_destino || '';
-    const adultos = billetes.length;
+        const billetesOrdenados = [...billetes].sort((a, b) =>
+            new Date(a.vuelo_fecha_salida) - new Date(b.vuelo_fecha_salida)
+        );
 
-    if (!destino) return 'https://www.booking.com/';
+        const primerBillete = billetesOrdenados[0];
+        const ultimoBillete = billetesOrdenados[billetesOrdenados.length - 1];
+        const destino = primerBillete.aeropuerto_destino || '';
 
-    const params = new URLSearchParams({
-        ss: destino,
-        group_adults: adultos.toString(),
-        // No fechas incluidas
-    });
+        if (!destino) {
+            return 'https://www.booking.com/';
+        }
 
-    return `https://www.booking.com/searchresults.html?${params.toString()}`;
-}
+        const pasajerosUnicos = new Set(
+            billetes.map(b => b.documento_identidad || b.nombre_pasajero)
+        );
+        const adultos = pasajerosUnicos.size;
 
+        const extractParts = (isoStr) => {
+            const fecha = isoStr.includes('T')
+                ? isoStr.split('T')[0]
+                : isoStr.split(' ')[0];
+            const [year, month, day] = fecha.split('-');
+            return { year, month, day };
+        };
+
+        const checkin = extractParts(primerBillete.vuelo_fecha_salida);
+        const checkout = extractParts(ultimoBillete.vuelo_fecha_salida);
+
+        const params = new URLSearchParams({
+            ss: destino,
+            group_adults: adultos.toString(),
+            checkin_year: checkin.year,
+            checkin_month: checkin.month,
+            checkin_monthday: checkin.day,
+            checkout_year: checkout.year,
+            checkout_month: checkout.month,
+            checkout_monthday: checkout.day,
+            no_rooms: '1',
+            group_children: '0'
+        });
+
+        return `https://www.booking.com/searchresults.html?${params.toString()}`;
+    }
 
 
     return (
@@ -52,8 +82,24 @@ export default function ConfirmacionMultiple({ billetes }) {
                             <p><strong>{t('billetes_multiples.documento')}:</strong> {billete.documento_identidad}</p>
                             <p><strong>{t('billetes_multiples.pnr')}:</strong> {billete.pnr}</p>
                             <p><strong>{t('billetes_multiples.asiento_numero')}:</strong> {billete.asiento_numero}</p>
-                            <p><strong>{t('billetes_multiples.tarifa_base')}:</strong> ${billete.tarifa_base ? Number(billete.tarifa_base).toFixed(2) : 'N/A'}</p>
-                            <p><strong>{t('billetes_multiples.total')}:</strong> ${billete.total ? Number(billete.total).toFixed(2) : 'N/A'}</p>
+                            <p>
+                                <strong>{t('billetes_multiples.tarifa_base')}:</strong>{' '}
+                                {billete.tarifa_base
+                                    ? new Intl.NumberFormat('es-ES', {
+                                        style: 'currency',
+                                        currency: 'EUR',
+                                    }).format(billete.tarifa_base)
+                                    : 'N/A'}
+                            </p>
+                            <p>
+                                <strong>{t('billetes_multiples.total')}:</strong>{' '}
+                                {billete.total
+                                    ? new Intl.NumberFormat('es-ES', {
+                                        style: 'currency',
+                                        currency: 'EUR',
+                                    }).format(billete.total)
+                                    : 'N/A'}
+                            </p>
                             <p><strong>{t('billetes_multiples.maleta_adicional')}:</strong> {billete.maleta_adicional ? t('billetes_multiples.si') : t('billetes_multiples.no')}</p>
                             <p><strong>{t('billetes_multiples.cancelacion_flexible')}:</strong> {billete.cancelacion_flexible ? t('billetes_multiples.si') : t('billetes_multiples.no')}</p>
                             <p><strong>{t('billetes_multiples.fecha_reserva')}:</strong> {billete.fecha_reserva ? new Date(billete.fecha_reserva).toLocaleString() : 'N/A'}</p>

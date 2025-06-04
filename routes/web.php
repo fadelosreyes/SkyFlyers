@@ -53,7 +53,7 @@ Route::get('/cancelaciones', [BilleteController::class, 'index'])->name('cancela
 //Route::post('/pago/stripe', [PagoController::class, 'crearSesionStripe'])->name('pago.stripe');
 Route::get('/pago/exito', [PagoController::class, 'exito'])->name('pago.exito');
 
-Route::post('/vuelos/{vuelo}/cancelar-billetes', [PagoController::class, 'cancelarVuelo'])->name('vuelos.cancelarBilletes');
+Route::post('/vuelos/{vuelo}/cancelar-billetes', [PagoController::class, 'cancelarVuelos'])->name('vuelos.cancelarBilletes');
 
 Route::middleware(['auth'])->get('/mis-viajes', [VueloController::class, 'misViajes'])->name('mis.viajes');
 Route::get('/billetes/create', [BilleteController::class, 'create'])->name('billetes.create');

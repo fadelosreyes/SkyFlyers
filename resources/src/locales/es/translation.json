@@ -74,7 +74,8 @@
   "outbound": "Vuelos de ida",
   "return": "Vuelos de vuelta",
   "select": "Seleccionar",
-  "selected": "Seleccionado"
+  "selected": "Seleccionado",
+  "confirm": "Confirmar"
     },
 "auth": {
     "register": "Registrarse",
@@ -98,7 +99,8 @@
     "confirmar": "Confirmar selección",
     "limpiar_clase": "Limpiar {{clase}}",
     "limpiar_todos": "Limpiar todos",
-    "confirmar_cambio": "Confirmar"
+    "confirmar_cambio": "Confirmar",
+    "confirmar_ida": "Confirmar seleccion"
   },
   "clases": {
     "turista": "Turista",
@@ -108,21 +110,29 @@
   "passenger_data": {
     "title": "Datos de los pasajeros",
     "passenger": "Pasajero",
-    "seat": "Asiento",
+    "seat_vuelta": "Asiento vuelta",
+    "seat_ida": "Asiento ida",
     "full_name": "Nombre completo",
     "id_document": "DNI / Pasaporte",
     "extra_baggage": "Maleta adicional",
     "passenger_price": "Precio pasajero",
     "flexible_cancellation": "Cancelación flexible",
     "per_passenger": "por pasajero",
-    "total_price_with_fees": "Precio total con recargos",
-    "continue_to_payment": "Continuar al pago"
+    "total_price": "Precio total con recargos",
+    "submit": "Continuar al pago",
+    "document_type": "Tipo documento",
+    "extra_baggage_ida": "Maleta extra(ida)",
+    "extra_baggage_vuelta": "Maleta extra(vuelta)",
+    "dni": "DNI",
+    "passport": "Pasaporte",
+    "sending": "Enviando"
   },
   "errors": {
     "name_min": "El nombre debe tener al menos 3 caracteres.",
-    "name_letters": "El nombre solo puede contener letras y espacios.",
-    "doc_required": "El DNI / Pasaporte es obligatorio.",
-    "doc_format": "Formato de DNI / Pasaporte inválido."
+      "name_letters": "El nombre solo puede contener letras y espacios.",
+      "doc_required": "El documento de identidad es obligatorio.",
+      "doc_dni_format": "El DNI debe tener 8 dígitos seguidos de una letra mayúscula.",
+      "doc_pasaporte_format": "El pasaporte debe tener 3 letras seguidas de 6 dígitos."
   },
   "billetes_multiples": {
   "compra_exitosa": "¡Compra completada con éxito!",
@@ -142,7 +152,8 @@
   "destino": "Destino",
   "si": "Sí",
   "no": "No",
-  "volver_inicio": "Volver al inicio"
+  "volver_inicio": "Volver al inicio",
+  "buscar_hoteles": "Buscar hotel"
 },
 
   "billetes_index": {
@@ -162,7 +173,11 @@
     "cancelacion_exitosa": "Todos los billetes del vuelo fueron cancelados correctamente.",
     "cancelacion_error": "Error al cancelar los billetes del vuelo.",
     "volver_inicio": "Volver al inicio",
-    "cambiar_asiento": "Cambiar asiento"
+    "cambiar_asiento": "Cambiar asiento",
+    "cancelar_viaje": "Cancelar viaje",
+    "viaje": "Viaje de Ida",
+    "vuelta": "Viaje de Vuelta",
+    "ida": "Viaje de Ida"
   }
 }
 
