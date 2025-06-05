@@ -50,7 +50,9 @@
     "arrival": "Llegada",
     "from": "Desde",
     "noSeats": "Sin plazas disponibles",
-    "viewMore": "Ver más"
+    "viewMore": "Ver más",
+    "fewSeatsLeft": "Casi agotado",
+    "onlySeatsLeft": "Quedan {{count}} plazas"
   },
   "myTrips": {
     "title": "Mis viajes",

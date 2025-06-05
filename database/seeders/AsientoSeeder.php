@@ -25,23 +25,11 @@ class AsientoSeeder extends Seeder
             ->whereHas('avion')
             ->get();
 
-        if ($vuelos->isEmpty()) {
-            $this->command->info('No hay vuelos válidos para generar asientos.');
-            return;
-        }
-
         foreach ($vuelos as $vuelo) {
-            $this->command->info("-> Generando asientos para el vuelo #{$vuelo->id}...");
-
             // Eliminar asientos previos para este vuelo
             Asiento::where('vuelo_id', $vuelo->id)->delete();
 
             $avion = $vuelo->avion;
-
-            if (!$avion) {
-                $this->command->warn("   El vuelo #{$vuelo->id} no tiene avión asignado. Se omite.");
-                continue;
-            }
 
             // Configuración de filas, columnas y precio por clase
             $configClases = [
@@ -67,8 +55,8 @@ class AsientoSeeder extends Seeder
                     for ($col = 0; $col < $columnas; $col++) {
                         $numeroAsiento = $fila . chr(ord('A') + $col);
 
-                        // 80% probabilidades que el asiento esté libre, 20% ocupado
-                        $estadoId = rand(1, 100) <= 80 ? $estadoLibre->id : $estadoOcupado->id;
+                        // 25% probabilidades que el asiento esté libre, 75% ocupado
+                        $estadoId = rand(1, 100) <= 25 ? $estadoLibre->id : $estadoOcupado->id;
 
                         Asiento::create([
                             'vuelo_id' => $vuelo->id,
@@ -82,8 +70,6 @@ class AsientoSeeder extends Seeder
 
                 $filaActual += $filas;
             }
-
-            $this->command->info("   Asientos generados para el vuelo #{$vuelo->id}.");
         }
     }
 }

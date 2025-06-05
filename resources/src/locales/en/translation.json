@@ -50,7 +50,9 @@
     "arrival": "Arrival",
     "from": "From",
     "noSeats": "No seats available",
-    "viewMore": "View more"
+    "viewMore": "View more",
+    "fewSeatsLeft": "Few seats left",
+    "onlySeatsLeft": "Only {{count}} seats left"
   },
   "myTrips": {
     "title": "My Trips",
