@@ -27,7 +27,6 @@ return new class extends Migration
             $table->boolean('maleta_adicional')->default(false);
             $table->boolean('cancelacion_flexible')->default(false);
             $table->string('stripe_session_id');
-            $table->softDeletes();
             $table->timestamps();
 
             $table->unique('asiento_id');

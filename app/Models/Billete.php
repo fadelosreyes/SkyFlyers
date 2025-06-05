@@ -9,10 +9,6 @@ class Billete extends Model
 {
     use HasFactory;
 
-    use SoftDeletes;
-
-    protected $dates = ['deleted_at'];
-
     protected $fillable = [
         'user_id',
         'nombre_pasajero',

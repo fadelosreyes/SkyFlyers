@@ -380,15 +380,15 @@ router.get(route('billetes.create'), {
                 : t('seleccionar_asientos.confirmar')}
           </button>
 
-          {modoCambio && (
+            {modoCambio && (
             <button
-              onClick={cancelar}
-              className="btn-cancelar"
-              style={{ marginTop: '1em', backgroundColor: '#f44336', color: 'white' }}
+                onClick={cancelar}
+                className="btn-cancelar mt-1 bg-red-600 text-white py-1 px-4 rounded-lg hover:bg-red-700"
             >
-              {t('seleccionar_asientos.cancelar')}
+            {t('seleccionar_asientos.cancelar')}
             </button>
-          )}
+            )}
+
 
           {!modoCambio && (
             <div style={{ display: 'flex', gap: '1em', marginTop: '1em' }}>
@@ -396,7 +396,7 @@ router.get(route('billetes.create'), {
                 onClick={limpiarSeleccionClaseActual}
                 disabled={getSeleccionados().length === 0}
                 className="btn-limpiar"
-              >s
+              >
                 {t('seleccionar_asientos.limpiar_clase', {
                   clase: t(`clases.${claseSeleccionada}`)
                 })}

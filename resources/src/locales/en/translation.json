@@ -118,7 +118,8 @@
     "limpiar_clase": "Clear {{clase}}",
     "limpiar_todos": "Clear all",
     "confirmar_cambio": "Confirm",
-    "confirmar_ida": "Confirm selection"
+    "confirmar_ida": "Confirm selection",
+    "cancelar": "Cancel"
   },
   "clases": {
     "turista": "Economy",
@@ -142,7 +143,8 @@
     "extra_baggage_ida": "Extra Baggage (Outbound)",
     "extra_baggage_vuelta": "Extra Baggage (Return)",
     "dni": "ID",
-    "passport": "Passport"
+    "passport": "Passport",
+    "price": "Price"
   },
   "errors": {
     "name_min": "Name must be at least 3 characters long.",
@@ -196,5 +198,4 @@
     "viaje": "Trip",
     "vuelta": "Return Trip"
   }
-
 }

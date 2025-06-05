@@ -117,20 +117,24 @@ export default function PassengerData({
   }
 
   function handleSubmit(e) {
-    e.preventDefault();
+  e.preventDefault();
 
-    // Validamos en cliente antes de enviar
-    if (!validate()) return;
+  // Validamos en cliente antes de enviar
+  if (!validate()) return;
 
-    // 3) Fijamos el idioma (opcional, para que Laravel lo reciba)
-    setData('language', i18n.language);
+  // Imprimimos en consola todo el objeto `data` justo antes de la petición
+  console.log('Antes de post, data = ', data);
 
-    // 4) Enviamos sin sobreescribir payload: { pasajeros, cancelacion_flexible_global, total, language }
-    post(route('billetes.preparar_pago'), {
-      onSuccess: () => console.log('¡Petición enviada con éxito!'),
-      onError:   (errs) => console.error('Errores del servidor:', errs),
-    });
-  }
+  // Fijamos el idioma (opcional, para que Laravel lo reciba)
+  setData('language', i18n.language);
+
+  // Enviamos sin sobreescribir payload: { pasajeros, cancelacion_flexible_global, total, language }
+  post(route('billetes.preparar_pago'), {
+    onSuccess: () => console.log('¡Petición enviada con éxito!'),
+    onError: (errs) => console.error('Errores del servidor:', errs),
+  });
+}
+
 
   return (
     <>
