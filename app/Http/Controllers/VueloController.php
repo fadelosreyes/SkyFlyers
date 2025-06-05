@@ -147,7 +147,12 @@ class VueloController extends Controller
 
     public function seleccionarAsientos(Request $request, $id)
     {
-        // 1) Número de pasajeros (viene en query string ?passengers=...)
+        Log::info('Seleccionar asientos', [
+        'id' => $id,
+        'idVuelta' => $request->query('idVuelta'),
+        'fase' => $request->query('fase'),
+        'passengers' => $request->query('passengers'),
+    ]);
         $numPasajeros = $request->query('passengers');
         if (empty($numPasajeros) || !is_numeric($numPasajeros) || $numPasajeros < 1) {
             $numPasajeros = 100;
@@ -155,16 +160,11 @@ class VueloController extends Controller
             $numPasajeros = (int) $numPasajeros;
         }
 
-        // 2) ID del vuelo de vuelta (si existe, viene en ?idVuelta=...)
         $idVuelta = $request->query('idVuelta'); // null si no se pasó
 
-        // 3) Cargo el modelo del vuelo “actual” (puede ser ida, vuelta o single‐flight)
         $vuelo = Vuelo::with(['asientos.clase', 'asientos.estado'])->findOrFail($id);
 
-        // 4) Renderizo la página Inertia pasándole:
-        //    - el modelo de vuelo y sus asientos,
-        //    - el número de pasajeros,
-        //    - y el posible idVuelta
+
         return Inertia::render('SeleccionarAsientos', [
             'vuelo' => $vuelo,
             'asientos' => $vuelo->asientos,

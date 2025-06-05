@@ -119,7 +119,8 @@
     "limpiar_todos": "Clear all",
     "confirmar_cambio": "Confirm",
     "confirmar_ida": "Confirm selection",
-    "cancelar": "Cancel"
+    "cancelar": "Cancel",
+    "modo_cambio": "Change seat"
   },
   "clases": {
     "turista": "Economy",

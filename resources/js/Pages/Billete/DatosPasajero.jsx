@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useForm } from '@inertiajs/react';
 import Header from '../../Components/Header';
 import { route } from 'ziggy-js';
-
 import { useTranslation } from 'react-i18next';
 
 export default function PassengerData({
@@ -16,7 +15,7 @@ export default function PassengerData({
   const { t, i18n } = useTranslation();
 
   const asientosIda = Array.isArray(asientosSeleccionadosIda) ? asientosSeleccionadosIda : [];
-  const asientosVuelta = Array.isArray(asientosSeleccionadosVuelta) ? asientosSeleccionadosVuelta : [];
+  const asientosVuelta = vueloVuelta ? (Array.isArray(asientosSeleccionadosVuelta) ? asientosSeleccionadosVuelta : []) : [];
 
   const numPasajeros = Math.max(asientosIda.length, asientosVuelta.length);
 
@@ -29,7 +28,7 @@ export default function PassengerData({
           maleta_adicional_ida: false,
           maleta_adicional_vuelta: false,
           asiento_ida: asientosIda[i]?.id || null,
-          asiento_vuelta: asientosVuelta[i]?.id || null,
+          asiento_vuelta: vueloVuelta ? (asientosVuelta[i]?.id || null) : null,
         }))
       : [],
     cancelacion_flexible_global: false,
@@ -58,10 +57,10 @@ export default function PassengerData({
   function calculatePassengerPrice(i) {
     let precio = 0;
     if (data.pasajeros[i]?.maleta_adicional_ida) precio += 20;
-    if (data.pasajeros[i]?.maleta_adicional_vuelta) precio += 20;
+    if (vueloVuelta && data.pasajeros[i]?.maleta_adicional_vuelta) precio += 20;
 
     const precioIda = asientosIda[i]?.precio_base || 0;
-    const precioVuelta = asientosVuelta[i]?.precio_base || 0;
+    const precioVuelta = vueloVuelta ? (asientosVuelta[i]?.precio_base || 0) : 0;
 
     precio += parseFloat(precioIda) + parseFloat(precioVuelta);
     return precio;
@@ -118,21 +117,17 @@ export default function PassengerData({
 
     if (!validate()) return;
 
-    // Preparamos pasajeros con asiento_vuelta = null si es solo ida
-    const pasajerosParaEnviar = data.pasajeros.map((pasajero) => {
-      return {
-        ...pasajero,
-        asiento_vuelta: vueloVuelta ? pasajero.asiento_vuelta : null,
-      };
-    });
+    const pasajerosParaEnviar = data.pasajeros.map((pasajero) => ({
+      ...pasajero,
+      asiento_vuelta: vueloVuelta ? pasajero.asiento_vuelta : null,
+      maleta_adicional_vuelta: vueloVuelta ? pasajero.maleta_adicional_vuelta : false,
+    }));
 
     const dataParaEnviar = {
       ...data,
       pasajeros: pasajerosParaEnviar,
       language: i18n.language,
     };
-
-    console.log('Antes de post, data = ', dataParaEnviar);
 
     post(route('billetes.preparar_pago'), {
       data: dataParaEnviar,
@@ -156,7 +151,8 @@ export default function PassengerData({
             <p className="mb-1 font-medium">
               {t('passenger_data.seat_ida')}: {asientosIda[idx]?.numero || '-'}
             </p>
-            {asientosVuelta.length > 0 && (
+
+            {vueloVuelta && asientosVuelta.length > 0 && (
               <p className="mb-3 font-medium">
                 {t('passenger_data.seat_vuelta')}: {asientosVuelta[idx]?.numero || '-'}
               </p>
@@ -219,7 +215,7 @@ export default function PassengerData({
                 {t('passenger_data.extra_baggage_ida')}
               </label>
 
-              {asientosVuelta.length > 0 && (
+              {vueloVuelta && (
                 <label>
                   <input
                     type="checkbox"

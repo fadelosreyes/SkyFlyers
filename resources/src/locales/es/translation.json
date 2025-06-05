@@ -101,7 +101,8 @@
     "limpiar_todos": "Limpiar todos",
     "confirmar_cambio": "Confirmar",
     "confirmar_ida": "Confirmar seleccion",
-    "cancelar": "Cancelar"
+    "cancelar": "Cancelar",
+    "modo_cambio": "Cambiar asiento"
   },
   "clases": {
     "turista": "Turista",
