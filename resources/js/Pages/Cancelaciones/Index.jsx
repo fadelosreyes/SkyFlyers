@@ -31,27 +31,6 @@ export default function Index({ grupos }) {
     alert(t('billetes_index.cancelacion_exitosa'));
   };
 
-  // Cancela solamente el vuelo cuyo ID se le pase
-  const cancelarSoloUnVuelo = (vueloId) => {
-    if (!confirm(t('billetes_index.confirmar_cancelacion'))) {
-      return;
-    }
-
-    router.post(
-      `/vuelos/${vueloId}/cancelar-billetes`,
-      {},
-      {
-        preserveScroll: true,
-        onSuccess: () => {
-          alert(t('billetes_index.cancelacion_exitosa'));
-        },
-        onError: () => {
-          alert(t('billetes_index.cancelacion_error'));
-        },
-      }
-    );
-  };
-
   return (
     <>
       <Header activePage="#" />

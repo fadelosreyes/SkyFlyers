@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head } from '@inertiajs/react';
 import { router } from '@inertiajs/react';
 import axios from 'axios';
@@ -11,21 +11,28 @@ export default function SeleccionarAsientos({
     vuelo,
     asientos,
     numPasajeros,
-    idVuelta,              // Si no es null, es roundtrip “fase ida”
+    idVuelta,
     billete,
     claseSeleccionada: claseInicial
 }) {
     const { t } = useTranslation();
-
     // 1) Determinar modos
     const esRoundTrip = Boolean(idVuelta);
+    const isSeleccionVuelta = esRoundTrip && String(vuelo?.id) === String(idVuelta);
+    console.log('🟡 isSeleccionVuelta:', isSeleccionVuelta, '| vuelo.id:', vuelo?.id, '| idVuelta:', idVuelta);
+
     const modoCambio = Boolean(billete);
+
 
     // 2) Estado de la clase seleccionada (turista/business/primera)
     const claseInicialLower = claseInicial ? claseInicial.toLowerCase() : 'turista';
     const [claseSeleccionada, setClaseSeleccionada] = useState(
         modoCambio ? claseInicialLower : 'turista'
     );
+    useEffect(() => {
+        console.log('isSeleccionVuelta cambió:', isSeleccionVuelta);
+    }, [isSeleccionVuelta]);
+
 
     // 3) Estado de los asientos seleccionados, agrupado por clase
     const [seleccionPorClase, setSeleccionPorClase] = useState(() => {
@@ -89,6 +96,7 @@ export default function SeleccionarAsientos({
         const actuales = seleccionPorClase[claseSeleccionada];
         const yaSel = actuales.includes(id);
 
+
         if (!yaSel) {
             if (modoCambio) {
                 // Solo un asiento en modo cambio
@@ -125,6 +133,7 @@ export default function SeleccionarAsientos({
                 alert(t('seleccionar_asientos.error_seleccion'));
                 return;
             }
+
             router.post(
                 route('billetes.actualizarAsiento', billete.id),
                 { asiento_id: seleccionados[0] },
@@ -141,8 +150,13 @@ export default function SeleccionarAsientos({
             return;
         }
 
-        // --- B) PRIMERA FASE de ROUNDTRIP (selección de ida) ---
-        if (esRoundTrip) {
+        //console.log('esRoundTrip:', esRoundTrip);
+        //console.log('isSeleccionVuelta:', isSeleccionVuelta);
+        //console.log('modoCambio:', modoCambio);
+
+        if (esRoundTrip && !isSeleccionVuelta) {
+            //console.log('modoCambio:', modoCambio);
+            // --- A) PRIMERA FASE DE ROUNDTRIP (selección de ida) ---
             const seleccionadosIda = Object.values(seleccionPorClase).flat();
             if (seleccionadosIda.length !== numPasajeros) {
                 alert(t('seleccionar_asientos.error_seleccion_ida', { numPasajeros }));
@@ -156,86 +170,76 @@ export default function SeleccionarAsientos({
             })
                 .then(() => {
                     router.get(
-                        route('seleccionar.asientos', {
-                            id: idVuelta,
-                            passengers: numPasajeros
-                        })
+                        route('seleccionar.asientos', { id: idVuelta }) + `?passengers=${numPasajeros}&idVuelta=${idVuelta}`
                     );
+
                 })
-                .catch(() => {
+                .catch((error) => {
+                    console.error('POST /vuelos/guardar-seleccion-ida failed', error.response?.data || error.message);
                     alert(t('seleccionar_asientos.error_general'));
                 });
 
             return;
         }
 
-        // --- C) SEGUNDA FASE de ROUNDTRIP o SINGLE-FLIGHT ---
-        if (!esRoundTrip) {
-            // Solo ida -> no recuperar selección previa
-            const seleccionadosIda = Object.values(seleccionPorClase).flat();
+        if (esRoundTrip && isSeleccionVuelta && !modoCambio) {
+            // --- B) SEGUNDA FASE DE ROUNDTRIP (selección de vuelta) ---
 
-            if (seleccionadosIda.length !== numPasajeros) {
-                alert(t('seleccionar_asientos.error_seleccion', { numPasajeros }));
-                return;
-            }
+            axios.get('/vuelos/obtener-seleccion-ida')
+                .then(({ data }) => {
+                    //console.log('Datos recibidos de /vuelos/obtener-seleccion-ida:', data);
 
-            router.post(route('billetes.asientos'), {
-                vuelo_ida: vuelo.id,
-                seats_ida: seleccionadosIda,
-                vuelo_vuelta: null,
-                seats_vuelta: null,
-                passengers: numPasajeros,
-            }, {
-                onSuccess: () => {
-                    console.log('Redirigiendo a preparar pago...');
-                },
-                onError: (errors) => {
-                    console.error('Error en preparar_pago (single flight):', errors);
-                    alert('Error en preparar_pago:\n' + (errors.message || JSON.stringify(errors) || 'Error desconocido'));
-                }
-            });
+                    const vueloIda = data.vuelo_ida;
+                    const seatsIda = data.asientos_ida || [];
+
+
+                    const seleccionadosVuelta = Object.values(seleccionPorClase).flat();
+                    console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+
+                    if (!vueloIda) {
+                        alert(t('seleccionar_asientos.error_seleccion', { numPasajeros }));
+                        return;
+                    }
+
+                    if (seleccionadosVuelta.length !== numPasajeros) {
+                        alert(t('seleccionar_asientos.error_seleccion_vuelta', { numPasajeros }));
+                        return;
+                    }
+
+                    const payload = {
+                        vuelo_ida: vueloIda,
+                        seats_ida: seatsIda,
+                        vuelo_vuelta: idVuelta,
+                        seats_vuelta: seleccionadosVuelta,
+                        passengers: numPasajeros,
+                    };
+
+                    console.log('Payload a enviar a billetes.asientos:', payload);
+                    router.post(route('billetes.asientos'), payload);
+                })
+                .catch((error) => {
+                    console.error('Error detallado:', error);
+                    alert(t('seleccionar_asientos.error_general') + '\n' + (error.response?.data?.message || error.message || JSON.stringify(error)));
+                });
 
             return;
         }
 
-        // Si llegamos aquí, es ROUNDTRIP y segunda fase (selección vuelta)
-        axios.get('/vuelos/obtener-seleccion-ida')
-            .then(({ data }) => {
-                const vueloIda = data.vuelo_ida;
-                const seatsIda = data.asientos_ida || [];
+        // --- D) SOLO IDA ---
+        const seleccionadosIda = Object.values(seleccionPorClase).flat();
 
-                const seleccionadosVuelta = Object.values(seleccionPorClase).flat();
+        if (seleccionadosIda.length !== numPasajeros) {
+            alert(t('seleccionar_asientos.error_seleccion', { numPasajeros }));
+            return;
+        }
 
-                if (!vueloIda) {
-                    alert(t('seleccionar_asientos.error_seleccion', { numPasajeros }));
-                    return;
-                }
-
-                if (seleccionadosVuelta.length !== numPasajeros) {
-                    alert(t('seleccionar_asientos.error_seleccion_vuelta', { numPasajeros }));
-                    return;
-                }
-
-                router.post(route('billetes.asientos'), {
-                    vuelo_ida: vueloIda,
-                    seats_ida: seatsIda,
-                    vuelo_vuelta: vuelo.id,
-                    seats_vuelta: seleccionadosVuelta,
-                    passengers: numPasajeros,
-                }, {
-                    onSuccess: () => {
-                        console.log('Redirigiendo a preparar pago...');
-                    },
-                    onError: (errors) => {
-                        console.error('Error en preparar_pago (roundtrip):', errors);
-                        alert('Error en preparar_pago:\n' + (errors.message || JSON.stringify(errors) || 'Error desconocido'));
-                    }
-                });
-            })
-            .catch((error) => {
-                console.error('Error detallado:', error);
-                alert(t('seleccionar_asientos.error_general') + '\n' + (error.response?.data?.message || error.message || JSON.stringify(error)));
-            });
+        router.post(route('billetes.asientos'), {
+            vuelo_ida: vuelo.id,
+            seats_ida: seleccionadosIda,
+            vuelo_vuelta: null,
+            seats_vuelta: null,
+            passengers: numPasajeros,
+        });
     };
     // 11) Funciones para limpiar selección
     const limpiarSeleccionClaseActual = () => {

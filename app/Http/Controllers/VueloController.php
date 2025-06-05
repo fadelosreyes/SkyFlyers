@@ -147,12 +147,6 @@ class VueloController extends Controller
 
     public function seleccionarAsientos(Request $request, $id)
     {
-        Log::info('Seleccionar asientos', [
-        'id' => $id,
-        'idVuelta' => $request->query('idVuelta'),
-        'fase' => $request->query('fase'),
-        'passengers' => $request->query('passengers'),
-    ]);
         $numPasajeros = $request->query('passengers');
         if (empty($numPasajeros) || !is_numeric($numPasajeros) || $numPasajeros < 1) {
             $numPasajeros = 100;
@@ -169,31 +163,34 @@ class VueloController extends Controller
             'vuelo' => $vuelo,
             'asientos' => $vuelo->asientos,
             'numPasajeros' => $numPasajeros,
-            'idVuelta' => $idVuelta, // null o el ID del vuelo de vuelta
+            'idVuelta' => $idVuelta,
         ]);
     }
 
-    // --- Nuevo: guarda en sesión la selección de asientos de "ida" ---
-    public function guardarSeleccionIda(Request $request)
-    {
-        // Validamos mínimamente que venga algo
+public function guardarSeleccionIda(Request $request)
+{
+
         $request->validate([
             'vueloIda' => 'required|integer',
             'seats' => 'required|array',
             'passengers' => 'required|integer|min:1',
         ]);
 
-        // Guardamos en sesión
-        session([
-            'vuelo_ida' => (int) $request->input('vueloIda'),
-            'asientos_ida' => $request->input('seats'),
-            'numPasajeros' => (int) $request->input('passengers'),
-        ]);
-        //dd($request->all());
+        $vueloIda = $request->input('vueloIda');
+        $seats = $request->input('seats');
+        $passengers = $request->input('passengers');
 
-        // Devolvemos JSON para que axios en el frontend sepa que todo fue OK
+
+        session([
+            'vuelo_ida' => (int) $vueloIda,
+            'asientos_ida' => $seats,
+            'numPasajeros' => (int) $passengers,
+        ]);
+
         return response()->json(['ok' => true]);
-    }
+
+}
+
 
     // --- Nuevo: recupera de sesión los datos de la selección de "ida" ---
     public function obtenerSeleccionIda(Request $request)
@@ -201,7 +198,7 @@ class VueloController extends Controller
         //  Log::info('Sesión de ida recuperada:', [
         // 'vuelo_ida' => session('vuelo_ida'),
         // 'asientos_ida' => session('asientos_ida'),
-    // ]);
+        // ]);
 
         // Devolvemos, incluso si es null, para que el frontend distinga single‐flight
         return response()->json([

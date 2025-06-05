@@ -27,9 +27,9 @@ class BilleteController extends Controller
         $asientosIda     = $request->input('seats_ida', []);
         $vueloVueltaId  = $request->input('vuelo_vuelta');
         $asientosVuelta  = $request->input('seats_vuelta', []);
-        dd($request->all());
+        //dd($request->all());
 
-        if ($vueloIdaId && $vueloVueltaId) {
+        if (is_numeric($vueloIdaId) && is_numeric($vueloVueltaId)) {
             // Si falta seleccionar asiento en alguno de los dos tramos, redirijo a la selección de ida
             if (empty($asientosIda) || empty($asientosVuelta)) {
                 return redirect()
@@ -51,6 +51,8 @@ class BilleteController extends Controller
                 'totalBaseVuelta'             => $asientosSeleccionadosVuelta->sum(fn($a) => $a->precio_base),
             ]);
         }
+        //dd('Después del bloque ida y vuelta');
+
 
         //dd($request->all());
         // 2) SOLO UN VUELO (ida tradicional) — la vista React envía “vuelo_ida” y “seats_ida”
@@ -63,15 +65,18 @@ class BilleteController extends Controller
                 ->route('seleccionar.asientos', ['id' => $vueloActualId])
                 ->with('error', 'Debes seleccionar al menos un asiento.');
         }
-
+        //dd($request->all());
         // 2.1) ¿Hay datos de ida guardados en sesión? (segunda fase de ida&vuelta en pasos)
-        $vueloIdaSesion    = session('vuelo_ida');
-        $asientosIdaSesion = session('asientos_ida');
-        $vueloVueltaId     = $request->input('vuelo_vuelta');
+        // $vueloIdaSesion    = session('vuelo_ida');
+        // $asientosIdaSesion = session('asientos_ida');
+        // dd([
+        //     'vueloIdaSesion' => $vueloIdaSesion,
+        //     'asientosIdaSesion' => $asientosIdaSesion,
+        // ]);
         //$asientosVueltaIds = $request->input('seats_vuelta', []);
-        $vueloIda                   = Vuelo::findOrFail($vueloIdaSesion);
-        $asientosSeleccionadosIda   = Asiento::whereIn('id', $asientosIdaSesion)->get();
-
+        $vueloIda                   = Vuelo::findOrFail($vueloIdaId);
+        $asientosSeleccionadosIda   = Asiento::whereIn('id', $asientosIda)->get();
+        //dd($request->all());
         // if ($vueloVueltaId !== null && $vueloIdaSesion && is_array($asientosIdaSesion)) {
 
         //     // El vuelo actual es la vuelta
@@ -287,124 +292,110 @@ class BilleteController extends Controller
     /**
      * Listado de billetes del usuario agrupados por vuelo, solo vuelos a más de 3 días.
      */
-    public function index()
-    {
-        $user = auth()->user();
+public function index()
+{
+    $user = auth()->user();
 
-        // 1) Obtenemos todos los billetes del usuario (con relaciones necesarias).
-        $billetes = Billete::with([
-            'asiento.vuelo.aeropuertoOrigen',
-            'asiento.vuelo.aeropuertoDestino'
-        ])
-            ->where('user_id', $user->id)
-            ->get();
+    // 1) Obtenemos todos los billetes del usuario (con relaciones necesarias).
+    $billetes = Billete::with([
+        'asiento.vuelo.aeropuertoOrigen',
+        'asiento.vuelo.aeropuertoDestino'
+    ])
+    ->where('user_id', $user->id)
+    ->get();
 
-        // 2) Primero agrupamos por stripe_session_id (cada sesión de pago).
-        //    Así, todos los billetes que comparten stripe_session_id
-        //    se consideran “parte de la misma compra”.
-        $porSesionStripe = $billetes
-            ->groupBy('stripe_session_id');
+    // 2) Agrupamos por stripe_session_id
+    $porSesionStripe = $billetes->groupBy('stripe_session_id');
 
-        $todosLosGrupos = [];
+    $todosLosGrupos = [];
 
-        // 3) Recorremos cada grupo de billetes (por sesión Stripe)
-        foreach ($porSesionStripe as $stripeSessionId => $coleccionBilletesEnEstaSesion) {
+    // 3) Recorremos cada grupo de billetes (por sesión Stripe)
+    foreach ($porSesionStripe as $stripeSessionId => $coleccionBilletesEnEstaSesion) {
 
-            // 3.1) Dentro de esta sesión Stripe, agrupamos de nuevo por vuelo_id.
-            //      Esto nos da, para esta compra, un sub‐conjunto de vuelos distintos.
-            $vuelosEnEstaSesion = $coleccionBilletesEnEstaSesion
-                ->groupBy(fn($b) => $b->asiento->vuelo->id)
-                ->map(function ($grupoDeBilletes) {
-                    // Mapeamos cada grupo a un objeto simple con datos de vuelo + lista de billetes.
-                    $vuelo = $grupoDeBilletes->first()->asiento->vuelo;
-                    return (object) [
-                        'vuelo'    => (object)[
-                            'id'             => $vuelo->id,
-                            'fecha_salida'   => $vuelo->fecha_salida,
-                            'fecha_llegada'  => $vuelo->fecha_llegada,
-                            'origen'         => $vuelo->aeropuertoOrigen->nombre,
-                            'destino'        => $vuelo->aeropuertoDestino->nombre,
-                        ],
-                        'billetes' => $grupoDeBilletes->map(fn($billete) => (object)[
-                            'id'                   => $billete->id,
-                            'nombre_pasajero'      => $billete->nombre_pasajero,
-                            'documento_identidad'  => $billete->documento_identidad,
-                            'pnr'                  => $billete->pnr,
-                            'codigo_QR'            => $billete->codigo_QR,
-                            'asiento_numero'       => $billete->asiento->numero ?? 'N/A',
-                            'tarifa_base'          => $billete->tarifa_base,
-                            'total'                => $billete->total,
-                            'maleta_adicional'     => $billete->maleta_adicional,
-                            'cancelacion_flexible' => $billete->cancelacion_flexible,
-                            'fecha_reserva'        => $billete->fecha_reserva,
-                        ])->values(),
-                    ];
-                })
-                ->values(); // pasamos a colección indexada
+        // 3.1) Dentro de esta sesión Stripe, agrupamos por vuelo_id
+        $vuelosEnEstaSesion = $coleccionBilletesEnEstaSesion
+            ->groupBy(fn($b) => $b->asiento->vuelo->id)
+            ->map(function ($grupoDeBilletes) {
+                $vuelo = $grupoDeBilletes->first()->asiento->vuelo;
+                return (object)[
+                    'vuelo' => (object)[
+                        'id'             => $vuelo->id,
+                        'fecha_salida'   => $vuelo->fecha_salida,
+                        'fecha_llegada'  => $vuelo->fecha_llegada,
+                        'origen'         => $vuelo->aeropuertoOrigen->nombre,
+                        'destino'        => $vuelo->aeropuertoDestino->nombre,
+                    ],
+                    'billetes' => $grupoDeBilletes->map(fn($billete) => (object)[
+                        'id'                   => $billete->id,
+                        'nombre_pasajero'      => $billete->nombre_pasajero,
+                        'documento_identidad'  => $billete->documento_identidad,
+                        'pnr'                  => $billete->pnr,
+                        'codigo_QR'            => $billete->codigo_QR,
+                        'asiento_numero'       => $billete->asiento->numero ?? 'N/A',
+                        'tarifa_base'          => $billete->tarifa_base,
+                        'total'                => $billete->total,
+                        'maleta_adicional'     => $billete->maleta_adicional,
+                        'cancelacion_flexible' => $billete->cancelacion_flexible,
+                        'fecha_reserva'        => $billete->fecha_reserva,
+                    ])->values(),
+                ];
+            })
+            ->values();
 
-            // 3.2) Ahora, dentro de esta sesión, queremos emparejar vuelos de ida/vuelta.
-            //      Usamos la misma lógica que antes pero solo entre los vuelos de esta sesión.
-            $gruposDeEstaSesion = [];
-            $usados = collect(); // vuelos ya procesados dentro de esta sesión
+        // 3.2) Emparejamos vuelos de ida y vuelta dentro de esta sesión
+        $gruposDeEstaSesion = [];
+        $usados = collect();
 
-            foreach ($vuelosEnEstaSesion as $item) {
-                $vueloId = $item->vuelo->id;
-                if ($usados->contains($vueloId)) {
-                    continue;
-                }
-
-                // Buscamos un posible “vuelo de vuelta” que:
-                //   - No esté ya usado
-                //   - Tenga origen == destino de este
-                //   - Tenga destino == origen de este
-                //   - Y cuya fecha_salida sea posterior a la fecha_salida de este
-                $posibleVuelta = collect($vuelosEnEstaSesion)
-                    ->filter(fn($otro) => !$usados->contains($otro->vuelo->id))
-                    ->first(function ($otro) use ($item) {
-                        return
-                            $otro->vuelo->origen === $item->vuelo->destino &&
-                            $otro->vuelo->destino === $item->vuelo->origen &&
-                            (new \DateTime($otro->vuelo->fecha_salida) > new \DateTime($item->vuelo->fecha_salida));
-                    });
-
-                if ($posibleVuelta) {
-                    // Emparejamos ida + vuelta
-                    $gruposDeEstaSesion[] = (object)[
-                        'stripe_session_id' => $stripeSessionId, // opcional, si quisieras mostrarlo
-                        'ida'   => (object)[
-                            'vuelo'    => $item->vuelo,
-                            'billetes' => $item->billetes,
-                        ],
-                        'vuelta' => (object)[
-                            'vuelo'    => $posibleVuelta->vuelo,
-                            'billetes' => $posibleVuelta->billetes,
-                        ],
-                    ];
-                    $usados->push($vueloId, $posibleVuelta->vuelo->id);
-                } else {
-                    // Solo ida, sin vuelta emparejada
-                    $gruposDeEstaSesion[] = (object)[
-                        'stripe_session_id' => $stripeSessionId,
-                        'ida'    => (object)[
-                            'vuelo'    => $item->vuelo,
-                            'billetes' => $item->billetes,
-                        ],
-                        'vuelta' => null,
-                    ];
-                    $usados->push($vueloId);
-                }
+        foreach ($vuelosEnEstaSesion as $item) {
+            $vueloId = $item->vuelo->id;
+            if ($usados->contains($vueloId)) {
+                continue;
             }
 
-            // 3.3) Añadimos todos los grupos de esta sesión Stripe
-            $todosLosGrupos = array_merge($todosLosGrupos, $gruposDeEstaSesion);
+            $posibleVuelta = collect($vuelosEnEstaSesion)
+                ->filter(fn($otro) => !$usados->contains($otro->vuelo->id))
+                ->first(function ($otro) use ($item) {
+                    return
+                        $otro->vuelo->origen === $item->vuelo->destino &&
+                        $otro->vuelo->destino === $item->vuelo->origen &&
+                        (new \DateTime($otro->vuelo->fecha_salida) > new \DateTime($item->vuelo->fecha_salida));
+                });
+
+            if ($posibleVuelta) {
+                $gruposDeEstaSesion[] = (object)[
+                    'stripe_session_id' => $stripeSessionId,
+                    'ida'   => (object)[
+                        'vuelo'    => $item->vuelo,
+                        'billetes' => $item->billetes,
+                    ],
+                    'vuelta' => (object)[
+                        'vuelo'    => $posibleVuelta->vuelo,
+                        'billetes' => $posibleVuelta->billetes,
+                    ],
+                ];
+                $usados->push($vueloId, $posibleVuelta->vuelo->id);
+            } else {
+                $gruposDeEstaSesion[] = (object)[
+                    'stripe_session_id' => $stripeSessionId,
+                    'ida'    => (object)[
+                        'vuelo'    => $item->vuelo,
+                        'billetes' => $item->billetes,
+                    ],
+                    'vuelta' => null,
+                ];
+                $usados->push($vueloId);
+            }
         }
 
-        // 4) Devolvemos a la vista Inertia un array “grupos” donde cada elemento
-        //    ya representa un vuelo de ida (y su posible vuelta), aislado por compra.
-        return Inertia::render('Cancelaciones/Index', [
-            'grupos' => $todosLosGrupos,
-        ]);
+        // 3.3) Agregamos los grupos de esta sesión al array general
+        $todosLosGrupos = array_merge($todosLosGrupos, $gruposDeEstaSesion);
     }
+
+    // 4) Devolvemos a la vista Inertia el array “grupos”
+    return Inertia::render('Cancelaciones/Index', [
+        'grupos' => $todosLosGrupos,
+    ]);
+}
 
 
     /**
