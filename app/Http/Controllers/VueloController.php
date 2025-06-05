@@ -149,7 +149,7 @@ class VueloController extends Controller
     {
         $numPasajeros = $request->query('passengers');
         if (empty($numPasajeros) || !is_numeric($numPasajeros) || $numPasajeros < 1) {
-            $numPasajeros = 100;
+            $numPasajeros = null;
         } else {
             $numPasajeros = (int) $numPasajeros;
         }
