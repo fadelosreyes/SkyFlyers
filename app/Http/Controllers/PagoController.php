@@ -207,7 +207,7 @@ public function cancelarVuelos($vueloId)
 
     foreach ($billetesParaCancelar as $billete) {
         try {
-            // Soft delete
+
             $billete->delete();
 
             // Liberar asiento

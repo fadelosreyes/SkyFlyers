@@ -73,5 +73,7 @@ Route::get(
     [VueloController::class, 'obtenerSeleccionIda']
 )->name('vuelos.obtenerSeleccionIda');
 
+Route::post('/billetes/asientos', [BilleteController::class, 'asientos'])->name('billetes.asientos');
+
 
 require __DIR__ . '/auth.php';

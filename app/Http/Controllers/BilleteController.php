@@ -20,19 +20,20 @@ class BilleteController extends Controller
     /**
      * Muestra el formulario para crear un nuevo billete.
      */
-    public function create(Request $request)
+    public function asientos(Request $request)
     {
         // Comprobamos si es un viaje de ida y vuelta (ambos vuelos enviados)
         $vueloIdaId = $request->input('vuelo_ida');
         $asientosIda = $request->input('seats_ida', []);
         $vueloVueltaId = $request->input('vuelo_vuelta');
         $asientosVuelta = $request->input('seats_vuelta', []);
+
         // dd([
-        //     'vuelo_ida' => $vueloIdaId,
-        //     'asientos_ida' => $asientosIda,
-        //     'vuelo_vuelta' => $vueloVueltaId,
+        //      'vuelo_ida' => $vueloIdaId,
+        //      'asientos_ida' => $asientosIda,
+        //      'vuelo_vuelta' => $vueloVueltaId,
         //     'asientos_vuelta' => $asientosVuelta,
-        //     'request_all' => $request->all(),
+        //      'request_all' => $request->all(),
         // ]);
 
         // Si vienen ambos vuelos: procesamos ida y vuelta directamente
@@ -64,7 +65,7 @@ class BilleteController extends Controller
         $asientoIdsActual = $request->input('asientos', []);
 
         if (empty($asientoIdsActual)) {
-            return redirect()->route('seleccionar.asientos', $vueloActualId)->with('error', 'Debes seleccionar al menos un asiento.');
+return redirect()->route('seleccionar.asientos', ['id' => $vueloActualId])->with('error', 'Debes seleccionar al menos un asiento.');
         }
 
         $vueloActual = Vuelo::findOrFail($vueloActualId);
@@ -114,6 +115,8 @@ class BilleteController extends Controller
         'total'                             => 'required|numeric|min:0',
         'language'                          => 'nullable|string|in:es,en',
     ]);
+
+    dd($data);
 
     // Opcional: si quieres ver el payload completo, puedes descomentar la siguiente línea:
     // dd($request->all());

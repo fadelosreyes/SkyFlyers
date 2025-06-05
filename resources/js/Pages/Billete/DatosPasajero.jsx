@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useForm } from '@inertiajs/react';
 import Header from '../../Components/Header';
 import { route } from 'ziggy-js';
+
 import { useTranslation } from 'react-i18next';
 
 export default function PassengerData({
@@ -19,7 +20,6 @@ export default function PassengerData({
 
   const numPasajeros = Math.max(asientosIda.length, asientosVuelta.length);
 
-  // 1) Inicializamos `total` a 0
   const { data, setData, post, processing, errors: serverErrors } = useForm({
     pasajeros: numPasajeros > 0
       ? [...Array(numPasajeros)].map((_, i) => ({
@@ -33,7 +33,7 @@ export default function PassengerData({
         }))
       : [],
     cancelacion_flexible_global: false,
-    total: 0,            // arranca en 0, se actualizará con useEffect
+    total: 0,
     language: '',
   });
 
@@ -57,11 +57,11 @@ export default function PassengerData({
 
   function calculatePassengerPrice(i) {
     let precio = 0;
-    if (data.pasajeros[i]?.maleta_adicional_ida)   precio += 20;
+    if (data.pasajeros[i]?.maleta_adicional_ida) precio += 20;
     if (data.pasajeros[i]?.maleta_adicional_vuelta) precio += 20;
 
-    const precioIda   = asientosIda[i]?.precio_base || 0;
-    const precioVuelta= asientosVuelta[i]?.precio_base || 0;
+    const precioIda = asientosIda[i]?.precio_base || 0;
+    const precioVuelta = asientosVuelta[i]?.precio_base || 0;
 
     precio += parseFloat(precioIda) + parseFloat(precioVuelta);
     return precio;
@@ -76,7 +76,6 @@ export default function PassengerData({
     return sumaPasajeros + cancellation;
   }
 
-  // 2) Cada vez que cambie `data.pasajeros` o `data.cancelacion_flexible_global`, volvemos a calcular `total`
   useEffect(() => {
     const nuevoTotal = calculateTotalPrice();
     setData('total', nuevoTotal);
@@ -85,9 +84,9 @@ export default function PassengerData({
   function validate() {
     const errs = {};
     data.pasajeros.forEach((pas, i) => {
-      const name   = pas.nombre_pasajero.trim();
-      const doc    = pas.documento_identidad.trim();
-      const tipoDoc= pas.tipo_documento;
+      const name = pas.nombre_pasajero.trim();
+      const doc = pas.documento_identidad.trim();
+      const tipoDoc = pas.tipo_documento;
 
       if (!name || name.length < 3) {
         errs[`nombre_${i}`] = t('errors.name_min');
@@ -99,12 +98,10 @@ export default function PassengerData({
         errs[`doc_${i}`] = t('errors.doc_required');
       } else {
         if (tipoDoc === 'dni') {
-          // 8 dígitos seguidos de 1 sola letra
           if (!/^[0-9]{8}[A-Z]$/.test(doc)) {
             errs[`doc_${i}`] = t('errors.doc_dni_format');
           }
         } else if (tipoDoc === 'pasaporte') {
-          // 3 letras seguidas de 6 dígitos (exacto)
           if (!/^[A-Za-z]{3}[0-9]{6}$/.test(doc)) {
             errs[`doc_${i}`] = t('errors.doc_pasaporte_format');
           }
@@ -117,24 +114,32 @@ export default function PassengerData({
   }
 
   function handleSubmit(e) {
-  e.preventDefault();
+    e.preventDefault();
 
-  // Validamos en cliente antes de enviar
-  if (!validate()) return;
+    if (!validate()) return;
 
-  // Imprimimos en consola todo el objeto `data` justo antes de la petición
-  console.log('Antes de post, data = ', data);
+    // Preparamos pasajeros con asiento_vuelta = null si es solo ida
+    const pasajerosParaEnviar = data.pasajeros.map((pasajero) => {
+      return {
+        ...pasajero,
+        asiento_vuelta: vueloVuelta ? pasajero.asiento_vuelta : null,
+      };
+    });
 
-  // Fijamos el idioma (opcional, para que Laravel lo reciba)
-  setData('language', i18n.language);
+    const dataParaEnviar = {
+      ...data,
+      pasajeros: pasajerosParaEnviar,
+      language: i18n.language,
+    };
 
-  // Enviamos sin sobreescribir payload: { pasajeros, cancelacion_flexible_global, total, language }
-  post(route('billetes.preparar_pago'), {
-    onSuccess: () => console.log('¡Petición enviada con éxito!'),
-    onError: (errs) => console.error('Errores del servidor:', errs),
-  });
-}
+    console.log('Antes de post, data = ', dataParaEnviar);
 
+    post(route('billetes.preparar_pago'), {
+      data: dataParaEnviar,
+      onSuccess: () => console.log('¡Petición enviada con éxito!'),
+      onError: (errs) => console.error('Errores del servidor:', errs),
+    });
+  }
 
   return (
     <>

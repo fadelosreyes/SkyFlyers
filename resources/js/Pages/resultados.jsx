@@ -191,8 +191,10 @@ export default function Resultados({
                                         className="btn-reserva"
                                         onClick={() =>
                                             router.get(
-                                                route('seleccionar.asientos', { id: v.id }),
-                                                { data: { passengers } }
+                                                route('seleccionar.asientos', {
+                                                    id: v.id,
+                                                    passengers: passengers,
+                                                })
                                             )
                                         }
                                         disabled={
@@ -212,7 +214,7 @@ export default function Resultados({
         </div>
     );
 
-    // Botón “Confirmar” para redirigir al selector de asientos
+    // Botón “Confirmar” para redirigir al selector de asientos ida y vuelta
     const confirmarSeleccion = () => {
         if (vueloSeleccionadoIda && vueloSeleccionadoVuelta) {
             router.get(
