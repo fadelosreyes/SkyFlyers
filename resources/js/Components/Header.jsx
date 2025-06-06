@@ -16,18 +16,33 @@ export default function Header({ activePage }) {
   const savedLanguage = typeof window !== 'undefined' ? localStorage.getItem('language') : null;
   const [language, setLanguage] = useState(savedLanguage || 'es');
 
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false); // Para selector idioma
+  const [gestionDropdownOpen, setGestionDropdownOpen] = useState(false); // Para menú Gestión
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   const dropdownRef = useRef(null);
+  const gestionDropdownRef = useRef(null);
 
   useEffect(() => {
     i18n.changeLanguage(language);
   }, [language]);
 
+  // Cerrar dropdown idioma si clicas fuera
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Cerrar dropdown gestión si clicas fuera
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (gestionDropdownRef.current && !gestionDropdownRef.current.contains(event.target)) {
+        setGestionDropdownOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -79,6 +94,102 @@ export default function Header({ activePage }) {
       >
         {t('menu.contact')}
       </Link>
+
+      {/* Menú Gestión solo para admin */}
+      {auth?.user?.role_id === 1 && (
+        <div className="relative" ref={gestionDropdownRef}>
+          <button
+            className="whitespace-nowrap font-bold cursor-pointer flex items-center gap-1"
+            onClick={() => setGestionDropdownOpen(!gestionDropdownOpen)}
+            aria-haspopup="true"
+            aria-expanded={gestionDropdownOpen}
+          >
+            Gestión
+            <svg
+              className="w-4 h-4 ml-1"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          {gestionDropdownOpen && (
+            <div className="absolute bg-white text-black rounded shadow-lg mt-2 right-0 w-40 z-50">
+              <Link
+                href="/admin/usuarios"
+                className="block px-4 py-2 hover:bg-gray-200"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Usuarios
+              </Link>
+              <Link
+                href="/admin/roles"
+                className="block px-4 py-2 hover:bg-gray-200"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Roles
+              </Link>
+              <Link
+                href="/admin/roles"
+                className="block px-4 py-2 hover:bg-gray-200"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Aerolineas
+              </Link><Link
+                href="/admin/roles"
+                className="block px-4 py-2 hover:bg-gray-200"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Aeropuertos
+              </Link>
+              <Link
+                href="/admin/roles"
+                className="block px-4 py-2 hover:bg-gray-200"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Billetes
+              </Link>
+              <Link
+                href="/admin/roles"
+                className="block px-4 py-2 hover:bg-gray-200"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Asientos
+              </Link>
+              <Link
+                href="/admin/roles"
+                className="block px-4 py-2 hover:bg-gray-200"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Vuelos
+              </Link>
+              <Link
+                href="/admin/roles"
+                className="block px-4 py-2 hover:bg-gray-200"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Aviones
+              </Link>
+              <Link
+                href="/admin/roles"
+                className="block px-4 py-2 hover:bg-gray-200"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Estados Asientos
+              </Link>
+              <Link
+                href="/admin/roles"
+                className="block px-4 py-2 hover:bg-gray-200"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Paises
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
     </>
   );
 

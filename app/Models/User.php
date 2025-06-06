@@ -17,21 +17,14 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+    protected $fillable = ['name', 'email', 'password', 'role_id'];
 
     /**
      * The attributes that should be hidden for serialization.
      *
      * @var list<string>
      */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
+    protected $hidden = ['password', 'remember_token'];
 
     /**
      * Get the attributes that should be cast.
@@ -49,5 +42,9 @@ class User extends Authenticatable
     public function billetes()
     {
         return $this->hasMany(Billete::class);
+    }
+    public function rol()
+    {
+        return $this->belongsTo(Rol::class);
     }
 }

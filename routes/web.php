@@ -3,6 +3,8 @@
 use App\Http\Controllers\AeropuertoController;
 use App\Http\Controllers\BilleteController;
 use App\Http\Controllers\PagoController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\RolController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VueloController;
 use Illuminate\Foundation\Application;
@@ -23,6 +25,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+Route::resource('admin/roles', RolController::class)->names('roles');
+Route::resource('admin/usuarios', UserController::class)->names('users');
+
 
 Route::get('/vuelos/resultados', [VueloController::class, 'resultados'])->name('vuelos.resultados');
 
