@@ -12,6 +12,11 @@ class Pais extends Model
 
     protected $table = 'paises';
 
+    protected $fillable = [
+        'nombre',
+        'codigo_iso',
+    ];
+
     public function aerolineas()
     {
         return $this->hasMany(Aerolinea::class);

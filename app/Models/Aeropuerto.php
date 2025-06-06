@@ -9,6 +9,13 @@ class Aeropuerto extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'nombre',
+        'ciudad',
+        'pais',
+        'codigo_iata',
+    ];
+
     public function vuelosOrigen()
     {
         return $this->hasMany(Vuelo::class, 'aeropuerto_origen_id');

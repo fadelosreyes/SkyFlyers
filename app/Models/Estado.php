@@ -9,7 +9,7 @@ class Estado extends Model
 {
     /** @use HasFactory<\Database\Factories\EstadoFactory> */
     use HasFactory;
-
+    protected $fillable = ['nombre'];
     public function asientos()
     {
         return $this->hasMany(Asiento::class);

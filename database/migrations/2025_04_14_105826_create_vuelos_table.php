@@ -20,7 +20,6 @@ return new class extends Migration
             $table->dateTime('fecha_llegada');
             $table->string('imagen')->nullable();
             $table->boolean('destacado')->default(false);
-
             $table->timestamps();
         });
     }

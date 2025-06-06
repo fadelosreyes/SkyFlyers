@@ -1,8 +1,13 @@
 <?php
 
+use App\Http\Controllers\AerolineaController;
 use App\Http\Controllers\AeropuertoController;
+use App\Http\Controllers\AsientoController;
+use App\Http\Controllers\AvionController;
 use App\Http\Controllers\BilleteController;
+use App\Http\Controllers\EstadoController;
 use App\Http\Controllers\PagoController;
+use App\Http\Controllers\PaisController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RolController;
 use App\Http\Controllers\ProfileController;
@@ -27,16 +32,26 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::resource('admin/roles', RolController::class)->names('roles');
+Route::resource('admin/paises', PaisController::class)->names('paises');
 Route::resource('admin/usuarios', UserController::class)->names('users');
+Route::resource('admin/aerolineas', AerolineaController::class)->names('aerolineas');
+Route::resource('admin/aviones', AvionController::class)->names('aviones');
+Route::resource('admin/vuelos', VueloController::class);
+Route::resource('admin/estados', EstadoController::class);
+Route::resource('admin/aeropuertos', AeropuertoController::class);
+Route::resource('admin/asientos', AsientoController::class);
+Route::resource('admin/billetes', BilleteController::class);
 
+
+Route::get('/aeropuertos', [AeropuertoController::class, 'buscar']);
 
 Route::get('/vuelos/resultados', [VueloController::class, 'resultados'])->name('vuelos.resultados');
 
 Route::get('/vuelos/reservar/{id}', [VueloController::class, 'seleccionarAsientos'])
     ->middleware('auth')
-    ->name('seleccionar.asientos');
+    ->name('seleccionar.asientos'
+);
 
-Route::resource('aeropuertos', AeropuertoController::class);
 
 Route::get('/sobre-nosotros', function () {
     return Inertia::render('sobreNosotros');
@@ -53,7 +68,7 @@ Route::resource('billetes', BilleteController::class)->where(['billete' => '[0-9
 
 Route::get('/vuelos/destacados', [VueloController::class, 'getDestacados']);
 
-Route::get('/cancelaciones', [BilleteController::class, 'index'])->name('cancelaciones.index');
+Route::get('/cancelaciones', [BilleteController::class, 'gestiones'])->name('cancelaciones.index');
 
 // Rutas para pago Stripe:
 //Route::post('/pago/stripe', [PagoController::class, 'crearSesionStripe'])->name('pago.stripe');

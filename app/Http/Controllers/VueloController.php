@@ -2,72 +2,178 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ImagenCiudadHelper;
+use App\Models\Aeropuerto;
+use App\Models\Asiento;
+use App\Models\Avion;
 use App\Models\Vuelo;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Billete;
-use Illuminate\Support\Facades\Log;
-
+use App\Models\Clase;
+use App\Models\Estado;
 
 class VueloController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        // Cargar vuelos con relaciones para mostrar nombres de avión y aeropuertos
+        $vuelos = Vuelo::with(['avion', 'aeropuertoOrigen', 'aeropuertoDestino'])->get();
+
+        $aviones = Avion::all();
+        $aeropuertos = Aeropuerto::all();
+
+        return Inertia::render('Admin/VuelosIndex', [
+            'vuelos' => $vuelos,
+            'aviones' => $aviones,
+            'aeropuertos' => $aeropuertos,
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'avion_id' => 'required|exists:aviones,id',
+            'aeropuerto_origen_id' => 'required|exists:aeropuertos,id',
+            'aeropuerto_destino_id' => 'required|exists:aeropuertos,id|different:aeropuerto_origen_id',
+            'fecha_salida' => 'required|date|before:fecha_llegada',
+            'fecha_llegada' => 'required|date|after:fecha_salida',
+            'imagen' => 'nullable|string',
+            'destacado' => 'boolean',
+        ]);
+
+        if (empty($validated['imagen'])) {
+            $aeropuertoOrigen = Aeropuerto::find($validated['aeropuerto_origen_id']);
+            $ciudadOrigen = $aeropuertoOrigen ? $aeropuertoOrigen->ciudad : null;
+
+            if ($ciudadOrigen) {
+                $validated['imagen'] = ImagenCiudadHelper::obtenerImagenDeCiudad($ciudadOrigen);
+            } else {
+                $validated['imagen'] = 'https://source.unsplash.com/featured/?airport';
+            }
+        }
+
+        $vuelo = Vuelo::create($validated);
+
+        // Crear asientos para el vuelo creado
+        $this->crearAsientosParaVuelo($vuelo);
+
+        return redirect()->back()->with('success', 'Vuelo creado correctamente');
     }
 
     /**
-     * Display the specified resource.
+     * Crea asientos para un vuelo dado siguiendo la lógica del seeder.
      */
-    public function show(Vuelo $vuelo)
+    protected function crearAsientosParaVuelo(Vuelo $vuelo)
     {
-        //
+        $estadoLibre = Estado::firstOrCreate(['nombre' => 'Libre'], ['descripcion' => 'Asiento disponible']);
+        $estadoOcupado = Estado::firstOrCreate(['nombre' => 'Ocupado'], ['descripcion' => 'Asiento ocupado']);
+        $clases = Clase::all()->keyBy('nombre');
+
+        // Eliminar asientos previos por si acaso (aunque debería ser vuelo nuevo)
+        Asiento::where('vuelo_id', $vuelo->id)->delete();
+
+        $avion = $vuelo->avion;
+
+        $configClases = [
+            'Primera' => ['filas' => $avion->filas_primera, 'cols' => 2, 'precio' => 500],
+            'Business' => ['filas' => $avion->filas_business, 'cols' => 4, 'precio' => 250],
+            'Turista' => ['filas' => $avion->filas_turista, 'cols' => 6, 'precio' => 100],
+        ];
+
+        $filaActual = 1;
+
+        foreach ($configClases as $nombreClase => $cfg) {
+            if (!isset($clases[$nombreClase])) {
+                // Podrías loguear o ignorar la clase si no existe
+                continue;
+            }
+
+            $idClase = $clases[$nombreClase]->id;
+            $filas = $cfg['filas'];
+            $columnas = $cfg['cols'];
+            $precioBase = $cfg['precio'];
+
+            for ($fila = $filaActual; $fila < $filaActual + $filas; $fila++) {
+                for ($col = 0; $col < $columnas; $col++) {
+                    $numeroAsiento = $fila . chr(ord('A') + $col);
+                    $estadoId = rand(1, 100) <= 25 ? $estadoLibre->id : $estadoOcupado->id;
+
+                    Asiento::create([
+                        'vuelo_id' => $vuelo->id,
+                        'clase_id' => $idClase,
+                        'estado_id' => $estadoId,
+                        'numero' => $numeroAsiento,
+                        'precio_base' => $precioBase,
+                    ]);
+                }
+            }
+
+            $filaActual += $filas;
+        }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Vuelo $vuelo)
+
+    public function update(Request $request, $id)
     {
-        //
+        $vuelo = Vuelo::findOrFail($id);
+
+        $validated = $request->validate([
+            'avion_id' => 'required|exists:aviones,id',
+            'aeropuerto_origen_id' => 'required|exists:aeropuertos,id',
+            'aeropuerto_destino_id' => 'required|exists:aeropuertos,id|different:aeropuerto_origen_id',
+            'fecha_salida' => 'required|date|before:fecha_llegada',
+            'fecha_llegada' => 'required|date|after:fecha_salida',
+            'imagen' => 'nullable|string',
+            'destacado' => 'boolean',
+        ]);
+
+        if (empty($validated['imagen'])) {
+            $aeropuertoOrigen = Aeropuerto::find($validated['aeropuerto_origen_id']);
+            $ciudadOrigen = $aeropuertoOrigen ? $aeropuertoOrigen->ciudad : null;
+
+            if ($ciudadOrigen) {
+                $validated['imagen'] = ImagenCiudadHelper::obtenerImagenDeCiudad($ciudadOrigen);
+            } else {
+                $validated['imagen'] = 'https://source.unsplash.com/featured/?airport';
+            }
+        }
+
+        // Verificar si cambia el avión para recrear los asientos
+        $avionCambio = $vuelo->avion_id != $validated['avion_id'];
+
+        $vuelo->update($validated);
+
+        if ($avionCambio) {
+            // Eliminar asientos anteriores
+            Asiento::where('vuelo_id', $vuelo->id)->delete();
+
+            // Crear nuevos asientos según el nuevo avión
+            $this->crearAsientosParaVuelo($vuelo);
+        }
+
+        return redirect()->back()->with('success', 'Vuelo actualizado correctamente');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Vuelo $vuelo)
+
+
+
+    public function destroy($id)
     {
-        //
+        $vuelo = Vuelo::findOrFail($id);
+
+        // Eliminar asientos asociados antes
+        $vuelo->asientos()->delete();
+
+        // Ahora elimina el vuelo
+        $vuelo->delete();
+
+        return redirect()->back()->with('success', 'Vuelo eliminado correctamente');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Vuelo $vuelo)
-    {
-        //
-    }
+
     public function resultados(Request $request)
     {
         $origen = $request->input('origen');
@@ -156,19 +262,19 @@ class VueloController extends Controller
 
         $idVuelta = $request->query('idVuelta'); // null si no se pasó
 
-        $vuelo = Vuelo::with(['asientos.clase', 'asientos.estado'])->findOrFail($id);
-
+        // Cargamos también la relación avion para leer filas/asientos_por_fila_*:
+        $vuelo = Vuelo::with(['avion', 'asientos.clase', 'asientos.estado'])->findOrFail($id);
 
         return Inertia::render('SeleccionarAsientos', [
-            'vuelo' => $vuelo,
-            'asientos' => $vuelo->asientos,
+            'vuelo'        => $vuelo,
+            'asientos'     => $vuelo->asientos,
             'numPasajeros' => $numPasajeros,
-            'idVuelta' => $idVuelta,
+            'idVuelta'     => $idVuelta,
         ]);
     }
 
-public function guardarSeleccionIda(Request $request)
-{
+    public function guardarSeleccionIda(Request $request)
+    {
 
         $request->validate([
             'vueloIda' => 'required|integer',
@@ -188,8 +294,7 @@ public function guardarSeleccionIda(Request $request)
         ]);
 
         return response()->json(['ok' => true]);
-
-}
+    }
 
 
     // --- Nuevo: recupera de sesión los datos de la selección de "ida" ---
@@ -256,7 +361,7 @@ public function guardarSeleccionIda(Request $request)
         // Extraer los vuelos desde los billetes
         $vuelos = $billetes
             ->map(fn($billete) => $billete->asiento->vuelo ?? null)
-            ->filter() // elimina null si hay
+            ->filter()
             ->unique('id')
             ->values();
 

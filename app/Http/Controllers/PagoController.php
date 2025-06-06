@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Mail;
 
 class PagoController extends Controller
 {
-      public function exito(Request $request)
+    public function exito(Request $request)
     {
         $sessionId = $request->input('session_id');
 
@@ -48,7 +48,6 @@ class PagoController extends Controller
         $billetesCreados = [];
 
         foreach ($pasajerosDatos as $p) {
-            // Para mayor claridad, extraigo las dos posibles claves:
             $asientoIda    = $p['asiento_ida'] ?? null;
             $asientoVuelta = $p['asiento_vuelta'] ?? null;
 
@@ -69,7 +68,7 @@ class PagoController extends Controller
 
                 // 3) Generar PNR y código QR para la ida
                 $pnrIda        = strtoupper(Str::random(10));
-                $contenidoQRIda= 'PNR: ' . $pnrIda;
+                $contenidoQRIda = 'PNR: ' . $pnrIda;
                 $nombreArchivoQRIda = 'qrcodes/' . $pnrIda . '.svg';
                 $rutaCompletaQRIda  = storage_path('app/public/' . $nombreArchivoQRIda);
                 File::put(
@@ -78,7 +77,7 @@ class PagoController extends Controller
                 );
 
                 // 4) Marcar el asiento de ida como “ocupado” ANTES de crear el billete
-                $asientoObjIda->estado_id = 2; // 2 = “Reservado”
+                $asientoObjIda->estado_id = 2;
                 $asientoObjIda->save();
 
                 // 5) Crear el billete de ida
@@ -126,7 +125,7 @@ class PagoController extends Controller
 
                 // 3) Generar PNR y QR para la vuelta
                 $pnrVuelta        = strtoupper(Str::random(10));
-                $contenidoQRVuelta= 'PNR: ' . $pnrVuelta;
+                $contenidoQRVuelta = 'PNR: ' . $pnrVuelta;
                 $nombreArchivoQRVuelta = 'qrcodes/' . $pnrVuelta . '.svg';
                 $rutaCompletaQRVuelta  = storage_path('app/public/' . $nombreArchivoQRVuelta);
                 File::put(
@@ -189,75 +188,64 @@ class PagoController extends Controller
             ];
         });
 
-        //
-        // D) Enviamos correo al usuario
-        //
         Mail::to(Auth::user()->email)->send(new \App\Mail\BilletesEmail($billetesPlanos));
 
-        //
-        // E) Limpiar la sesión
-        //
         session()->forget(['pasajerosDatos', 'stripe_session_id', 'cancelacion_flexible_global']);
 
-        //
-        // F) Renderizar vista de confirmación
-        //
         return Inertia::render('Billete/ConfirmacionMultiple', [
             'billetes' => $billetesPlanos,
         ]);
     }
 
-public function cancelarVuelos($vueloId)
-{
-    $billetes = Billete::whereHas('asiento', fn($q) => $q->where('vuelo_id', $vueloId))->get();
+    public function cancelarVuelos($vueloId)
+    {
+        $billetes = Billete::whereHas('asiento', fn($q) => $q->where('vuelo_id', $vueloId))->get();
 
-    if ($billetes->isEmpty()) {
-        return back()->with('error', 'No hay billetes activos para este vuelo.');
-    }
-
-    Stripe::setApiKey(env('STRIPE_SECRET'));
-
-    // Tomamos el stripe_session_id del primer billete para cancelar TODOS con ese mismo stripe_session_id
-    $stripeSessionId = $billetes->first()->stripe_session_id;
-
-    try {
-        // Reembolsamos la sesión solo una vez
-        $session = \Stripe\Checkout\Session::retrieve($stripeSessionId);
-        $paymentIntentId = $session->payment_intent;
-
-        \Stripe\Refund::create(['payment_intent' => $paymentIntentId]);
-    } catch (\Exception $e) {
-        Log::error("Error al reembolsar sesión Stripe {$stripeSessionId}: {$e->getMessage()}");
-        return back()->with('error', 'No se pudo realizar el reembolso.');
-    }
-
-    // Ahora soft delete a todos los billetes con ese stripe_session_id
-    $billetesParaCancelar = Billete::where('stripe_session_id', $stripeSessionId)->get();
-
-    $errores = [];
-
-    foreach ($billetesParaCancelar as $billete) {
-        try {
-
-            $billete->delete();
-
-            // Liberar asiento
-            if ($asiento = $billete->asiento) {
-                $asiento->estado_id = 1;
-                $asiento->save();
-            }
-        } catch (\Exception $e) {
-            Log::error("Error en billete {$billete->id} durante cancelación: {$e->getMessage()}");
-            $errores[] = "ID {$billete->id}";
+        if ($billetes->isEmpty()) {
+            return back()->with('error', 'No hay billetes activos para este vuelo.');
         }
+
+        Stripe::setApiKey(env('STRIPE_SECRET'));
+
+        // Tomamos el stripe_session_id del primer billete para cancelar TODOS con ese mismo stripe_session_id
+        $stripeSessionId = $billetes->first()->stripe_session_id;
+
+        try {
+            // Reembolsamos la sesión solo una vez
+            $session = \Stripe\Checkout\Session::retrieve($stripeSessionId);
+            $paymentIntentId = $session->payment_intent;
+
+            \Stripe\Refund::create(['payment_intent' => $paymentIntentId]);
+        } catch (\Exception $e) {
+            Log::error("Error al reembolsar sesión Stripe {$stripeSessionId}: {$e->getMessage()}");
+            return back()->with('error', 'No se pudo realizar el reembolso.');
+        }
+
+        // Ahora soft delete a todos los billetes con ese stripe_session_id
+        $billetesParaCancelar = Billete::where('stripe_session_id', $stripeSessionId)->get();
+
+        $errores = [];
+
+        foreach ($billetesParaCancelar as $billete) {
+            try {
+
+                $billete->delete();
+
+                // Liberar asiento
+                if ($asiento = $billete->asiento) {
+                    $asiento->estado_id = 1;
+                    $asiento->save();
+                }
+            } catch (\Exception $e) {
+                Log::error("Error en billete {$billete->id} durante cancelación: {$e->getMessage()}");
+                $errores[] = "ID {$billete->id}";
+            }
+        }
+
+        if (!empty($errores)) {
+            return back()->with('error', 'No se pudieron cancelar algunos billetes: ' . implode(', ', $errores));
+        }
+
+        return back()->with('success', 'Todos los billetes con ese pago han sido cancelados, reembolsados y los asientos liberados.');
     }
-
-    if (!empty($errores)) {
-        return back()->with('error', 'No se pudieron cancelar algunos billetes: ' . implode(', ', $errores));
-    }
-
-    return back()->with('success', 'Todos los billetes con ese pago han sido cancelados, reembolsados y los asientos liberados.');
-}
-
-
 }

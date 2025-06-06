@@ -31,7 +31,7 @@
     "login": "Iniciar sesión"
   },
   "userDropdown": {
-    "refunds": "Reembolsos",
+    "refunds": "Gestionar reservas",
     "logout": "Cerrar sesión"
   },
   "flight": {
@@ -104,7 +104,8 @@
     "confirmar_cambio": "Confirmar",
     "confirmar_ida": "Confirmar seleccion",
     "cancelar": "Cancelar",
-    "modo_cambio": "Cambiar asiento"
+    "modo_cambio": "Cambiar asiento",
+    "exito_cambio": "Asiento cambiado con exito"
   },
   "clases": {
     "turista": "Turista",

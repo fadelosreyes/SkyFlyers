@@ -31,7 +31,7 @@
     "login": "Log in"
   },
   "userDropdown": {
-    "refunds": "Refunds",
+    "refunds": "Manage bookings",
     "logout": "Log out"
   },
   "flight": {
@@ -122,7 +122,8 @@
     "confirmar_cambio": "Confirm",
     "confirmar_ida": "Confirm selection",
     "cancelar": "Cancel",
-    "modo_cambio": "Change seat"
+    "modo_cambio": "Change seat",
+    "exito_cambio": "Change seat succes"
   },
   "clases": {
     "turista": "Economy",

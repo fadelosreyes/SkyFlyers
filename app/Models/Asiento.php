@@ -9,6 +9,13 @@ class Asiento extends Model
 {
     /** @use HasFactory<\Database\Factories\AsientoFactory> */
     use HasFactory;
+    protected $fillable = [
+        'vuelo_id',
+        'clase_id',
+        'estado_id',
+        'numero',
+        'precio_base',
+    ];
 
     public function vuelo()
     {

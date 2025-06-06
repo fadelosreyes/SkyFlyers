@@ -132,55 +132,55 @@ export default function Header({ activePage }) {
                 Roles
               </Link>
               <Link
-                href="/admin/roles"
+                href="/admin/aerolineas"
                 className="block px-4 py-2 hover:bg-gray-200"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Aerolineas
-              </Link><Link
-                href="/admin/roles"
+            </Link><Link
+                href="/admin/aeropuertos"
                 className="block px-4 py-2 hover:bg-gray-200"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Aeropuertos
               </Link>
               <Link
-                href="/admin/roles"
+                href="/admin/billetes"
                 className="block px-4 py-2 hover:bg-gray-200"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Billetes
               </Link>
               <Link
-                href="/admin/roles"
+                href="/admin/asientos"
                 className="block px-4 py-2 hover:bg-gray-200"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Asientos
               </Link>
               <Link
-                href="/admin/roles"
+                href="/admin/vuelos"
                 className="block px-4 py-2 hover:bg-gray-200"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Vuelos
               </Link>
               <Link
-                href="/admin/roles"
+                href="/admin/aviones"
                 className="block px-4 py-2 hover:bg-gray-200"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Aviones
               </Link>
               <Link
-                href="/admin/roles"
+                href="/admin/estados"
                 className="block px-4 py-2 hover:bg-gray-200"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Estados Asientos
               </Link>
               <Link
-                href="/admin/roles"
+                href="/admin/paises"
                 className="block px-4 py-2 hover:bg-gray-200"
                 onClick={() => setMobileMenuOpen(false)}
               >

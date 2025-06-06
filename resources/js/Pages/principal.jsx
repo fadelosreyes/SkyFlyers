@@ -39,7 +39,7 @@ export default function Principal({ auth }) {
     useEffect(() => {
         const intervalo = setInterval(() => {
             setImagenActual((prev) => (prev + 1) % imagenes.length);
-        }, 30000);
+        }, 3900);
         return () => clearInterval(intervalo);
     }, []);
 

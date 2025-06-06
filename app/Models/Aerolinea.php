@@ -9,6 +9,8 @@ class Aerolinea extends Model
 {
     /** @use HasFactory<\Database\Factories\AerolineaFactory> */
     use HasFactory;
+    protected $fillable = ['nombre', 'codigo_iata', 'pais_id'];
+
 
     public function pais()
     {

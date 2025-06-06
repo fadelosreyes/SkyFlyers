@@ -7,6 +7,7 @@ use App\Models\Vuelo;
 use App\Models\Billete;
 use App\Mail\BilletesEmail;
 use App\Models\Estado;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Stripe\Stripe;
@@ -20,9 +21,76 @@ class BilleteController extends Controller
     /**
      * Muestra el formulario para crear un nuevo billete.
      */
+
+    public function index(Request $request)
+    {
+        $searchNombre = $request->input('nombre_pasajero', '');
+
+        $query = Billete::query();
+
+        if ($searchNombre) {
+            $query->where('nombre_pasajero', 'like', "%{$searchNombre}%");
+        }
+
+        $billetes = $query->orderBy('id', 'desc')->paginate(10)->withQueryString();
+
+        // Para mostrar nombre o info del user y asiento:
+        $users = User::all(['id', 'name']);
+        $asientos = Asiento::all(['id', 'numero']);
+
+        return Inertia::render('Admin/BilletesIndex', [
+            'billetes' => $billetes,
+            'users' => $users,
+            'asientos' => $asientos,
+            'filters' => [
+                'nombre_pasajero' => $searchNombre,
+            ],
+        ]);
+    }
+
+    /**
+     * Update the specified billete.
+     */
+    public function update(Request $request, Billete $billete)
+    {
+        $validated = $request->validate([
+            'nombre_pasajero' => 'required|string|max:255',
+            'documento_identidad' => 'nullable|string|max:50',
+            'recargos' => 'nullable|numeric|min:0',
+            'maleta_adicional' => 'boolean',
+            'cancelacion_flexible' => 'boolean',
+        ]);
+
+        $billete->update($validated);
+
+        return redirect()->route('billetes.index')->with('success', 'Billete actualizado correctamente.');
+    }
+
+    /**
+     * Remove the specified billete.
+     */
+    public function destroy(Billete $billete)
+    {
+        // Supongamos que el estado "libre" tiene id = 1, cambia por el que corresponda
+        $estadoLibreId = 1;
+
+        // Actualizar el estado del asiento a "libre"
+        $asiento = $billete->asiento;
+        if ($asiento) {
+            $asiento->estado_id = $estadoLibreId;
+            $asiento->save();
+        }
+
+        // Eliminar el billete
+        $billete->delete();
+
+        return redirect()->route('billetes.index')->with('success', 'Billete eliminado correctamente y asiento liberado.');
+    }
+
+
     public function asientos(Request $request)
     {
-        // 1) VIAJE IDA Y VUELTA DIRECTO (ambos vuelos llegan en el mismo POST)
+        // 1) VIAJE IDA Y VUELTA
         $vueloIdaId      = $request->input('vuelo_ida');
         $asientosIda     = $request->input('seats_ida', []);
         $vueloVueltaId  = $request->input('vuelo_vuelta');
@@ -55,7 +123,7 @@ class BilleteController extends Controller
 
 
         //dd($request->all());
-        // 2) SOLO UN VUELO (ida tradicional) — la vista React envía “vuelo_ida” y “seats_ida”
+        // 2) SOLO UN VUELO
         $vueloActualId     = $request->input('vuelo_ida');
         $asientoIdsActual  = $request->input('seats_ida', []);
 
@@ -66,7 +134,6 @@ class BilleteController extends Controller
                 ->with('error', 'Debes seleccionar al menos un asiento.');
         }
         //dd($request->all());
-        // 2.1) ¿Hay datos de ida guardados en sesión? (segunda fase de ida&vuelta en pasos)
         // $vueloIdaSesion    = session('vuelo_ida');
         // $asientosIdaSesion = session('asientos_ida');
         // dd([
@@ -94,7 +161,6 @@ class BilleteController extends Controller
         //     ]);
         // }
 
-        // 2.2) Caso “vuelo único” (solo ida, sin vuelta en sesión)
         // En este caso no hay vuelta, así que pasamos null y array vacío
         return Inertia::render('Billete/DatosPasajero', [
             'vueloIda'                    => $vueloIda,
@@ -112,7 +178,6 @@ class BilleteController extends Controller
 
     public function prepararPago(Request $request)
     {
-        // 1) Validar los datos obligatorios
         $data = $request->validate([
             'pasajeros'                         => 'required|array|min:1',
             'pasajeros.*.nombre_pasajero'       => 'required|string|min:3|max:255',
@@ -129,7 +194,6 @@ class BilleteController extends Controller
 
         //dd($data);
 
-        // Opcional: si quieres ver el payload completo, puedes descomentar la siguiente línea:
         // dd($request->all());
 
         // 2) Extraer variables (ya validadas)
@@ -204,7 +268,6 @@ class BilleteController extends Controller
 
         $nuevoAsiento = Asiento::findOrFail($request->asiento_id);
 
-        // Verificar que el nuevo asiento sea de la misma clase
         if ($nuevoAsiento->clase->nombre !== $billete->asiento->clase->nombre) {
             return back()->withErrors(['asiento_id' => 'El asiento debe ser de la clase asignada al billete.']);
         }
@@ -213,16 +276,13 @@ class BilleteController extends Controller
             return back()->withErrors(['asiento_id' => 'El asiento no está disponible.']);
         }
 
-        // Liberar asiento actual
         $asientoActual = $billete->asiento;
         $asientoActual->estado_id = Estado::where('nombre', 'Libre')->first()->id;
         $asientoActual->save();
 
-        // Asignar nuevo asiento
         $nuevoAsiento->estado_id = Estado::where('nombre', 'Ocupado')->first()->id;
         $nuevoAsiento->save();
 
-        // Actualizar billete
         $billete->asiento_id = $nuevoAsiento->id;
         $billete->save();
 
@@ -290,112 +350,107 @@ class BilleteController extends Controller
     // }
 
     /**
-     * Listado de billetes del usuario agrupados por vuelo, solo vuelos a más de 3 días.
+     * Listado de billetes del usuario agrupados por vuelo
      */
-public function index()
-{
-    $user = auth()->user();
+    public function gestiones()
+    {
+        $user = auth()->user();
 
-    // 1) Obtenemos todos los billetes del usuario (con relaciones necesarias).
-    $billetes = Billete::with([
-        'asiento.vuelo.aeropuertoOrigen',
-        'asiento.vuelo.aeropuertoDestino'
-    ])
-    ->where('user_id', $user->id)
-    ->get();
+        $billetes = Billete::with([
+            'asiento.vuelo.aeropuertoOrigen',
+            'asiento.vuelo.aeropuertoDestino'
+        ])
+            ->where('user_id', $user->id)
+            ->get();
 
-    // 2) Agrupamos por stripe_session_id
-    $porSesionStripe = $billetes->groupBy('stripe_session_id');
+        // Agrupamos por stripe_session_id
+        $porSesionStripe = $billetes->groupBy('stripe_session_id');
 
-    $todosLosGrupos = [];
+        $todosLosGrupos = [];
 
-    // 3) Recorremos cada grupo de billetes (por sesión Stripe)
-    foreach ($porSesionStripe as $stripeSessionId => $coleccionBilletesEnEstaSesion) {
+        foreach ($porSesionStripe as $stripeSessionId => $coleccionBilletesEnEstaSesion) {
 
-        // 3.1) Dentro de esta sesión Stripe, agrupamos por vuelo_id
-        $vuelosEnEstaSesion = $coleccionBilletesEnEstaSesion
-            ->groupBy(fn($b) => $b->asiento->vuelo->id)
-            ->map(function ($grupoDeBilletes) {
-                $vuelo = $grupoDeBilletes->first()->asiento->vuelo;
-                return (object)[
-                    'vuelo' => (object)[
-                        'id'             => $vuelo->id,
-                        'fecha_salida'   => $vuelo->fecha_salida,
-                        'fecha_llegada'  => $vuelo->fecha_llegada,
-                        'origen'         => $vuelo->aeropuertoOrigen->nombre,
-                        'destino'        => $vuelo->aeropuertoDestino->nombre,
-                    ],
-                    'billetes' => $grupoDeBilletes->map(fn($billete) => (object)[
-                        'id'                   => $billete->id,
-                        'nombre_pasajero'      => $billete->nombre_pasajero,
-                        'documento_identidad'  => $billete->documento_identidad,
-                        'pnr'                  => $billete->pnr,
-                        'codigo_QR'            => $billete->codigo_QR,
-                        'asiento_numero'       => $billete->asiento->numero ?? 'N/A',
-                        'tarifa_base'          => $billete->tarifa_base,
-                        'total'                => $billete->total,
-                        'maleta_adicional'     => $billete->maleta_adicional,
-                        'cancelacion_flexible' => $billete->cancelacion_flexible,
-                        'fecha_reserva'        => $billete->fecha_reserva,
-                    ])->values(),
-                ];
-            })
-            ->values();
+            // Dentro de esta sesión Stripe, agrupamos por vuelo_id
+            $vuelosEnEstaSesion = $coleccionBilletesEnEstaSesion
+                ->groupBy(fn($b) => $b->asiento->vuelo->id)
+                ->map(function ($grupoDeBilletes) {
+                    $vuelo = $grupoDeBilletes->first()->asiento->vuelo;
+                    return (object)[
+                        'vuelo' => (object)[
+                            'id'             => $vuelo->id,
+                            'fecha_salida'   => $vuelo->fecha_salida,
+                            'fecha_llegada'  => $vuelo->fecha_llegada,
+                            'origen'         => $vuelo->aeropuertoOrigen->nombre,
+                            'destino'        => $vuelo->aeropuertoDestino->nombre,
+                        ],
+                        'billetes' => $grupoDeBilletes->map(fn($billete) => (object)[
+                            'id'                   => $billete->id,
+                            'nombre_pasajero'      => $billete->nombre_pasajero,
+                            'documento_identidad'  => $billete->documento_identidad,
+                            'pnr'                  => $billete->pnr,
+                            'codigo_QR'            => $billete->codigo_QR,
+                            'asiento_numero'       => $billete->asiento->numero ?? 'N/A',
+                            'tarifa_base'          => $billete->tarifa_base,
+                            'total'                => $billete->total,
+                            'maleta_adicional'     => $billete->maleta_adicional,
+                            'cancelacion_flexible' => $billete->cancelacion_flexible,
+                            'fecha_reserva'        => $billete->fecha_reserva,
+                        ])->values(),
+                    ];
+                })
+                ->values();
 
-        // 3.2) Emparejamos vuelos de ida y vuelta dentro de esta sesión
-        $gruposDeEstaSesion = [];
-        $usados = collect();
+            $gruposDeEstaSesion = [];
+            $usados = collect();
 
-        foreach ($vuelosEnEstaSesion as $item) {
-            $vueloId = $item->vuelo->id;
-            if ($usados->contains($vueloId)) {
-                continue;
+            foreach ($vuelosEnEstaSesion as $item) {
+                $vueloId = $item->vuelo->id;
+                if ($usados->contains($vueloId)) {
+                    continue;
+                }
+
+                $posibleVuelta = collect($vuelosEnEstaSesion)
+                    ->filter(fn($otro) => !$usados->contains($otro->vuelo->id))
+                    ->first(function ($otro) use ($item) {
+                        return
+                            $otro->vuelo->origen === $item->vuelo->destino &&
+                            $otro->vuelo->destino === $item->vuelo->origen &&
+                            (new \DateTime($otro->vuelo->fecha_salida) > new \DateTime($item->vuelo->fecha_salida));
+                    });
+
+                if ($posibleVuelta) {
+                    $gruposDeEstaSesion[] = (object)[
+                        'stripe_session_id' => $stripeSessionId,
+                        'ida'   => (object)[
+                            'vuelo'    => $item->vuelo,
+                            'billetes' => $item->billetes,
+                        ],
+                        'vuelta' => (object)[
+                            'vuelo'    => $posibleVuelta->vuelo,
+                            'billetes' => $posibleVuelta->billetes,
+                        ],
+                    ];
+                    $usados->push($vueloId, $posibleVuelta->vuelo->id);
+                } else {
+                    $gruposDeEstaSesion[] = (object)[
+                        'stripe_session_id' => $stripeSessionId,
+                        'ida'    => (object)[
+                            'vuelo'    => $item->vuelo,
+                            'billetes' => $item->billetes,
+                        ],
+                        'vuelta' => null,
+                    ];
+                    $usados->push($vueloId);
+                }
             }
 
-            $posibleVuelta = collect($vuelosEnEstaSesion)
-                ->filter(fn($otro) => !$usados->contains($otro->vuelo->id))
-                ->first(function ($otro) use ($item) {
-                    return
-                        $otro->vuelo->origen === $item->vuelo->destino &&
-                        $otro->vuelo->destino === $item->vuelo->origen &&
-                        (new \DateTime($otro->vuelo->fecha_salida) > new \DateTime($item->vuelo->fecha_salida));
-                });
-
-            if ($posibleVuelta) {
-                $gruposDeEstaSesion[] = (object)[
-                    'stripe_session_id' => $stripeSessionId,
-                    'ida'   => (object)[
-                        'vuelo'    => $item->vuelo,
-                        'billetes' => $item->billetes,
-                    ],
-                    'vuelta' => (object)[
-                        'vuelo'    => $posibleVuelta->vuelo,
-                        'billetes' => $posibleVuelta->billetes,
-                    ],
-                ];
-                $usados->push($vueloId, $posibleVuelta->vuelo->id);
-            } else {
-                $gruposDeEstaSesion[] = (object)[
-                    'stripe_session_id' => $stripeSessionId,
-                    'ida'    => (object)[
-                        'vuelo'    => $item->vuelo,
-                        'billetes' => $item->billetes,
-                    ],
-                    'vuelta' => null,
-                ];
-                $usados->push($vueloId);
-            }
+            $todosLosGrupos = array_merge($todosLosGrupos, $gruposDeEstaSesion);
         }
 
-        // 3.3) Agregamos los grupos de esta sesión al array general
-        $todosLosGrupos = array_merge($todosLosGrupos, $gruposDeEstaSesion);
+        return Inertia::render('Cancelaciones/Index', [
+            'grupos' => $todosLosGrupos,
+        ]);
     }
-
-    // 4) Devolvemos a la vista Inertia el array “grupos”
-    return Inertia::render('Cancelaciones/Index', [
-        'grupos' => $todosLosGrupos,
-    ]);
-}
 
 
     /**
@@ -405,14 +460,13 @@ public function index()
     {
         $user = auth()->user();
 
-        // Buscamos el billete específico y sus relaciones para enviar
         $billete = Billete::with(['asiento.vuelo.aeropuertoOrigen', 'asiento.vuelo.aeropuertoDestino'])
             ->where('id', $billeteId)
-            ->where('user_id', $user->id) // Para asegurarnos que el billete pertenece al usuario
+            ->where('user_id', $user->id)
             ->firstOrFail();
 
         try {
-            Mail::to($user->email)->send(new BilletesEmail([$billete])); // Lo envío como array porque tu mailable espera un array
+            Mail::to($user->email)->send(new BilletesEmail([$billete]));
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error enviando correo: ' . $e->getMessage()], 500);
         }

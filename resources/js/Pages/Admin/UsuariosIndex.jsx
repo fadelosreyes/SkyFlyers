@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { router } from '@inertiajs/react';
 import Header from '@/Components/Header';
 
@@ -12,12 +12,18 @@ export default function Usuarios({ users, roles }) {
     password: '',
     password_confirmation: '',
   });
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Estado para ordenar
+  const [sortBy, setSortBy] = useState(null); // 'name', 'email', 'role'
+  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' o 'desc'
 
   const getRolNombre = (roleId) => {
     const rol = roles.find(r => String(r.id) === String(roleId));
     if (rol) {
       return rol.nombre;
     }
+    return '';
   };
 
   const startEditing = (user) => {
@@ -30,14 +36,13 @@ export default function Usuarios({ users, roles }) {
     setFormData({ name: '', email: '', role_id: '' });
   };
 
-const handleUpdate = (id) => {
-  router.put(route('users.update', id), {
-    ...formData,
-    role_id: parseInt(formData.role_id, 10), // <- Convertimos a número
-  });
-  setEditingId(null);
-};
-
+  const handleUpdate = (id) => {
+    router.put(route('users.update', id), {
+      ...formData,
+      role_id: parseInt(formData.role_id, 10),
+    });
+    setEditingId(null);
+  };
 
   const handleDelete = (id) => {
     if (confirm('¿Seguro que quieres eliminar este usuario?')) {
@@ -45,15 +50,93 @@ const handleUpdate = (id) => {
     }
   };
 
+  // Cambiar ordenación al clickar cabecera
+  const toggleSort = (column) => {
+    if (sortBy === column) {
+      // Cambiar orden
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(column);
+      setSortOrder('asc');
+    }
+  };
+
+  // Manejar creación con validación contraseñas
   const handleCreate = () => {
-    router.post(route('users.store'), newUser);
-    setNewUser({
-      name: '',
-      email: '',
-      role_id: '',
-      password: '',
-      password_confirmation: '',
+  // Validar campos vacíos
+  if (
+    !newUser.name.trim() ||
+    !newUser.email.trim() ||
+    !newUser.role_id ||
+    !newUser.password ||
+    !newUser.password_confirmation
+  ) {
+    alert('Todos los campos son obligatorios.');
+    return;
+  }
+
+  // Validar que las contraseñas coincidan
+  if (newUser.password !== newUser.password_confirmation) {
+    alert('Las contraseñas no coinciden.');
+    return;
+  }
+
+  // Aquí se enviaría el formulario
+  router.post(route('users.store'), newUser);
+
+  // Limpiar formulario
+  setNewUser({
+    name: '',
+    email: '',
+    role_id: '',
+    password: '',
+    password_confirmation: '',
+  });
+};
+
+
+  // Filtrado memoizado
+  const filteredUsers = useMemo(() => {
+    const term = searchTerm.toLowerCase();
+    let filtered = users.filter(user => {
+      const nombre = user.name.toLowerCase();
+      const email = user.email.toLowerCase();
+      const rolNombre = getRolNombre(user.role_id).toLowerCase();
+      return (
+        nombre.includes(term) ||
+        email.includes(term) ||
+        rolNombre.includes(term)
+      );
     });
+
+    if (sortBy) {
+      filtered.sort((a, b) => {
+        let aVal, bVal;
+
+        if (sortBy === 'name') {
+          aVal = a.name.toLowerCase();
+          bVal = b.name.toLowerCase();
+        } else if (sortBy === 'email') {
+          aVal = a.email.toLowerCase();
+          bVal = b.email.toLowerCase();
+        } else if (sortBy === 'role') {
+          aVal = getRolNombre(a.role_id).toLowerCase();
+          bVal = getRolNombre(b.role_id).toLowerCase();
+        }
+
+        if (aVal < bVal) return sortOrder === 'asc' ? -1 : 1;
+        if (aVal > bVal) return sortOrder === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return filtered;
+  }, [searchTerm, users, roles, sortBy, sortOrder]);
+
+  // Indicador de orden para la columna
+  const renderSortIndicator = (column) => {
+    if (sortBy !== column) return null;
+    return sortOrder === 'asc' ? ' ▲' : ' ▼';
   };
 
   return (
@@ -62,27 +145,53 @@ const handleUpdate = (id) => {
       <main className="p-6 max-w-5xl mx-auto">
         <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">Gestión de Usuarios</h1>
 
+        {/* Input de búsqueda */}
+        <div className="mb-4 max-w-md mx-auto">
+          <input
+            type="text"
+            placeholder="Buscar por nombre, email o rol..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+
         <div className="overflow-x-auto shadow-lg rounded-lg border border-gray-200">
           <table className="min-w-full bg-white rounded-lg">
             <thead className="text-white select-none" style={{ backgroundColor: '#004080' }}>
               <tr>
                 <th className="py-3 px-6 text-left font-semibold text-sm uppercase tracking-wide">ID</th>
-                <th className="py-3 px-6 text-left font-semibold text-sm uppercase tracking-wide">Nombre</th>
-                <th className="py-3 px-6 text-left font-semibold text-sm uppercase tracking-wide">Email</th>
-<th className="py-3 px-6 text-left font-semibold text-sm uppercase tracking-wide min-w-[220px]">Rol</th>
+                <th
+                  className="py-3 px-6 text-left font-semibold text-sm uppercase tracking-wide cursor-pointer"
+                  onClick={() => toggleSort('name')}
+                >
+                  Nombre{renderSortIndicator('name')}
+                </th>
+                <th
+                  className="py-3 px-6 text-left font-semibold text-sm uppercase tracking-wide cursor-pointer"
+                  onClick={() => toggleSort('email')}
+                >
+                  Email{renderSortIndicator('email')}
+                </th>
+                <th
+                  className="py-3 px-6 text-left font-semibold text-sm uppercase tracking-wide min-w-[220px] cursor-pointer"
+                  onClick={() => toggleSort('role')}
+                >
+                  Rol{renderSortIndicator('role')}
+                </th>
                 <th className="py-3 px-6 text-left font-semibold text-sm uppercase tracking-wide">Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {users.length === 0 && (
+              {filteredUsers.length === 0 && (
                 <tr>
                   <td colSpan="5" className="py-6 text-center text-gray-400 italic">
-                    No hay usuarios registrados.
+                    No hay usuarios que coincidan con la búsqueda.
                   </td>
                 </tr>
               )}
 
-              {users.map((user) => (
+              {filteredUsers.map((user) => (
                 <tr
                   key={user.id}
                   className="border-t border-gray-100 hover:bg-indigo-50 transition-colors duration-200"
@@ -203,25 +312,25 @@ const handleUpdate = (id) => {
                       </option>
                     ))}
                   </select>
+                  <input
+                    type="password"
+                    placeholder="Contraseña"
+                    value={newUser.password}
+                    onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                    className="mt-2 border border-indigo-400 focus:ring-2 focus:ring-indigo-600 focus:outline-none rounded px-3 py-1 w-full transition"
+                  />
+                  <input
+                    type="password"
+                    placeholder="Confirmar contraseña"
+                    value={newUser.password_confirmation}
+                    onChange={(e) => setNewUser({ ...newUser, password_confirmation: e.target.value })}
+                    className="mt-2 border border-indigo-400 focus:ring-2 focus:ring-indigo-600 focus:outline-none rounded px-3 py-1 w-full transition"
+                  />
                 </td>
                 <td className="py-3 px-6">
-                  <input
-                    type="password"
-                    value={newUser.password || ''}
-                    onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                    className="border border-indigo-400 focus:ring-2 focus:ring-indigo-600 focus:outline-none rounded px-3 py-1 mb-1 w-full transition"
-                    placeholder="Contraseña"
-                  />
-                  <input
-                    type="password"
-                    value={newUser.password_confirmation || ''}
-                    onChange={(e) => setNewUser({ ...newUser, password_confirmation: e.target.value })}
-                    className="border border-indigo-400 focus:ring-2 focus:ring-indigo-600 focus:outline-none rounded px-3 py-1 w-full transition"
-                    placeholder="Confirmar contraseña"
-                  />
                   <button
                     onClick={handleCreate}
-                    className="mt-2 bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded shadow transition w-full"
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded shadow transition"
                   >
                     Crear
                   </button>
