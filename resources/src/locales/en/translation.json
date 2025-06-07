@@ -27,7 +27,7 @@
     "home": "Home",
     "myTrips": "My Trips",
     "aboutUs": "About Us",
-    "contact": "Contact",
+    "destinos": "Destinations",
     "login": "Log in"
   },
   "userDropdown": {
@@ -63,7 +63,7 @@
   "aboutUs": {
     "title": "About Us",
     "description": "At SkyFlyer, we are your expert ally in managing flight tickets. Since 2005, we have simplified your flight purchase by comparing prices from dozens of airlines and offering the best rates available in real time. Our commitment is to save you time and money, so you can just focus on enjoying your trip.\n\nThanks to our intuitive platform and a dedicated customer service team, you can book, modify, or cancel your flight quickly and safely. At SkyFlyer, your comfort and satisfaction are always at the heart of our service, with personalized attention and 24/7 support to solve any issue.",
-    "socials": ["Instagram", "Facebook", "Twitter", "YouTube", "LinkedIn", "Contact Us"]
+    "socials": ["Instagram", "Facebook", "Twitter", "YouTube", "LinkedIn", "destinos Us"]
   },
   "results": {
   "title": "Flight Results",

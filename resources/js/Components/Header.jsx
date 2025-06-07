@@ -18,7 +18,7 @@ export default function Header({ activePage }) {
 
   const [dropdownOpen, setDropdownOpen] = useState(false); // Para selector idioma
   const [gestionDropdownOpen, setGestionDropdownOpen] = useState(false); // Para menú Gestión
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [menuMobil, setmenuMobil] = useState(false);
 
   const dropdownRef = useRef(null);
   const gestionDropdownRef = useRef(null);
@@ -63,7 +63,7 @@ export default function Header({ activePage }) {
         className={`whitespace-nowrap font-bold ${
           activePage === 'inicio' ? 'underline underline-offset-2 decoration-[#FF7F50] decoration-2' : ''
         }`}
-        onClick={() => setMobileMenuOpen(false)}
+        onClick={() => setmenuMobil(false)}
       >
         {t('menu.home')}
       </Link>
@@ -72,7 +72,7 @@ export default function Header({ activePage }) {
         className={`whitespace-nowrap font-bold ${
           activePage === 'viajes' ? 'underline underline-offset-2 decoration-[#FF7F50] decoration-2' : ''
         }`}
-        onClick={() => setMobileMenuOpen(false)}
+        onClick={() => setmenuMobil(false)}
       >
         {t('menu.myTrips')}
       </Link>
@@ -81,18 +81,18 @@ export default function Header({ activePage }) {
         className={`whitespace-nowrap font-bold ${
           activePage === 'sobre-nosotros' ? 'underline underline-offset-2 decoration-[#FF7F50] decoration-2' : ''
         }`}
-        onClick={() => setMobileMenuOpen(false)}
+        onClick={() => setmenuMobil(false)}
       >
         {t('menu.aboutUs')}
       </Link>
       <Link
-        href="/contacto"
+        href="/destinos"
         className={`whitespace-nowrap font-bold ${
-          activePage === 'contacto' ? 'underline underline-offset-2 decoration-[#FF7F50] decoration-2' : ''
+          activePage === 'destinos' ? 'underline underline-offset-2 decoration-[#FF7F50] decoration-2' : ''
         }`}
-        onClick={() => setMobileMenuOpen(false)}
+        onClick={() => setmenuMobil(false)}
       >
-        {t('menu.contact')}
+        {t('menu.destinos')}
       </Link>
 
       {/* Menú Gestión solo para admin */}
@@ -120,69 +120,69 @@ export default function Header({ activePage }) {
               <Link
                 href="/admin/usuarios"
                 className="block px-4 py-2 hover:bg-gray-200"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => setmenuMobil(false)}
               >
                 Usuarios
               </Link>
               <Link
                 href="/admin/roles"
                 className="block px-4 py-2 hover:bg-gray-200"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => setmenuMobil(false)}
               >
                 Roles
               </Link>
               <Link
                 href="/admin/aerolineas"
                 className="block px-4 py-2 hover:bg-gray-200"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => setmenuMobil(false)}
               >
                 Aerolineas
             </Link><Link
                 href="/admin/aeropuertos"
                 className="block px-4 py-2 hover:bg-gray-200"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => setmenuMobil(false)}
               >
                 Aeropuertos
               </Link>
               <Link
                 href="/admin/billetes"
                 className="block px-4 py-2 hover:bg-gray-200"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => setmenuMobil(false)}
               >
                 Billetes
               </Link>
               <Link
                 href="/admin/asientos"
                 className="block px-4 py-2 hover:bg-gray-200"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => setmenuMobil(false)}
               >
                 Asientos
               </Link>
               <Link
                 href="/admin/vuelos"
                 className="block px-4 py-2 hover:bg-gray-200"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => setmenuMobil(false)}
               >
                 Vuelos
               </Link>
               <Link
                 href="/admin/aviones"
                 className="block px-4 py-2 hover:bg-gray-200"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => setmenuMobil(false)}
               >
                 Aviones
               </Link>
               <Link
                 href="/admin/estados"
                 className="block px-4 py-2 hover:bg-gray-200"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => setmenuMobil(false)}
               >
                 Estados Asientos
               </Link>
               <Link
                 href="/admin/paises"
                 className="block px-4 py-2 hover:bg-gray-200"
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => setmenuMobil(false)}
               >
                 Paises
               </Link>
@@ -195,7 +195,6 @@ export default function Header({ activePage }) {
 
   return (
     <header className="bg-[#003366] text-white px-4 py-4 flex items-center justify-between relative">
-      {/* Izquierda: Logo + Menú (desktop) */}
       <div className="flex items-center gap-6">
         <figure className="flex-shrink-0">
           <img
@@ -205,11 +204,9 @@ export default function Header({ activePage }) {
           />
         </figure>
 
-        {/* Menú desktop */}
         <nav className="hidden md:flex items-center gap-8">{navLinks}</nav>
       </div>
 
-      {/* Derecha: idioma + login + hamburguesa */}
       <div className="flex items-center gap-3 md:gap-5" ref={dropdownRef}>
         {/* Selector idioma */}
         <button onClick={() => setDropdownOpen(!dropdownOpen)} className="focus:outline-none">
@@ -239,7 +236,6 @@ export default function Header({ activePage }) {
           </div>
         )}
 
-        {/* Login o user (desktop) */}
         <div className="hidden md:block">
           {auth?.user ? (
             <UserDropdown user={auth.user} />
@@ -250,23 +246,21 @@ export default function Header({ activePage }) {
           )}
         </div>
 
-        {/* Botón hamburguesa (móvil) */}
         <button
           className="md:hidden text-white text-3xl font-bold"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          onClick={() => setmenuMobil(!menuMobil)}
           aria-label="Toggle menu"
         >
-          {mobileMenuOpen ? '✕' : '☰'}
+          {menuMobil ? '✕' : '☰'}
         </button>
       </div>
 
-      {/* Menú móvil: side menu a la izquierda */}
-      {mobileMenuOpen && (
+      {menuMobil && (
         <div className="fixed top-0 left-0 h-full w-64 bg-[#003366] text-white flex flex-col p-6 gap-6 z-50 shadow-lg">
           {/* Cerrar con botón arriba */}
           <button
             className="self-end text-3xl font-bold"
-            onClick={() => setMobileMenuOpen(false)}
+            onClick={() => setmenuMobil(false)}
             aria-label="Close menu"
           >
             ✕

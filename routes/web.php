@@ -57,9 +57,9 @@ Route::get('/sobre-nosotros', function () {
     return Inertia::render('sobreNosotros');
 })->name('sobre-nosotros');
 
-Route::get('/contacto', function () {
-    return Inertia::render('contacto');
-})->name('contacto');
+Route::get('/destinos', function () {
+    return Inertia::render('destinos');
+})->name('destinos');
 
 // Rutas para billetes:
 Route::post('/billetes/preparar-pago', [BilleteController::class, 'prepararPago'])->name('billetes.preparar_pago');
