@@ -102,20 +102,17 @@ export default function Destinos() {
       <Head title="Destinos Recomendados" />
       <Header activePage="destinos" />
 
-      {/* Hero Banner */}
       <div
         className="w-full h-[30vh] bg-cover bg-center"
         style={{ backgroundImage: "url('/img/destinos/herobanner_desktop.png')" }}
       />
 
-      {/* Title just below */}
       <div className="mt-4 text-center">
         <h1 className="text-4xl md:text-5xl font-bold text-blue-600">
           ¿Estás planeando un viaje?
         </h1>
       </div>
 
-      {/* Descriptive Text */}
       <div className="max-w-4xl mx-auto text-center py-12 px-4">
         <p className="text-xl text-gray-700 leading-relaxed">
           Nadie sabe más sobre un país o región que los expertos de las cámaras de turismo del lugar de destino. Por eso, nos hemos asociado con las cámaras de turismo oficiales de los destinos más recomendados de este año, para que puedas planear bien el viaje perfecto. A continuación encontrarás enlaces a toda la inspiración y las ideas que necesitarás sobre los mejores lugares a los que viajar, actividades que realizar, sitios que ver y mucho más...
@@ -125,7 +122,6 @@ export default function Destinos() {
         </p>
       </div>
 
-      {/* Destinations Grid without links */}
       <div className="max-w-7xl mx-auto px-4 pb-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {destinos.map((d, i) => (

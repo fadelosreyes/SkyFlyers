@@ -13,7 +13,6 @@ class AvionController extends Controller
     {
         $query = Avion::with('aerolinea');
 
-        // Búsqueda insensible a mayúsculas/minúsculas en 'modelo' y 'matricula'
         if ($request->filled('search')) {
             $term = $request->search;
             $query->where(function($q) use ($term) {
@@ -22,14 +21,12 @@ class AvionController extends Controller
             });
         }
 
-        // Ordenación dinámica (solo por 'id' o 'modelo')
         $sortField = in_array($request->get('sortField'), ['id', 'modelo'])
             ? $request->get('sortField')
             : 'id';
         $sortDirection = $request->get('sortDirection') === 'desc' ? 'desc' : 'asc';
         $query->orderBy($sortField, $sortDirection);
 
-        // Paginación 20 por página, conservando filtros
         $aviones    = $query->paginate(20)->withQueryString();
         $aerolineas = Aerolinea::orderBy('nombre')->get();
 

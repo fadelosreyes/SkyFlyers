@@ -15,7 +15,6 @@ public function index(Request $request)
 {
     $query = Pais::query();
 
-    // Filtrado por búsqueda en nombre o código ISO
     if ($request->filled('search')) {
         $search = $request->search;
         $query->where(function($q) use ($search) {
@@ -24,7 +23,6 @@ public function index(Request $request)
         });
     }
 
-    // Campos permitidos para ordenar
     $allowedSortFields = ['nombre', 'codigo_iso'];
     $sortField = $request->get('sortField', 'nombre');
     $sortOrder = strtolower($request->get('sortOrder', 'asc'));
@@ -37,13 +35,10 @@ public function index(Request $request)
         $sortOrder = 'asc';
     }
 
-    // Aplicar ordenación
     $query->orderBy($sortField, $sortOrder);
 
-    // Paginación de 20 por página
     $paises = $query->paginate(20)->withQueryString();
 
-    // Retornar vista Inertia con datos y filtros actuales
     return Inertia::render('Admin/PaisesIndex', [
         'filters' => [
             'search' => $request->search,

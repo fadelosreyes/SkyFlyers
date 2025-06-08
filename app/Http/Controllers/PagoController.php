@@ -51,22 +51,19 @@ class PagoController extends Controller
             $asientoIda    = $p['asiento_ida'] ?? null;
             $asientoVuelta = $p['asiento_vuelta'] ?? null;
 
-            //
+
             // A) BILLETE DE IDA
-            //
+
             if (!empty($asientoIda)) {
-                // 1) Verificar que el asiento de ida esté libre
                 $asientoObjIda = Asiento::findOrFail($asientoIda);
                 if ($asientoObjIda->estado_id !== 1) {
                     abort(409, "El asiento {$asientoIda} no está disponible para la ida.");
                 }
 
-                // 2) Calcular subtotal de ida (precio_base + recargos + cancelación global)
                 $subtotalIda = $asientoObjIda->precio_base;
                 $subtotalIda += (!empty($p['maleta_adicional_ida'])) ? 20 : 0;
                 $subtotalIda += $cancelacionFlexibleGlobal ? 15 : 0;
 
-                // 3) Generar PNR y código QR para la ida
                 $pnrIda        = strtoupper(Str::random(10));
                 $contenidoQRIda = 'PNR: ' . $pnrIda;
                 $nombreArchivoQRIda = 'qrcodes/' . $pnrIda . '.svg';
@@ -76,11 +73,9 @@ class PagoController extends Controller
                     QrCode::format('svg')->size(300)->generate($contenidoQRIda)
                 );
 
-                // 4) Marcar el asiento de ida como “ocupado” ANTES de crear el billete
                 $asientoObjIda->estado_id = 2;
                 $asientoObjIda->save();
 
-                // 5) Crear el billete de ida
                 $billeteIda = Billete::create([
                     'user_id'               => Auth::id(),
                     'nombre_pasajero'       => $p['nombre_pasajero'],
@@ -102,28 +97,23 @@ class PagoController extends Controller
                 $billetesCreados[] = $billeteIda;
             }
 
-            //
+
             // B) BILLETE DE VUELTA (si existe asiento_vuelta y es diferente al de ida)
-            //
+
             if (!empty($asientoVuelta)) {
-                // Si por accidente "asiento_vuelta" coincide con "asiento_ida", no la creamos de nuevo
                 if ($asientoVuelta == $asientoIda) {
-                    // Puedes lanzar excepción o simplemente saltar a la siguiente iteración.
                     abort(409, "El asiento de vuelta no puede ser el mismo que el de ida.");
                 }
 
-                // 1) Verificar que el asiento de vuelta esté libre
                 $asientoObjVuelta = Asiento::findOrFail($asientoVuelta);
                 if ($asientoObjVuelta->estado_id !== 1) {
                     abort(409, "El asiento {$asientoVuelta} no está disponible para la vuelta.");
                 }
 
-                // 2) Calcular subtotal de vuelta (precio_base + recargos + cancelación)
                 $subtotalVuelta = $asientoObjVuelta->precio_base;
                 $subtotalVuelta += (!empty($p['maleta_adicional_vuelta'])) ? 20 : 0;
                 $subtotalVuelta += $cancelacionFlexibleGlobal ? 15 : 0;
 
-                // 3) Generar PNR y QR para la vuelta
                 $pnrVuelta        = strtoupper(Str::random(10));
                 $contenidoQRVuelta = 'PNR: ' . $pnrVuelta;
                 $nombreArchivoQRVuelta = 'qrcodes/' . $pnrVuelta . '.svg';
@@ -133,11 +123,9 @@ class PagoController extends Controller
                     QrCode::format('svg')->size(300)->generate($contenidoQRVuelta)
                 );
 
-                // 4) Marcar el asiento de vuelta como “ocupado”
                 $asientoObjVuelta->estado_id = 2;
                 $asientoObjVuelta->save();
 
-                // 5) Crear el billete de vuelta
                 $billeteVuelta = Billete::create([
                     'user_id'               => Auth::id(),
                     'nombre_pasajero'       => $p['nombre_pasajero'],
@@ -160,9 +148,9 @@ class PagoController extends Controller
             }
         }
 
-        //
+
         // C) Recuperamos los billetes ya creados para enviarlos por correo y mostrarlos en pantalla
-        //
+
         $billetes = Billete::whereIn('id', collect($billetesCreados)->pluck('id'))
             ->with('asiento.vuelo.aeropuertoOrigen', 'asiento.vuelo.aeropuertoDestino')
             ->get();
@@ -207,11 +195,9 @@ class PagoController extends Controller
 
         Stripe::setApiKey(env('STRIPE_SECRET'));
 
-        // Tomamos el stripe_session_id del primer billete para cancelar TODOS con ese mismo stripe_session_id
         $stripeSessionId = $billetes->first()->stripe_session_id;
 
         try {
-            // Reembolsamos la sesión solo una vez
             $session = \Stripe\Checkout\Session::retrieve($stripeSessionId);
             $paymentIntentId = $session->payment_intent;
 
@@ -221,7 +207,6 @@ class PagoController extends Controller
             return back()->with('error', 'No se pudo realizar el reembolso.');
         }
 
-        // Ahora soft delete a todos los billetes con ese stripe_session_id
         $billetesParaCancelar = Billete::where('stripe_session_id', $stripeSessionId)->get();
 
         $errores = [];

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Head } from '@inertiajs/react';
 import Header from '@/Components/Header';
 
-function AccordionItem({ title, children, isOpen, onClick }) {
+function Acordeon({ title, children, abierto, onClick }) {
   return (
     <div className="mb-4 bg-white rounded-lg shadow">
       <button
@@ -12,7 +12,7 @@ function AccordionItem({ title, children, isOpen, onClick }) {
         <span className="text-lg font-medium text-gray-800 font-bold">{title}</span>
         <svg
           className={`w-5 h-5 text-gray-600 transform transition-transform ${
-            isOpen ? 'rotate-180' : ''
+            abierto ? 'rotate-180' : ''
           }`}
           fill="none"
           stroke="currentColor"
@@ -24,7 +24,7 @@ function AccordionItem({ title, children, isOpen, onClick }) {
 
       <div
         className={`px-6 overflow-hidden transition-max-h duration-300 ${
-          isOpen ? 'max-h-screen py-4' : 'max-h-0'
+          abierto ? 'max-h-screen py-4' : 'max-h-0'
         }`}
       >
         <div className="text-gray-700 leading-relaxed">{children}</div>
@@ -76,11 +76,11 @@ export default function QuienesSomos() {
                 className="rounded-lg shadow w-full h-auto object-cover"
               />
             </div>
-            <div className="lg:w-1/2 space-y-8"> {/* Más separación entre AccordionItem */}
+            <div className="lg:w-1/2 space-y-8"> {/* Más separación entre Acordeon */}
 
-              <AccordionItem
+              <Acordeon
                 title="Cancelación de Vuelos"
-                isOpen={openIndex === 0}
+                abierto={openIndex === 0}
                 onClick={() => toggleIndex(0)}
               >
                 <p>
@@ -93,11 +93,11 @@ export default function QuienesSomos() {
                   <li>Proceso 100% online: gestiona tu cancelación desde tu cuenta.</li>
                   <li>Atención personalizada: nuestro equipo te asesorará en cada paso.</li>
                 </ul>
-              </AccordionItem>
+              </Acordeon>
 
-              <AccordionItem
+              <Acordeon
                 title="Cambios de Vuelos"
-                isOpen={openIndex === 1}
+                abierto={openIndex === 1}
                 onClick={() => toggleIndex(1)}
               >
                 <p>
@@ -110,11 +110,11 @@ export default function QuienesSomos() {
                   <li>Cambios hasta 24 h antes de la salida.</li>
                   <li>Sin sorpresas: verás la diferencia de precio antes de confirmar.</li>
                 </ul>
-              </AccordionItem>
+              </Acordeon>
 
-              <AccordionItem
+              <Acordeon
                 title="Equipaje"
-                isOpen={openIndex === 2}
+                abierto={openIndex === 2}
                 onClick={() => toggleIndex(2)}
               >
                 <p>
@@ -127,11 +127,11 @@ export default function QuienesSomos() {
                   <li>Maleta de mano y facturada con hasta 30 kg.</li>
                   <li>Seguro por pérdida o retraso de equipaje incluido.</li>
                 </ul>
-              </AccordionItem>
+              </Acordeon>
 
-              <AccordionItem
+              <Acordeon
                 title="Hoteles"
-                isOpen={openIndex === 3}
+                abierto={openIndex === 3}
                 onClick={() => toggleIndex(3)}
               >
                 <p>
@@ -145,7 +145,7 @@ export default function QuienesSomos() {
                   <li>Opiniones reales de otros viajeros.</li>
                   <li>Atención 24/7 si necesitas ayuda con tu reserva.</li>
                 </ul>
-              </AccordionItem>
+              </Acordeon>
             </div>
           </div>
         </div>

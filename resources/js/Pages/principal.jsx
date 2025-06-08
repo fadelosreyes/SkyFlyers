@@ -298,7 +298,6 @@ export default function Principal({ auth }) {
                         </div>
                     </div>
 
-                    {/* Fechas y Pasajeros */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[1em]">
                         <div>
                             <input

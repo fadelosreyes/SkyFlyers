@@ -16,19 +16,16 @@ class AerolineaController extends Controller
     {
         $query = Aerolinea::with('pais');
 
-        // Búsqueda por nombre
         if ($request->filled('search')) {
             $query->where('nombre', 'ilike', '%' . $request->search . '%');
         }
 
-        // Ordenación dinámica (solo permitimos 'id' o 'nombre')
         $sortField = in_array($request->get('sortField'), ['id', 'nombre'])
             ? $request->get('sortField')
             : 'id';
         $sortDirection = $request->get('sortDirection') === 'desc' ? 'desc' : 'asc';
         $query->orderBy($sortField, $sortDirection);
 
-        // Paginación: 20 por página, manteniendo los parámetros en la query string
         $aerolineas = $query->paginate(20)->withQueryString();
         $paises     = Pais::orderBy('nombre')->get();
 

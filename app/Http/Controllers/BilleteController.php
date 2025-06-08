@@ -34,7 +34,6 @@ class BilleteController extends Controller
 
         $billetes = $query->orderBy('id', 'desc')->paginate(10)->withQueryString();
 
-        // Para mostrar nombre o info del user y asiento:
         $users = User::all(['id', 'name']);
         $asientos = Asiento::all(['id', 'numero']);
 
@@ -71,17 +70,14 @@ class BilleteController extends Controller
      */
     public function destroy(Billete $billete)
     {
-        // Supongamos que el estado "libre" tiene id = 1, cambia por el que corresponda
         $estadoLibreId = 1;
 
-        // Actualizar el estado del asiento a "libre"
         $asiento = $billete->asiento;
         if ($asiento) {
             $asiento->estado_id = $estadoLibreId;
             $asiento->save();
         }
 
-        // Eliminar el billete
         $billete->delete();
 
         return redirect()->route('billetes.index')->with('success', 'Billete eliminado correctamente y asiento liberado.');
@@ -90,7 +86,6 @@ class BilleteController extends Controller
 
     public function asientos(Request $request)
     {
-        // 1) VIAJE IDA Y VUELTA
         $vueloIdaId      = $request->input('vuelo_ida');
         $asientosIda     = $request->input('seats_ida', []);
         $vueloVueltaId  = $request->input('vuelo_vuelta');
@@ -98,14 +93,12 @@ class BilleteController extends Controller
         //dd($request->all());
 
         if (is_numeric($vueloIdaId) && is_numeric($vueloVueltaId)) {
-            // Si falta seleccionar asiento en alguno de los dos tramos, redirijo a la selección de ida
             if (empty($asientosIda) || empty($asientosVuelta)) {
                 return redirect()
                     ->route('seleccionar.asientos', ['id' => $vueloIdaId])
                     ->with('error', 'Debes seleccionar al menos un asiento en cada tramo.');
             }
 
-            // Cargo datos de ambos tramos
             $vueloIda                    = Vuelo::findOrFail($vueloIdaId);
             $vueloVuelta                 = Vuelo::findOrFail($vueloVueltaId);
             $asientosSeleccionadosIda    = Asiento::whereIn('id', $asientosIda)->get();

@@ -25,13 +25,12 @@ class AeropuertoController extends Controller
             });
         }
 
-        // Ordenar por columna y dirección
-        $sortBy = $request->input('sortBy', 'id'); // por defecto: id
-        $sortDir = $request->input('sortDir', 'asc'); // por defecto: asc
+        $sortBy = $request->input('sortBy', 'id');
+        $sortDir = $request->input('sortDir', 'asc');
 
         $aeropuertos = $query->orderBy($sortBy, $sortDir)
             ->paginate(20)
-            ->withQueryString(); // Mantiene los filtros en la paginación
+            ->withQueryString(); 
 
         return Inertia::render('Admin/AeropuertosIndex', [
             'aeropuertos' => $aeropuertos,

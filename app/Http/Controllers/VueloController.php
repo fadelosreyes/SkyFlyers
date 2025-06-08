@@ -72,7 +72,6 @@ class VueloController extends Controller
         $estadoOcupado = Estado::firstOrCreate(['nombre' => 'Ocupado'], ['descripcion' => 'Asiento ocupado']);
         $clases = Clase::all()->keyBy('nombre');
 
-        // Eliminar asientos previos por si acaso (aunque debería ser vuelo nuevo)
         Asiento::where('vuelo_id', $vuelo->id)->delete();
 
         $avion = $vuelo->avion;
@@ -141,16 +140,13 @@ class VueloController extends Controller
             }
         }
 
-        // Verificar si cambia el avión para recrear los asientos
         $avionCambio = $vuelo->avion_id != $validated['avion_id'];
 
         $vuelo->update($validated);
 
         if ($avionCambio) {
-            // Eliminar asientos anteriores
             Asiento::where('vuelo_id', $vuelo->id)->delete();
 
-            // Crear nuevos asientos según el nuevo avión
             $this->crearAsientosParaVuelo($vuelo);
         }
 
@@ -164,10 +160,8 @@ class VueloController extends Controller
     {
         $vuelo = Vuelo::findOrFail($id);
 
-        // Eliminar asientos asociados antes
         $vuelo->asientos()->delete();
 
-        // Ahora elimina el vuelo
         $vuelo->delete();
 
         return redirect()->back()->with('success', 'Vuelo eliminado correctamente');
@@ -175,17 +169,29 @@ class VueloController extends Controller
 
 
     public function resultados(Request $request)
-    {
-        $origen = $request->input('origen');
-        $destino = $request->input('destino');
-        $startDate = \Carbon\Carbon::parse($request->input('start_date'))->startOfDay();
-        $endDate = $request->input('end_date') ? \Carbon\Carbon::parse($request->input('end_date'))->startOfDay() : null;
-        $tipoVuelo = $request->input('tipo_vuelo', 'roundtrip');
-        $isRoundTrip = $tipoVuelo === 'roundtrip';
-        $passengers = (int) $request->input('pasajeros', 1);
+{
+    $origen      = $request->input('origen');
+    $destino     = $request->input('destino');
+    $startDate   = \Carbon\Carbon::parse($request->input('start_date'))->startOfDay();
+    $endDate     = $request->input('end_date')
+                   ? \Carbon\Carbon::parse($request->input('end_date'))->startOfDay()
+                   : null;
+    $tipoVuelo   = $request->input('tipo_vuelo', 'roundtrip');
+    $isRoundTrip = $tipoVuelo === 'roundtrip';
+    $passengers  = (int) $request->input('pasajeros', 1);
 
-        // Vuelos de ida: buscar entre las 00:00 y 23:59 del día de salida
-        $vuelosIda = Vuelo::with([
+    // Hora actual
+    $now = \Carbon\Carbon::now();
+
+    // --- Rango de búsqueda para ida ---
+    $idaDesde = $startDate->copy();
+    // Si es hoy, empieza en "ahora"
+    if ($startDate->isSameDay($now)) {
+        $idaDesde = $now;
+    }
+    $idaHasta = $startDate->copy()->endOfDay();
+
+    $vuelosIda = Vuelo::with([
             'aeropuertoOrigen',
             'aeropuertoDestino',
             'avion.aerolinea',
@@ -193,28 +199,29 @@ class VueloController extends Controller
                 $query->where('estado_id', 1);
             },
         ])
-            ->where('aeropuerto_origen_id', $origen)
-            ->where('aeropuerto_destino_id', $destino)
-            ->whereBetween('fecha_salida', [$startDate->copy(), $startDate->copy()->endOfDay()])
-            ->whereHas(
-                'asientos',
-                function ($q) use ($passengers) {
-                    $q->where('estado_id', 1);
-                },
-                '>=',
-                $passengers,
-            )
-            ->paginate(3)
-            ->through(function ($vuelo) {
-                $vuelo->precio_minimo = $vuelo->asientos->min('precio_base');
-                $vuelo->plazas_libres = $vuelo->asientos->count();
-                return $vuelo;
-            });
-        //dd($vuelosIda);
-        // Vuelos de vuelta (solo si es ida y vuelta)
-        $vuelosVuelta = null;
-        if ($isRoundTrip && $endDate) {
-            $vuelosVuelta = Vuelo::with([
+        ->where('aeropuerto_origen_id', $origen)
+        ->where('aeropuerto_destino_id', $destino)
+        ->whereBetween('fecha_salida', [$idaDesde, $idaHasta])
+        ->whereHas('asientos', function ($q) use ($passengers) {
+            $q->where('estado_id', 1);
+        }, '>=', $passengers)
+        ->paginate(3)
+        ->through(function ($vuelo) {
+            $vuelo->precio_minimo  = $vuelo->asientos->min('precio_base');
+            $vuelo->plazas_libres = $vuelo->asientos->count();
+            return $vuelo;
+        });
+
+    // --- Vuelos de vuelta (solo si es roundtrip y hay endDate) ---
+    $vuelosVuelta = null;
+    if ($isRoundTrip && $endDate) {
+        $vueltaDesde = $endDate->copy();
+        if ($endDate->isSameDay($now)) {
+            $vueltaDesde = $now;
+        }
+        $vueltaHasta = $endDate->copy()->endOfDay();
+
+        $vuelosVuelta = Vuelo::with([
                 'aeropuertoOrigen',
                 'aeropuertoDestino',
                 'avion.aerolinea',
@@ -222,34 +229,30 @@ class VueloController extends Controller
                     $query->where('estado_id', 1);
                 },
             ])
-                ->where('aeropuerto_origen_id', $destino)
-                ->where('aeropuerto_destino_id', $origen)
-                ->whereBetween('fecha_salida', [$endDate->copy(), $endDate->copy()->endOfDay()])
-                ->whereHas(
-                    'asientos',
-                    function ($q) use ($passengers) {
-                        $q->where('estado_id', 1);
-                    },
-                    '>=',
-                    $passengers,
-                )
-                ->paginate(3)
-                ->through(function ($vuelo) {
-                    $vuelo->precio_minimo = $vuelo->asientos->min('precio_base');
-                    $vuelo->plazas_libres = $vuelo->asientos->count();
-                    return $vuelo;
-                });
-        }
-
-        return Inertia::render('resultados', [
-            'vuelosIda' => $vuelosIda,
-            'vuelosVuelta' => $vuelosVuelta,
-            'startDate' => $startDate->toDateString(),
-            'endDate' => $endDate ? $endDate->toDateString() : null,
-            'passengers' => $passengers,
-            'tipo_vuelo' => $tipoVuelo,
-        ]);
+            ->where('aeropuerto_origen_id', $destino)
+            ->where('aeropuerto_destino_id', $origen)
+            ->whereBetween('fecha_salida', [$vueltaDesde, $vueltaHasta])
+            ->whereHas('asientos', function ($q) use ($passengers) {
+                $q->where('estado_id', 1);
+            }, '>=', $passengers)
+            ->paginate(3)
+            ->through(function ($vuelo) {
+                $vuelo->precio_minimo  = $vuelo->asientos->min('precio_base');
+                $vuelo->plazas_libres = $vuelo->asientos->count();
+                return $vuelo;
+            });
     }
+
+    return Inertia::render('resultados', [
+        'vuelosIda'    => $vuelosIda,
+        'vuelosVuelta' => $vuelosVuelta,
+        'startDate'    => $startDate->toDateString(),
+        'endDate'      => $endDate ? $endDate->toDateString() : null,
+        'passengers'   => $passengers,
+        'tipo_vuelo'   => $tipoVuelo,
+    ]);
+}
+
 
     public function seleccionarAsientos(Request $request, $id)
     {
@@ -262,7 +265,6 @@ class VueloController extends Controller
 
         $idVuelta = $request->query('idVuelta'); // null si no se pasó
 
-        // Cargamos también la relación avion para leer filas/asientos_por_fila_*:
         $vuelo = Vuelo::with(['avion', 'asientos.clase', 'asientos.estado'])->findOrFail($id);
 
         return Inertia::render('SeleccionarAsientos', [
@@ -297,7 +299,6 @@ class VueloController extends Controller
     }
 
 
-    // --- Nuevo: recupera de sesión los datos de la selección de "ida" ---
     public function obtenerSeleccionIda(Request $request)
     {
         //  Log::info('Sesión de ida recuperada:', [
@@ -322,7 +323,7 @@ class VueloController extends Controller
                 'aeropuertoOrigen',
                 'aeropuertoDestino',
                 'asientos' => function ($query) {
-                    $query->where('estado_id', 1); // solo asientos libres
+                    $query->where('estado_id', 1);
                 },
             ])
             ->get()
@@ -352,13 +353,11 @@ class VueloController extends Controller
     {
         $userId = Auth::id();
 
-        // Obtener todos los billetes del usuario con sus vuelos relacionados
         $billetes = Billete::with(['asiento.vuelo.avion.aerolinea', 'asiento.vuelo.aeropuertoOrigen', 'asiento.vuelo.aeropuertoDestino'])
 
             ->where('user_id', $userId)
             ->get();
 
-        // Extraer los vuelos desde los billetes
         $vuelos = $billetes
             ->map(fn($billete) => $billete->asiento->vuelo ?? null)
             ->filter()

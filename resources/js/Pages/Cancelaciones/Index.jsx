@@ -19,7 +19,6 @@ export default function Index({ grupos }) {
         {
           preserveScroll: true,
           onSuccess: () => {
-            // Opcional: mostrar notificación de éxito
           },
           onError: () => {
             alert(t('billetes_index.cancelacion_error'));
@@ -33,7 +32,7 @@ export default function Index({ grupos }) {
 
   return (
     <>
-    
+
       <Header activePage="#" />
       <div className="container mx-auto p-6">
         <h1 className="text-3xl font-bold mb-6">{t('billetes_index.titulo')}</h1>
@@ -44,13 +43,11 @@ export default function Index({ grupos }) {
 
         <div className="space-y-10">
           {grupos.map((grupo, idx) => {
-            // Extraemos los IDs de vuelo (ida siempre existe; vuelta puede ser null)
             const vuelosParaCancelar = [grupo.ida.vuelo.id];
             if (grupo.vuelta) {
               vuelosParaCancelar.push(grupo.vuelta.vuelo.id);
             }
 
-            // Determinamos si hay al menos un billete con cancelacion_flexible en el grupo:
             const idaFlexible = grupo.ida.billetes.some(b => b.cancelacion_flexible);
             const vueltaFlexible =
               grupo.vuelta?.billetes.some(b => b.cancelacion_flexible) || false;
@@ -69,7 +66,6 @@ export default function Index({ grupos }) {
                   )}
                 </h2>
 
-                {/* — Sección IDA — */}
                 <div className="mb-6">
                   <h3 className="text-lg font-medium mb-2">
                     {t('billetes_index.ida')}
@@ -130,7 +126,6 @@ export default function Index({ grupos }) {
                   </div>
                 </div>
 
-                {/* — Sección VUELTA (solo si existe) — */}
                 {grupo.vuelta && (
                   <div className="mb-6">
                     <h3 className="text-lg font-medium mb-2">
@@ -193,7 +188,6 @@ export default function Index({ grupos }) {
                   </div>
                 )}
 
-                {/* — Botón global “Cancelar viaje” solo si hay algún billete con cancelación flexible — */}
                 {puedeCancelarViaje && (
                   <div className="mt-6">
                     <button
@@ -209,7 +203,6 @@ export default function Index({ grupos }) {
           })}
         </div>
 
-        {/* — Enlace de “Volver al inicio” — */}
         <div className="mt-10">
           <Link
             href="/"
