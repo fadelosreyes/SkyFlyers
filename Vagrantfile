@@ -7,6 +7,8 @@ Vagrant.configure("2") do |config|
   config.vm.network "private_network", ip: "192.168.56.10"
   config.vm.network "public_network"
 
+  config.vm.network "forwarded_port", guest: 8025, host: 8025
+
   # Provisioning script
   config.vm.provision "shell", inline: <<-SHELL
     # Update package lists and install prerequisites
@@ -30,10 +32,10 @@ Vagrant.configure("2") do |config|
     sudo a2enmod rewrite
     sudo a2dissite 000-default.conf
     sudo systemctl restart apache2
-
+    sudo sh < <(curl -sL https://raw.githubusercontent.com/axllent/mailpit/develop/install.sh)
     # Configure PostgreSQL user and database
-    sudo -u postgres psql -c "CREATE USER SkyFlyers WITH PASSWORD '1234';"
-    sudo -u postgres psql -c "CREATE DATABASE \"SkyFlyers\" OWNER SkyFlyers;"
+    sudo -u postgres psql -c "CREATE USER skyflyers WITH PASSWORD '1234';"
+    sudo -u postgres psql -c "CREATE DATABASE \"skyFlyers\" OWNER skyflyers;"
 
     # Set up project directory and permissions
     sudo rm -rf /var/www/skyflyers
