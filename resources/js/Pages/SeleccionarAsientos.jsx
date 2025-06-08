@@ -16,6 +16,7 @@ export default function SeleccionarAsientos({
     claseSeleccionada: claseInicial
 }) {
     const { t } = useTranslation();
+    console.log("Datos del avión:", vuelo.avion);
 
     // 1) Determinar si es ida/vuelta
     const esRoundTrip = Boolean(idVuelta);
@@ -71,11 +72,16 @@ export default function SeleccionarAsientos({
 
     // Convertimos a entero y sumamos 1:
     const columnasTotales =
-        claseSeleccionada === 'turista'
-            ? parseInt(rawTurista, 10) + 1
-            : claseSeleccionada === 'business'
-                ? parseInt(rawBusiness, 10) + 1
-                : parseInt(rawPrimera, 10) + 1;
+    claseSeleccionada === 'turista'
+        ? parseInt(rawTurista || 6, 10) + 1
+        : claseSeleccionada === 'business'
+            ? parseInt(rawBusiness || 4, 10) + 1
+            : parseInt(rawPrimera || 2, 10) + 1;
+        console.log('Valores de columnas por clase:');
+console.log('rawTurista:', rawTurista);
+console.log('rawBusiness:', rawBusiness);
+console.log('rawPrimera:', rawPrimera);
+console.log('Clase seleccionada:', claseSeleccionada);
 
     // 8) Agrupar asientos por filas
     const filas = {};

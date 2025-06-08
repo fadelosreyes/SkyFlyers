@@ -12,7 +12,7 @@ class AvionSeeder extends Seeder
     {
         // Valores por defecto para las clases Primera y Business
         $filasPrimeraDefault            = 4;
-        $asientosPorFilaPrimeraDefault  = 4;
+        $asientosPorFilaPrimeraDefault  = 2;
         $filasBusinessDefault           = 6;
         $asientosPorFilaBusinessDefault = 4;
 

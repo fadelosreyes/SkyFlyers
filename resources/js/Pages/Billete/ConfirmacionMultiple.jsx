@@ -77,7 +77,7 @@ export default function ConfirmacionMultiple({ billetes }) {
 
                 <div className="space-y-6">
                     {billetes.map((billete) => (
-                        <div key={billete.id} className="border rounded p-4 shadow-sm bg-white">
+                        <div key={billete.id} className="border border-gray-300 rounded-lg p-6 shadow-md bg-gray-100">
                             <p><strong>{t('billetes_multiples.pasajero')}:</strong> {billete.nombre_pasajero}</p>
                             <p><strong>{t('billetes_multiples.documento')}:</strong> {billete.documento_identidad}</p>
                             <p><strong>{t('billetes_multiples.pnr')}:</strong> {billete.pnr}</p>
