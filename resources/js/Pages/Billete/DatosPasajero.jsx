@@ -5,12 +5,9 @@ import { route } from 'ziggy-js';
 import { useTranslation } from 'react-i18next';
 
 export default function PassengerData({
-  vueloIda = null,
   asientosSeleccionadosIda = [],
   vueloVuelta = null,
   asientosSeleccionadosVuelta = [],
-  totalBaseIda = 0,
-  totalBaseVuelta = 0,
 }) {
   const { t, i18n } = useTranslation();
 

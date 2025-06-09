@@ -29,17 +29,17 @@ export default function ConfirmacionMultiple({ billetes }) {
 
         const primerBillete = billetesOrdenados[0];
         const ultimoBillete = billetesOrdenados[billetesOrdenados.length - 1];
-        const destino = primerBillete.aeropuerto_destino || '';
+        const destino = primerBillete.aeropuerto_destino;
 
         if (!destino) {
             return 'https://www.booking.com/';
         }
-
+        // Calculamos el número de adultos en base a documentos únicos o nombre de pasajero
         const pasajerosUnicos = new Set(
             billetes.map(b => b.documento_identidad || b.nombre_pasajero)
         );
         const adultos = pasajerosUnicos.size;
-
+        // Función auxiliar para extraer año, mes y día de la cadena ISO o formato 'YYYY-MM-DD HH:mm'
         const extractParts = (isoStr) => {
             const fecha = isoStr.includes('T')
                 ? isoStr.split('T')[0]

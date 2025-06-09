@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 export default function Principal({ auth }) {
     const { t } = useTranslation();
 
+    // Estado para manejar la búsqueda y selección de aeropuertos de origen y destino
     const [originQuery, setOriginQuery] = useState('');
     const [destQuery, setDestQuery] = useState('');
     const [originList, setOriginList] = useState([]);
@@ -30,12 +31,18 @@ export default function Principal({ auth }) {
         passengers: '',
     });
 
+    // Referencias para detectar clics fuera
     const originRef = useRef();
     const destRef = useRef();
+
+    // Obtener la fecha actual en formato YYYY-MM-DD
     const today = new Date().toISOString().split('T')[0];
+
+    // Array de imagenes para mostrar en un carrusel
     const imagenes = ['/img/image.png', '/img/index2.png'];
     const [imagenActual, setImagenActual] = useState(0);
 
+    // Efecto para rotar imágenes automáticamente cada 4 segundos
     useEffect(() => {
         const intervalo = setInterval(() => {
             setImagenActual((prev) => (prev + 1) % imagenes.length);
@@ -43,6 +50,7 @@ export default function Principal({ auth }) {
         return () => clearInterval(intervalo);
     }, []);
 
+    // Efecto para buscar sugerencias de origen tras un pequeño retraso (300ms)
     useEffect(() => {
         const handler = setTimeout(() => {
             if (originQuery.length < 2) {
@@ -59,6 +67,7 @@ export default function Principal({ auth }) {
         return () => clearTimeout(handler);
     }, [originQuery]);
 
+    // Efecto similar para las sugerencias de destino
     useEffect(() => {
         const handler = setTimeout(() => {
             if (destQuery.length < 2) {
@@ -75,6 +84,7 @@ export default function Principal({ auth }) {
         return () => clearTimeout(handler);
     }, [destQuery]);
 
+    // Efecto para ocultar las listas de sugerencias si se hace clic fuera de los inputs
     useEffect(() => {
         const onClickOutside = (e) => {
             if (originRef.current && !originRef.current.contains(e.target)) {
@@ -96,6 +106,7 @@ export default function Principal({ auth }) {
     }, [soloIda]);
 
     const handleSearch = () => {
+        // Validaciones del formulario
         const newErrors = {
             origin: !originSelected ? t('home.errors.origin') : '',
             dest: !destSelected ? t('home.errors.dest') : '',

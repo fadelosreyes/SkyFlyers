@@ -157,7 +157,9 @@
     "confirmar_ida": "Confirm selection",
     "cancelar": "Cancel",
     "modo_cambio": "Change seat",
-    "exito_cambio": "Change seat succes"
+    "exito_cambio": "Change seat succes",
+    "titulo_ida": "Outbound Flight",
+    "titulo_vuelta": "Return Flight"
   },
   "clases": {
     "turista": "Economy",

@@ -352,19 +352,23 @@ console.log('Clase seleccionada:', claseSeleccionada);
 
                 {/* ---------- MENÚ LATERAL ---------- */}
                 <div className="contenedor-menu">
-                    {modoCambio && (
-                        <h3
-                            style={{
-                                fontSize: '1.5rem',
-                                textAlign: 'center',
-                                margin: '20px 20px',
-                                fontWeight: 'bold',
-                                color: '#333',
-                            }}
-                        >
-                            {t('seleccionar_asientos.modo_cambio')}
-                        </h3>
-                    )}
+                    <h3
+                      style={{
+                        textAlign: 'center',
+                        margin: '1.5rem 0',
+                        fontSize: '1.5rem',
+                        fontWeight: 'bold',
+                        color: modoCambio ? '#333' : undefined,
+                      }}
+                    >
+                      {modoCambio
+                        ? t('seleccionar_asientos.modo_cambio')
+                        : esRoundTrip
+                          ? isSeleccionVuelta
+                            ? t('seleccionar_asientos.titulo_vuelta')
+                            : t('seleccionar_asientos.titulo_ida')
+                          : t('seleccionar_asientos.titulo')}
+                    </h3>
 
                     {!modoCambio && (
                         <>

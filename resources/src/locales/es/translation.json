@@ -138,7 +138,8 @@
     "confirmar_ida": "Confirmar seleccion",
     "cancelar": "Cancelar",
     "modo_cambio": "Cambiar asiento",
-    "exito_cambio": "Asiento cambiado con exito"
+    "titulo_ida": "Vuelo de Ida",
+    "titulo_vuelta": "Vuelo de Vuelta"
   },
   "clases": {
     "turista": "Turista",
