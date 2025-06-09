@@ -93,5 +93,5 @@ SkyFlyers no solo está diseñado para usuarios finales. También cuenta con fun
 
 1. Clona el repositorio:
    ```bash
-   git clone https://github.com/tu_usuario/skyflyers.git
+   git clone https://github.com/fadelosreyes/skyflyers.git
    cd skyflyers
