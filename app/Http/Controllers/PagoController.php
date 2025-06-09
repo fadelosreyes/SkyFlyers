@@ -56,9 +56,6 @@ class PagoController extends Controller
 
             if (!empty($asientoIda)) {
                 $asientoObjIda = Asiento::findOrFail($asientoIda);
-                if ($asientoObjIda->estado_id !== 1) {
-                    abort(409, "El asiento {$asientoIda} no está disponible para la ida.");
-                }
 
                 $subtotalIda = $asientoObjIda->precio_base;
                 $subtotalIda += (!empty($p['maleta_adicional_ida'])) ? 20 : 0;
@@ -73,7 +70,7 @@ class PagoController extends Controller
                     QrCode::format('svg')->size(300)->generate($contenidoQRIda)
                 );
 
-                $asientoObjIda->estado_id = 2;
+                $asientoObjIda->reserva_temporal = null;
                 $asientoObjIda->save();
 
                 $billeteIda = Billete::create([
@@ -101,14 +98,9 @@ class PagoController extends Controller
             // B) BILLETE DE VUELTA (si existe asiento_vuelta y es diferente al de ida)
 
             if (!empty($asientoVuelta)) {
-                if ($asientoVuelta == $asientoIda) {
-                    abort(409, "El asiento de vuelta no puede ser el mismo que el de ida.");
-                }
+
 
                 $asientoObjVuelta = Asiento::findOrFail($asientoVuelta);
-                if ($asientoObjVuelta->estado_id !== 1) {
-                    abort(409, "El asiento {$asientoVuelta} no está disponible para la vuelta.");
-                }
 
                 $subtotalVuelta = $asientoObjVuelta->precio_base;
                 $subtotalVuelta += (!empty($p['maleta_adicional_vuelta'])) ? 20 : 0;
@@ -123,7 +115,7 @@ class PagoController extends Controller
                     QrCode::format('svg')->size(300)->generate($contenidoQRVuelta)
                 );
 
-                $asientoObjVuelta->estado_id = 2;
+                $asientoObjVuelta->reserva_temporal = null;
                 $asientoObjVuelta->save();
 
                 $billeteVuelta = Billete::create([

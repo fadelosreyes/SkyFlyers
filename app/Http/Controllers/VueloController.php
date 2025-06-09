@@ -265,6 +265,13 @@ class VueloController extends Controller
 
         $idVuelta = $request->query('idVuelta'); // null si no se pasó
 
+        $limite = Carbon::now()->subMinutes(10);
+        Asiento::where('estado_id', 2)
+            ->where('reserva_temporal', '<', $limite)
+            ->update([
+                'estado_id' => 1,
+                'reserva_temporal' => null,
+            ]);
         $vuelo = Vuelo::with(['avion', 'asientos.clase', 'asientos.estado'])->findOrFail($id);
 
         return Inertia::render('SeleccionarAsientos', [

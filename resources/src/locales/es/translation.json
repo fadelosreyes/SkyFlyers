@@ -60,11 +60,44 @@
     "noTripsYet": "No tienes viajes realizados todavía.",
     "back": "Volver"
   },
-  "aboutUs": {
-  "title": "Sobre Nosotros",
-  "description": "En SkyFlyer, somos tu aliado experto en la gestión de billetes de avión. Desde 2005 hemos simplificado la compra de tu vuelo, comparando precios de decenas de aerolíneas y ofreciendo las mejores tarifas disponibles en tiempo real. Nuestro compromiso es ahorrarte tiempo y dinero, para que solo te preocupes por disfrutar tu viaje.\n\nGracias a nuestra plataforma intuitiva y a un equipo dedicado de atención al cliente, podrás reservar, modificar o cancelar tu vuelo de manera rápida y segura. En SkyFlyer, tu comodidad y satisfacción están siempre en el centro de nuestro servicio, con atención personalizada y soporte 24/7 para resolver cualquier incidencia.",
-  "socials": ["Instagram", "Facebook", "Twitter", "YouTube", "LinkedIn", "Contáctanos"]
+  "destinos": {
+    "pregunta": "¿Estás planeando un viaje?",
+    "descripcion": "Nadie sabe más sobre un país o región que los expertos de las cámaras de turismo del lugar de destino. Por eso, nos hemos asociado con las cámaras de turismo oficiales de los destinos más recomendados de este año, para que puedas planear bien el viaje perfecto. A continuación encontrarás enlaces a toda la inspiración y las ideas que necesitarás sobre los mejores lugares a los que viajar, actividades que realizar, sitios que ver y mucho más...",
+    "disfrute": "¡Que disfrutes de la planificación de tu viaje!"
   },
+  "sobreNosotros": {
+    "titulo": "¿Quiénes somos?",
+    "descripcion1": "Skyflyers es una de las principales marcas de viajes online con sede en Barcelona, fundada en 1999. Desde entonces hemos revolucionado el sector de las reservas de viajes, usando tecnología de vanguardia para que viajar sea más cómodo y económico en 44 países.",
+    "descripcion2": "Desde España y Reino Unido hasta Estados Unidos, ayudamos a millones a volar mejor.",
+  "acordeon1": {
+    "titulo": "Cancelación de Vuelos",
+    "texto1": "Con nuestra cancelación flexible, puedes anular tu vuelo sin cargos adicionales hasta 3 días antes de la salida programada.",
+    "texto2": "Si necesitas cancelar con menos de 3 días de antelación, aplicamos unas tarifas reducidas y te ofrecemos la opción de obtener un crédito de viaje válido por 12 meses para que replanifiques sin perder tu inversión.",
+    "lista1": "Proceso 100% online: gestiona tu cancelación desde tu cuenta.",
+    "lista2": "Atención personalizada: nuestro equipo te asesorará en cada paso."
+  },
+  "acordeon2": {
+    "titulo": "Cambios de Vuelos",
+    "texto1": "¿Necesitas cambiar de fecha u hora? Con Skyflyers puedes modificar tu billete sin complicaciones siempre que haya plazas disponibles en la misma clase.",
+    "texto2": "Si no hay espacio en tu clase original, te ofrecemos opciones de upgrade con diferencias de tarifa mínimas o alternativas de rutas que se ajusten a tu presupuesto.",
+    "lista1": "Cambios hasta 24 h antes de la salida.",
+    "lista2": "Sin sorpresas: verás la diferencia de precio antes de confirmar."
+  },
+  "acordeon3": {
+    "titulo": "Equipaje",
+    "texto1": "Cada aerolínea tiene sus propias normas de peso y medidas, pero en Skyflyers te lo ponemos fácil: consulta toda la información en un solo clic.",
+    "texto2": "Ofrecemos paquetes de equipaje extra al mejor precio, desde maleta adicional hasta prioridad de embarque, con descuentos exclusivos por ser cliente Skyflyers.",
+    "lista1": "Maleta de mano y facturada con hasta 30 kg.",
+    "lista2": "Seguro por pérdida o retraso de equipaje incluido."
+  },
+  "acordeon4": {
+    "titulo": "Hoteles",
+    "texto1": "Reserva tu alojamiento al mejor precio gracias a nuestra alianza con Booking.com. Te mostramos ofertas exclusivas y habitaciones con cancelación gratuita.",
+    "texto2": "Personaliza tu búsqueda por precio, ubicación y servicios, y accede directamente al pago seguro en la plataforma de Booking. ¡Todo de forma transparente!",
+    "lista1": "Más de 2,1 millones de hoteles en todo el mundo.",
+    "lista2": "Opiniones reales de otros viajeros.",
+    "lista3": "Atención 24/7 si necesitas ayuda con tu reserva."
+  }},
   "results": {
   "title": "Resultados de vuelos",
   "from": "Desde",

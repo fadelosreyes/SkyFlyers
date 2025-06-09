@@ -2,8 +2,10 @@
 import React from 'react';
 import { Head } from '@inertiajs/react';
 import Header from '@/Components/Header';
+import { useTranslation } from 'react-i18next';
 
 export default function Destinos() {
+    const { t } = useTranslation();
   const destinos = [
     {
         title: 'GET YOUR GUIDE',
@@ -109,15 +111,16 @@ export default function Destinos() {
 
       <div className="mt-4 text-center">
         <h1 className="text-4xl md:text-5xl font-bold text-blue-600">
-          ¿Estás planeando un viaje?
-        </h1>
+        {t('destinos.pregunta')}
+            </h1>
       </div>
 
       <div className="max-w-4xl mx-auto text-center py-12 px-4">
         <p className="text-xl text-gray-700 leading-relaxed">
-          Nadie sabe más sobre un país o región que los expertos de las cámaras de turismo del lugar de destino. Por eso, nos hemos asociado con las cámaras de turismo oficiales de los destinos más recomendados de este año, para que puedas planear bien el viaje perfecto. A continuación encontrarás enlaces a toda la inspiración y las ideas que necesitarás sobre los mejores lugares a los que viajar, actividades que realizar, sitios que ver y mucho más...
+            {t('destinos.descripcion')}
           <span className="block mt-2 font-semibold">
-            ¡Que disfrutes de la planificación de tu viaje!
+            {t('destinos.disfrute')}
+
           </span>
         </p>
       </div>

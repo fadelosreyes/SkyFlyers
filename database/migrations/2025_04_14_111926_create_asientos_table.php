@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('estado_id')->constrained('estados');
             $table->string('numero');
             $table->decimal('precio_base', 8, 2);
+            $table->timestamp('reserva_temporal')->nullable()->after('estado_id');
             $table->timestamps();
             $table->unique(['vuelo_id', 'numero']);
         });

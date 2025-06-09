@@ -23,6 +23,11 @@
       "passengers": "Please specify the number of passengers."
     }
     },
+    "destinos": {
+        "pregunta": "Are you planning a trip?",
+        "descripcion": "No one knows more about a country or region than the experts from the local tourism boards. That’s why we’ve partnered with the official tourism boards of this year’s top recommended destinations, so you can perfectly plan your ideal trip. Below you'll find links to all the inspiration and ideas you’ll need about the best places to travel, things to do, sights to see, and much more...",
+        "disfrute": "Enjoy planning your trip!"
+    },
   "menu": {
     "home": "Home",
     "myTrips": "My Trips",
@@ -60,11 +65,40 @@
     "noTripsYet": "You have no trips booked yet.",
     "back": "Back"
   },
-  "aboutUs": {
-    "title": "About Us",
-    "description": "At SkyFlyer, we are your expert ally in managing flight tickets. Since 2005, we have simplified your flight purchase by comparing prices from dozens of airlines and offering the best rates available in real time. Our commitment is to save you time and money, so you can just focus on enjoying your trip.\n\nThanks to our intuitive platform and a dedicated customer service team, you can book, modify, or cancel your flight quickly and safely. At SkyFlyer, your comfort and satisfaction are always at the heart of our service, with personalized attention and 24/7 support to solve any issue.",
-    "socials": ["Instagram", "Facebook", "Twitter", "YouTube", "LinkedIn", "destinos Us"]
+  "sobreNosotros": {
+    "titulo": "Who are we?",
+    "descripcion1": "Skyflyers is one of the leading online travel brands based in Barcelona, founded in 1999. Since then, we've revolutionized the travel booking industry using cutting-edge technology to make flying easier and more affordable in 44 countries.",
+    "descripcion2": "From Spain and the UK to the United States, we help millions fly better.",
+  "acordeon1": {
+    "titulo": "Flight Cancellations",
+    "texto1": "With our flexible cancellation policy, you can cancel your flight without extra fees up to 3 days before the scheduled departure.",
+    "texto2": "If you need to cancel with less than 3 days’ notice, we apply reduced fees and offer a 12-month travel credit so you can reschedule without losing your investment.",
+    "lista1": "100% online process: manage your cancellation from your account.",
+    "lista2": "Personalized support: our team will guide you every step of the way."
   },
+  "acordeon2": {
+    "titulo": "Flight Changes",
+    "texto1": "Need to change your flight date or time? With Skyflyers, you can modify your ticket easily as long as seats are available in the same class.",
+    "texto2": "If your original class is full, we offer upgrade options with minimal fare differences or alternative routes to fit your budget.",
+    "lista1": "Changes allowed up to 24 hours before departure.",
+    "lista2": "No surprises: see the price difference before confirming."
+  },
+  "acordeon3": {
+    "titulo": "Baggage",
+    "texto1": "Each airline has its own weight and size rules, but Skyflyers makes it easy: check all the info in one click.",
+    "texto2": "We offer extra baggage packages at the best prices—from additional suitcases to priority boarding—with exclusive discounts for Skyflyers customers.",
+    "lista1": "Carry-on and checked baggage up to 30 kg.",
+    "lista2": "Coverage included for lost or delayed baggage."
+  },
+  "acordeon4": {
+    "titulo": "Hotels",
+    "texto1": "Book your stay at the best price thanks to our partnership with Booking.com. We show you exclusive deals and rooms with free cancellation.",
+    "texto2": "Customize your search by price, location, and amenities, and proceed directly to secure payment on the Booking platform. All 100% transparent!",
+    "lista1": "Over 2.1 million hotels worldwide.",
+    "lista2": "Genuine reviews from other travelers.",
+    "lista3": "24/7 support if you need help with your booking."
+  }
+    },
   "results": {
   "title": "Flight Results",
   "from": "From",

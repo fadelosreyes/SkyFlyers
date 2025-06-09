@@ -83,13 +83,12 @@ class BilleteController extends Controller
         return redirect()->route('billetes.index')->with('success', 'Billete eliminado correctamente y asiento liberado.');
     }
 
-
     public function asientos(Request $request)
     {
-        $vueloIdaId      = $request->input('vuelo_ida');
-        $asientosIda     = $request->input('seats_ida', []);
-        $vueloVueltaId  = $request->input('vuelo_vuelta');
-        $asientosVuelta  = $request->input('seats_vuelta', []);
+        $vueloIdaId = $request->input('vuelo_ida');
+        $asientosIda = $request->input('seats_ida', []);
+        $vueloVueltaId = $request->input('vuelo_vuelta');
+        $asientosVuelta = $request->input('seats_vuelta', []);
         //dd($request->all());
 
         if (is_numeric($vueloIdaId) && is_numeric($vueloVueltaId)) {
@@ -99,26 +98,39 @@ class BilleteController extends Controller
                     ->with('error', 'Debes seleccionar al menos un asiento en cada tramo.');
             }
 
-            $vueloIda                    = Vuelo::findOrFail($vueloIdaId);
-            $vueloVuelta                 = Vuelo::findOrFail($vueloVueltaId);
-            $asientosSeleccionadosIda    = Asiento::whereIn('id', $asientosIda)->get();
+            $ahora = Carbon::now();
+            Asiento::whereIn('id', $asientosIda)
+                ->where('estado_id', 1)
+                ->update([
+                    'estado_id' => 2,
+                    'reserva_temporal' => $ahora,
+                ]);
+            Asiento::whereIn('id', $asientosVuelta)
+                ->where('estado_id', 1)
+                ->update([
+                    'estado_id' => 2,
+                    'reserva_temporal' => $ahora,
+                ]);
+
+            $vueloIda = Vuelo::findOrFail($vueloIdaId);
+            $vueloVuelta = Vuelo::findOrFail($vueloVueltaId);
+            $asientosSeleccionadosIda = Asiento::whereIn('id', $asientosIda)->get();
             $asientosSeleccionadosVuelta = Asiento::whereIn('id', $asientosVuelta)->get();
             return Inertia::render('Billete/DatosPasajero', [
-                'vueloIda'                    => $vueloIda,
-                'asientosSeleccionadosIda'    => $asientosSeleccionadosIda,
-                'totalBaseIda'                => $asientosSeleccionadosIda->sum(fn($a) => $a->precio_base),
-                'vueloVuelta'                 => $vueloVuelta,
+                'vueloIda' => $vueloIda,
+                'asientosSeleccionadosIda' => $asientosSeleccionadosIda,
+                'totalBaseIda' => $asientosSeleccionadosIda->sum(fn($a) => $a->precio_base),
+                'vueloVuelta' => $vueloVuelta,
                 'asientosSeleccionadosVuelta' => $asientosSeleccionadosVuelta,
-                'totalBaseVuelta'             => $asientosSeleccionadosVuelta->sum(fn($a) => $a->precio_base),
+                'totalBaseVuelta' => $asientosSeleccionadosVuelta->sum(fn($a) => $a->precio_base),
             ]);
         }
         //dd('Después del bloque ida y vuelta');
 
-
         //dd($request->all());
         // 2) SOLO UN VUELO
-        $vueloActualId     = $request->input('vuelo_ida');
-        $asientoIdsActual  = $request->input('seats_ida', []);
+        $vueloActualId = $request->input('vuelo_ida');
+        $asientoIdsActual = $request->input('seats_ida', []);
 
         // Si no seleccionó ningún asiento en ida, vuelvo a la pantalla de selección de asientos
         if (empty($asientoIdsActual)) {
@@ -133,56 +145,44 @@ class BilleteController extends Controller
         //     'vueloIdaSesion' => $vueloIdaSesion,
         //     'asientosIdaSesion' => $asientosIdaSesion,
         // ]);
+        $ahora = Carbon::now();
+        Asiento::whereIn('id', $asientosIda)
+            ->where('estado_id', 1)
+            ->update([
+                'estado_id' => 2,
+                'reserva_temporal' => $ahora,
+            ]);
         //$asientosVueltaIds = $request->input('seats_vuelta', []);
-        $vueloIda                   = Vuelo::findOrFail($vueloIdaId);
-        $asientosSeleccionadosIda   = Asiento::whereIn('id', $asientosIda)->get();
+        $vueloIda = Vuelo::findOrFail($vueloIdaId);
+        $asientosSeleccionadosIda = Asiento::whereIn('id', $asientosIda)->get();
         //dd($request->all());
-        // if ($vueloVueltaId !== null && $vueloIdaSesion && is_array($asientosIdaSesion)) {
-
-        //     // El vuelo actual es la vuelta
-        //     $vueloVuelta                = Vuelo::findOrFail($vueloVueltaId);
-        //     $asientosSeleccionadosVuelta = Asiento::whereIn('id', $asientosVueltaIds)->get();
-
-        //     return Inertia::render('Billete/DatosPasajero', [
-        //         'vueloIda'                    => $vueloIda,
-        //         'asientosSeleccionadosIda'    => $asientosSeleccionadosIda,
-        //         'totalBaseIda'                => $asientosSeleccionadosIda->sum(fn($a) => $a->precio_base),
-
-        //         'vueloVuelta'                 => $vueloVuelta,
-        //         'asientosSeleccionadosVuelta' => $asientosSeleccionadosVuelta,
-        //         'totalBaseVuelta'             => $asientosSeleccionadosVuelta->sum(fn($a) => $a->precio_base),
-        //     ]);
-        // }
 
         // En este caso no hay vuelta, así que pasamos null y array vacío
         return Inertia::render('Billete/DatosPasajero', [
-            'vueloIda'                    => $vueloIda,
-            'asientosSeleccionadosIda'    => $asientosSeleccionadosIda,
-            'totalBaseIda'                => $asientosSeleccionadosIda->sum(fn($a) => $a->precio_base),
+            'vueloIda' => $vueloIda,
+            'asientosSeleccionadosIda' => $asientosSeleccionadosIda,
+            'totalBaseIda' => $asientosSeleccionadosIda->sum(fn($a) => $a->precio_base),
 
-            'vueloVuelta'                 => null,
+            'vueloVuelta' => null,
             'asientosSeleccionadosVuelta' => [],
-            'totalBaseVuelta'             => 0,
+            'totalBaseVuelta' => 0,
         ]);
     }
-
-
-
 
     public function prepararPago(Request $request)
     {
         $data = $request->validate([
-            'pasajeros'                         => 'required|array|min:1',
-            'pasajeros.*.nombre_pasajero'       => 'required|string|min:3|max:255',
-            'pasajeros.*.tipo_documento'        => 'required|in:dni,pasaporte',
-            'pasajeros.*.documento_identidad'   => 'required|string|max:20',
-            'pasajeros.*.asiento_ida'           => 'nullable|exists:asientos,id',
-            'pasajeros.*.asiento_vuelta'        => 'nullable|exists:asientos,id',
-            'pasajeros.*.maleta_adicional_ida'  => 'boolean',
+            'pasajeros' => 'required|array|min:1',
+            'pasajeros.*.nombre_pasajero' => 'required|string|min:3|max:255',
+            'pasajeros.*.tipo_documento' => 'required|in:dni,pasaporte',
+            'pasajeros.*.documento_identidad' => 'required|string|max:20',
+            'pasajeros.*.asiento_ida' => 'nullable|exists:asientos,id',
+            'pasajeros.*.asiento_vuelta' => 'nullable|exists:asientos,id',
+            'pasajeros.*.maleta_adicional_ida' => 'boolean',
             'pasajeros.*.maleta_adicional_vuelta' => 'boolean',
-            'cancelacion_flexible_global'       => 'required|boolean',
-            'total'                             => 'required|numeric|min:0',
-            'language'                          => 'nullable|string|in:es,en',
+            'cancelacion_flexible_global' => 'required|boolean',
+            'total' => 'required|numeric|min:0',
+            'language' => 'nullable|string|in:es,en',
         ]);
 
         //dd($data);
@@ -190,16 +190,16 @@ class BilleteController extends Controller
         // dd($request->all());
 
         // 2) Extraer variables (ya validadas)
-        $idioma                    = $data['language'] ?? 'es';
-        $pasajerosDatos            = $data['pasajeros'];   // array con X pasajeros
+        $idioma = $data['language'] ?? 'es';
+        $pasajerosDatos = $data['pasajeros']; // array con X pasajeros
         $cancelacionFlexibleGlobal = $data['cancelacion_flexible_global'];
-        $precioTotal               = $data['total'];
+        $precioTotal = $data['total'];
 
         // 3) Guardar en sesión TODO lo que necesitaremos en exito():
         session([
-            'pasajerosDatos'              => $pasajerosDatos,
+            'pasajerosDatos' => $pasajerosDatos,
             'cancelacion_flexible_global' => $cancelacionFlexibleGlobal,
-            'language'                    => $idioma,
+            'language' => $idioma,
         ]);
 
         // 4) Iniciar la sesión de Stripe Checkout
@@ -210,18 +210,18 @@ class BilleteController extends Controller
                 'line_items' => [
                     [
                         'price_data' => [
-                            'currency'     => 'eur',
+                            'currency' => 'eur',
                             'product_data' => ['name' => 'Billetes de avión'],
                             // Stripe espera el monto en céntimos de euro:
-                            'unit_amount'  => intval(round($precioTotal * 100)),
+                            'unit_amount' => intval(round($precioTotal * 100)),
                         ],
                         'quantity' => 1,
                     ],
                 ],
-                'mode'        => 'payment',
+                'mode' => 'payment',
                 'success_url' => route('pago.exito') . '?session_id={CHECKOUT_SESSION_ID}',
-                'cancel_url'  => route('principal'),
-                'locale'      => $idioma,
+                'cancel_url' => route('principal'),
+                'locale' => $idioma,
             ]);
         } catch (\Exception $e) {
             return redirect()
@@ -349,10 +349,7 @@ class BilleteController extends Controller
     {
         $user = auth()->user();
 
-        $billetes = Billete::with([
-            'asiento.vuelo.aeropuertoOrigen',
-            'asiento.vuelo.aeropuertoDestino'
-        ])
+        $billetes = Billete::with(['asiento.vuelo.aeropuertoOrigen', 'asiento.vuelo.aeropuertoDestino'])
             ->where('user_id', $user->id)
             ->get();
 
@@ -362,33 +359,36 @@ class BilleteController extends Controller
         $todosLosGrupos = [];
 
         foreach ($porSesionStripe as $stripeSessionId => $coleccionBilletesEnEstaSesion) {
-
             // Dentro de esta sesión Stripe, agrupamos por vuelo_id
             $vuelosEnEstaSesion = $coleccionBilletesEnEstaSesion
                 ->groupBy(fn($b) => $b->asiento->vuelo->id)
                 ->map(function ($grupoDeBilletes) {
                     $vuelo = $grupoDeBilletes->first()->asiento->vuelo;
-                    return (object)[
-                        'vuelo' => (object)[
-                            'id'             => $vuelo->id,
-                            'fecha_salida'   => $vuelo->fecha_salida,
-                            'fecha_llegada'  => $vuelo->fecha_llegada,
-                            'origen'         => $vuelo->aeropuertoOrigen->nombre,
-                            'destino'        => $vuelo->aeropuertoDestino->nombre,
+                    return (object) [
+                        'vuelo' => (object) [
+                            'id' => $vuelo->id,
+                            'fecha_salida' => $vuelo->fecha_salida,
+                            'fecha_llegada' => $vuelo->fecha_llegada,
+                            'origen' => $vuelo->aeropuertoOrigen->nombre,
+                            'destino' => $vuelo->aeropuertoDestino->nombre,
                         ],
-                        'billetes' => $grupoDeBilletes->map(fn($billete) => (object)[
-                            'id'                   => $billete->id,
-                            'nombre_pasajero'      => $billete->nombre_pasajero,
-                            'documento_identidad'  => $billete->documento_identidad,
-                            'pnr'                  => $billete->pnr,
-                            'codigo_QR'            => $billete->codigo_QR,
-                            'asiento_numero'       => $billete->asiento->numero ?? 'N/A',
-                            'tarifa_base'          => $billete->tarifa_base,
-                            'total'                => $billete->total,
-                            'maleta_adicional'     => $billete->maleta_adicional,
-                            'cancelacion_flexible' => $billete->cancelacion_flexible,
-                            'fecha_reserva'        => $billete->fecha_reserva,
-                        ])->values(),
+                        'billetes' => $grupoDeBilletes
+                            ->map(
+                                fn($billete) => (object) [
+                                    'id' => $billete->id,
+                                    'nombre_pasajero' => $billete->nombre_pasajero,
+                                    'documento_identidad' => $billete->documento_identidad,
+                                    'pnr' => $billete->pnr,
+                                    'codigo_QR' => $billete->codigo_QR,
+                                    'asiento_numero' => $billete->asiento->numero ?? 'N/A',
+                                    'tarifa_base' => $billete->tarifa_base,
+                                    'total' => $billete->total,
+                                    'maleta_adicional' => $billete->maleta_adicional,
+                                    'cancelacion_flexible' => $billete->cancelacion_flexible,
+                                    'fecha_reserva' => $billete->fecha_reserva,
+                                ],
+                            )
+                            ->values(),
                     ];
                 })
                 ->values();
@@ -405,30 +405,27 @@ class BilleteController extends Controller
                 $posibleVuelta = collect($vuelosEnEstaSesion)
                     ->filter(fn($otro) => !$usados->contains($otro->vuelo->id))
                     ->first(function ($otro) use ($item) {
-                        return
-                            $otro->vuelo->origen === $item->vuelo->destino &&
-                            $otro->vuelo->destino === $item->vuelo->origen &&
-                            (new \DateTime($otro->vuelo->fecha_salida) > new \DateTime($item->vuelo->fecha_salida));
+                        return $otro->vuelo->origen === $item->vuelo->destino && $otro->vuelo->destino === $item->vuelo->origen && new \DateTime($otro->vuelo->fecha_salida) > new \DateTime($item->vuelo->fecha_salida);
                     });
 
                 if ($posibleVuelta) {
-                    $gruposDeEstaSesion[] = (object)[
+                    $gruposDeEstaSesion[] = (object) [
                         'stripe_session_id' => $stripeSessionId,
-                        'ida'   => (object)[
-                            'vuelo'    => $item->vuelo,
+                        'ida' => (object) [
+                            'vuelo' => $item->vuelo,
                             'billetes' => $item->billetes,
                         ],
-                        'vuelta' => (object)[
-                            'vuelo'    => $posibleVuelta->vuelo,
+                        'vuelta' => (object) [
+                            'vuelo' => $posibleVuelta->vuelo,
                             'billetes' => $posibleVuelta->billetes,
                         ],
                     ];
                     $usados->push($vueloId, $posibleVuelta->vuelo->id);
                 } else {
-                    $gruposDeEstaSesion[] = (object)[
+                    $gruposDeEstaSesion[] = (object) [
                         'stripe_session_id' => $stripeSessionId,
-                        'ida'    => (object)[
-                            'vuelo'    => $item->vuelo,
+                        'ida' => (object) [
+                            'vuelo' => $item->vuelo,
                             'billetes' => $item->billetes,
                         ],
                         'vuelta' => null,
@@ -444,7 +441,6 @@ class BilleteController extends Controller
             'grupos' => $todosLosGrupos,
         ]);
     }
-
 
     /**
      * Envía un correo al usuario con sus billetes próximos (a más de 3 días).
