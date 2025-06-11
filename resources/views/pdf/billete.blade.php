@@ -5,7 +5,6 @@
     <meta charset="utf-8">
     <title>Billete de avión</title>
     <style>
-        /* Estilos generales del cuerpo */
         body {
             font-family: 'Arial', sans-serif;
             font-size: 14px;
@@ -13,19 +12,15 @@
             margin: 0;
             padding: 30px;
         }
-
-        /* Contenedor principal del billete */
         .billete {
             background: #ffffff;
-            border: 2px dashed #3498db; /* Borde estilo ticket */
+            border: 2px dashed #3498db; 
             border-radius: 12px;
             max-width: 800px;
             margin: auto;
             padding: 30px;
             position: relative;
         }
-
-        /* Decoración tipo agujeros de talonario (izquierda y derecha) */
         .billete::before,
         .billete::after {
             content: '';
@@ -47,13 +42,11 @@
             right: -14px;
         }
 
-        /* Títulos */
         h1, h2 {
             color: #2c3e50;
             margin-bottom: 10px;
         }
 
-        /* Tablas con datos */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -73,7 +66,6 @@
             width: 40%;
         }
 
-        /* Sección del código QR */
         .qr {
             text-align: center;
             margin-top: 30px;
@@ -84,7 +76,6 @@
             height: 150px;
         }
 
-        /* Línea divisoria */
         .separador {
             border-top: 1px dashed #ccc;
             margin: 20px 0;
