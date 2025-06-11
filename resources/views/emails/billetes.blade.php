@@ -84,7 +84,6 @@
 <body>
     <div class="container">
         <div class="header">
-            <!-- Puedes enlazar al logo real de tu proyecto -->
             <img src="{{ asset('img/_12534FEB-C593-4152-9369-72787BB3F5C6_-removebg-preview 2.png') }}" alt="Skyflyers">
         </div>
         <div class="content">
